@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://de7l8vdta786q"]
+
+[ext_resource type="Script" path="res://Computer.gd" id="1_3kvsg"]
+[ext_resource type="AudioStream" uid="uid://dbvnv758jqmpp" path="res://sample-3s.mp3" id="2_rveje"]
+
+[node name="Computer" type="Node2D"]
+script = ExtResource("1_3kvsg")
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_rveje")
+max_polyphony = 10
+
+[node name="SoundPlayer" type="AudioStreamPlayer" parent="."]
+max_polyphony = 10
