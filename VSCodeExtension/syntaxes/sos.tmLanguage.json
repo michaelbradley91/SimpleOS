@@ -42,7 +42,7 @@
 		},
 		"operator": {
 			"match": "(?i)(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|wait|exit|get_mouse)[\\s]+",
-			"name": "keyword.control.sos"
+			"name": "keyword.control.sos markup.bold"
 		},
 		"functions": {
 			"match": "(?i)(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(?:\\()",
