@@ -57,7 +57,7 @@
 			{
 				"language": "sos",
 				"scopeName": "source.sos",
-				"path": "./syntaxes/sos.json"
+				"path": "./syntaxes/sos.tmLanguage.json"
 			}
 		]
 	},
