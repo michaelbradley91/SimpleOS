@@ -1,0 +1,121 @@
+{
+	"fileTypes": [
+		"sos"
+	],
+	"name": "sos",
+	"patterns": [
+		{
+			"include": "#code"
+		}
+	],
+	"repository": {
+		"code": {
+			"patterns": [
+				{ "include": "#command" },
+				{ "include": "#definition" },
+				{ "include": "#do_include" },
+				{ "include": "#comment-block" },
+				{ "include": "#comment-line" }
+			]
+		},
+		"command": {
+			"patterns": [
+				{ "include": "#operator" },
+				{ "include": "#functions" },
+				{ "include": "#literal" },
+				{ "include": "#comment-line" },
+				{ "include": "#comment-block" }
+			]
+		},
+		"comment-block": {
+			"begin": "/\\*",
+			"end": "\\*/",
+			"name": "comment.block.sos"
+		},
+		"comment-line": {
+			"match": "(//).*$\\n?",
+			"name": "comment.line.sos"
+		},
+		"operator": {
+			"match": "(?i)(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|wait|exit|get_mouse)",
+			"name": "keyword.operator.sos"
+		},
+		"functions": {
+			"match": "(?i)(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)",
+			"name": "function.sos"
+		},
+		"definition": {
+			"match": "(#define)\\s+([^ ].+)",
+			"name": "definition.sos",
+			"captures": {
+				"1": {
+					"name": "preprocessor.definition.sos"
+				},
+				"2": {
+					"name": "function.name.sos",
+					"patterns": [
+						{ "include": "#arguments-list" }
+					]
+				}
+			}
+		},
+		"do_include": {
+			"match": "(#include)\\s+(\".+\")",
+			"name": "include",
+			"captures": {
+				"1": {
+					"name": "preprocessor.include.sos"
+				},
+				"2": {
+					"patterns": [
+						{ "include": "#string" }
+					]
+				}
+			}
+		},
+		"string": {
+			"match": "\".+\"",
+			"name": "string.sos"
+		},
+		"literal": {
+			"name": "literal.sos",
+			"patterns": [
+				{
+					"include": "#numeric-literal"
+				}
+			]
+		},
+		"arguments": {
+			"match": "[^,]*",
+			"name": "function.argument.sos"
+		},
+		"commas": {
+			"match": ",",
+			"name": "punctuation.comma.sos"
+		},
+		"numeric-literal": {
+			"match": "\\s*(?<=[^$])((0(x|X)[0-9a-fA-F]+)|([0-9]+))",
+			"name": "constant.numeric.sos"
+		},
+		"arguments-list": {
+			"begin": "\\(",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.paren.open.sos"
+				}
+			},
+			"end": "\\)",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.paren.close.sos"
+				}
+			},
+			"name": "function",
+			"contentName": "function.arguments.sos",
+			"patterns": [
+				{ "include": "#arguments" },
+				{ "include": "#commas" }
+			]
+		}
+	}
+}

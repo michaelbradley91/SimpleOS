@@ -121,7 +121,7 @@ func process_instruction(instruction: MachineCodeTranslator.Instruction) -> bool
 			Memory.copy(instruction.arg1, instruction.arg2)
 		MachineCodeTranslator.INSTRUCTIONS.ADD:
 			Operations.add(instruction.arg1, instruction.arg2)
-		MachineCodeTranslator.INSTRUCTIONS.MULTIPLE:
+		MachineCodeTranslator.INSTRUCTIONS.MULTIPLY:
 			Operations.multiply(instruction.arg1, instruction.arg2)
 		MachineCodeTranslator.INSTRUCTIONS.SUBTRACT:
 			Operations.subtract(instruction.arg1, instruction.arg2)
