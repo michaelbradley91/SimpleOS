@@ -54,27 +54,27 @@
 			}
 		},
 		"definition": {
-			"match": "(#define)\\s+([^ \\(\\)]+)",
+			"match": "(#define)($|\\s+([^ \\(\\)]+))",
 			"name": "definition.sos",
 			"captures": {
 				"1": {
 					"name": "keyword.control.directive.define.sos"
 				},
-				"2": {
+				"3": {
 					"name": "entity.name.function.preprocessor.sos"
 				}
 			}
 		},
 		"macro": {
-			"begin": "(#macro_begin)\\s+([^ \\(\\)]+)(\\(.+\\))",
+			"begin": "(#macro_begin)($|\\s+([^ \\(\\)]+)?(\\(.*\\))?)",
 			"beginCaptures": {
 				"1": {
 					"name": "keyword.control.directive.define.sos"
 				},
-				"2": {
+				"3": {
 					"name": "entity.name.function.preprocessor.sos"
 				},
-				"3": {
+				"4": {
 					"name": "meta.preprocessor.macro.sos",
 					"patterns": [
 						{ "include": "#arguments-list" }
@@ -92,16 +92,11 @@
 			]
 		},
 		"do-include": {
-			"match": "(#include)\\s+(\".+\")",
+			"match": "(#include)\\s+",
 			"name": "include",
 			"captures": {
 				"1": {
 					"name": "keyword.control.directive.include.sos"
-				},
-				"2": {
-					"patterns": [
-						{ "include": "#string" }
-					]
 				}
 			}
 		},
@@ -110,7 +105,7 @@
 			"name": "entity.name.label.sos"
 		},
 		"string": {
-			"match": "\".+\"",
+			"match": "\".*\"",
 			"name": "string.quoted.double.sos"
 		},
 		"literal": {

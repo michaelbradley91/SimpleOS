@@ -50,14 +50,18 @@
 				"aliases": ["SimpleOS", "simpleos", "SOS"],
 				"extensions": [
 					".sos"
-				]
+				],
+				"configuration": "./language-configuration.json"
 			}
 		],
 		"grammars": [
 			{
 				"language": "sos",
 				"scopeName": "source.sos",
-				"path": "./syntaxes/sos.tmLanguage.json"
+				"path": "./syntaxes/sos.tmLanguage.json",
+				"tokenTypes": {
+					"source.sos": "other"
+				}
 			}
 		]
 	},
