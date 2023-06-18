@@ -1,0 +1,22 @@
+{
+	"name": "simple-os-compiler",
+	"description": "A compiler for simple OS assembly",
+	"author": "Michael Bradley",
+	"license": "MIT",
+	"version": "1.0.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/michaelbradley91/SimpleOS"
+	},
+    "publisher": "Michael Bradley",
+	"categories": ["Language Packs"],
+    "scripts": {
+		"compile": "ts-node compiler.ts",
+		"start": "ts-node compiler.ts -- example/example.sos"
+	},
+    "dependencies": {
+        "typescript": "^5.1.3",
+        "ts-node": "^6.0.1",
+        "@types/node": "^20.2.4"
+    }
+}

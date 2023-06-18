@@ -1,7 +1,7 @@
 {
 	"name": "simple-os",
 	"description": "An extension to support the Simple OS syntax",
-	"author": "Microsoft Corporation",
+	"author": "Michael Bradley",
 	"license": "MIT",
 	"version": "1.0.0",
 	"repository": {

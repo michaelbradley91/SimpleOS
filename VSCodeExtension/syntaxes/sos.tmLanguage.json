@@ -13,7 +13,7 @@
 		"code": {
 			"patterns": [
 				{ "include": "#command" },
-				{ "include": "#function-definition" },
+				{ "include": "#macro" },
 				{ "include": "#definition" },
 				{ "include": "#do-include" },
 				{ "include": "#comment-block" },
@@ -25,6 +25,7 @@
 			"patterns": [
 				{ "include": "#operator" },
 				{ "include": "#functions" },
+				{ "include": "#label" },
 				{ "include": "#literal" },
 				{ "include": "#string" },
 				{ "include": "#comment-line" },
@@ -64,10 +65,9 @@
 				}
 			}
 		},
-		"function-definition": {
-			"match": "(#define)\\s+([^ ]+)\\((.+)\\)",
-			"name": "function.sos",
-			"captures": {
+		"macro": {
+			"begin": "(#macro_begin)\\s+([^ \\(\\)]+)(\\(.+\\))",
+			"beginCaptures": {
 				"1": {
 					"name": "keyword.control.directive.define.sos"
 				},
@@ -75,12 +75,21 @@
 					"name": "entity.name.function.preprocessor.sos"
 				},
 				"3": {
-					"name": "function.arguments",
+					"name": "meta.preprocessor.macro.sos",
 					"patterns": [
 						{ "include": "#arguments-list" }
 					]
 				}
-			}
+			},
+			"end": "#macro_end",
+			"endCaptures": {
+				"0": {
+					"name": "keyword.control.directive.define.sos"
+				}
+			},
+			"patterns": [
+				{ "include": "#code" }
+			]
 		},
 		"do-include": {
 			"match": "(#include)\\s+(\".+\")",
@@ -95,6 +104,10 @@
 					]
 				}
 			}
+		},
+		"label": {
+			"match": ".+:",
+			"name": "entity.name.label.sos"
 		},
 		"string": {
 			"match": "\".+\"",
@@ -113,7 +126,7 @@
 			"name": "constant.character.escape.line-continuation"
 		},
 		"arguments": {
-			"match": "[^,]*",
+			"match": "[^,\\)\\(]+",
 			"name": "variable.parameter.preprocessor.sos"
 		},
 		"commas": {
@@ -128,17 +141,15 @@
 			"begin": "\\(",
 			"beginCaptures": {
 				"0": {
-					"name": "punctuation.paren.open.sos"
+					"name": "punctuation.definition.parameters.begin.sos"
 				}
 			},
 			"end": "\\)",
 			"endCaptures": {
 				"0": {
-					"name": "punctuation.paren.close.sos"
+					"name": "punctuation.definition.parameters.end.sos"
 				}
 			},
-			"name": "function",
-			"contentName": "function.arguments.sos",
 			"patterns": [
 				{ "include": "#arguments" },
 				{ "include": "#commas" }
