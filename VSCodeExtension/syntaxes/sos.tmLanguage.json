@@ -17,8 +17,7 @@
 				{ "include": "#definition" },
 				{ "include": "#do-include" },
 				{ "include": "#comment-block" },
-				{ "include": "#comment-line" },
-				{ "include": "#line-escape"}
+				{ "include": "#comment-line" }
 			]
 		},
 		"command": {
@@ -81,7 +80,7 @@
 					]
 				}
 			},
-			"end": "#macro_end",
+			"end": "#macro_end($|\\s+)",
 			"endCaptures": {
 				"0": {
 					"name": "keyword.control.directive.define.sos"
@@ -115,10 +114,6 @@
 					"include": "#numeric-literal"
 				}
 			]
-		},
-		"line-escape": {
-			"match": "[\\\\]",
-			"name": "constant.character.escape.line-continuation"
 		},
 		"arguments": {
 			"match": "[^,\\)\\(]+",

@@ -1,5 +1,4 @@
 import { exit } from 'process';
-import { Command } from './syntax'
 import { ProgramHeader, parse_program_header } from './configuration';
 
 var command_line_arguments: string[] = process.argv.slice(1);
