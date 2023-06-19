@@ -1,5 +1,6 @@
-import { add } from "../src/syntax";
+import { tokenise_line } from "../src/syntax";
 
 test("Something", () => {
-    expect(add(3, 4)).toBe(7);
+    var tokenise_line_result = tokenise_line("add 3 4", null);
+    console.log(tokenise_line_result);
 });

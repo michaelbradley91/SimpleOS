@@ -4,22 +4,22 @@
 
 // All regexes should apply from the start to ensure we
 // match everything correctly
-const MultiLineComment_Start_Regex = /^\/*/
-const SingleLineComment_Regex = /^(\/\/).*$/
-const Operator_Regex = /^(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|wait|exit|get_mouse)\s+/
-const Function_Regex = /^(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(\([^\)\(]*\))/
-const MacroEnd_Regex = /^(#macro_end)(\s|$)/
-const MacroBegin_Regex = /^(#macro_begin)($|\s+([^ \(\)]+)?(\([^\)\(]*\))?)/
-const Define_Regex = /^(#define)($|\s+([^ \(\)]+))/
-const Label_Regex = /^.+:/
-const Include_Regex = /^#include(\s|$)/
-const Number_Regex = /^\s*(?<=[^$])((0(x|X)[0-9a-fA-F]+)|([0-9]+))/
-const String_Regex = /^"[^"]*"/
+const MultiLineComment_Start_Regex = /^\/*/g;
+const SingleLineComment_Regex = /^(\/\/).*$/g;
+const Operator_Regex = /^(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|wait|exit|get_mouse)\s+/g;
+const Function_Regex = /^(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(\([^\)\(]*\))/g;
+const MacroEnd_Regex = /^(#macro_end)(\s|$)/g;
+const MacroBegin_Regex = /^(#macro_begin)($|\s+([^ \(\)]+)?(\([^\)\(]*\))?)/g;
+const Define_Regex = /^(#define)($|\s+([^ \(\)]+))/g;
+const Label_Regex = /^.+:/g;
+const Include_Regex = /^#include(\s|$)/g;
+const Number_Regex = /^\s*(?<=[^$])((0(x|X)[0-9a-fA-F]+)|([0-9]+))/g;
+const String_Regex = /^"[^"]*"/g;
 // Any other function looking thing is assumed to be a macro invoked unless proven otherwise
-const MacroInvoked_Regex = /^([^ \(\)]+)(\([^\)\(]*\))/
+const MacroInvoked_Regex = /^([^ \(\)]+)(\([^\)\(]*\))/g;
 // Finally, any other word like thing is assumed to be a define unless proven otherwise
-const DefineInvoked_Regex = /^([^ \(\)]+)/
-const Whitespace_Regex = /^(\s*)/
+const DefineInvoked_Regex = /^([^ \(\)]+)/g;
+const Whitespace_Regex = /^(\s*)/g;
 
 export class MultiLineComment {
     comment: string
@@ -386,9 +386,4 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
         current_position += line.length;
     }
     return new TokenResult(tokens, null);
-}
-
-export function add(x: number, y: number)
-{
-    return x + y;
 }
