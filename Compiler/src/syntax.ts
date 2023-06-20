@@ -2,142 +2,174 @@
  * This file manages the abstract syntax tree for an sos file
  */
 
+import { createReadStream, readFileSync } from "fs";
+import { createInterface } from "readline";
+
 // All regexes should apply from the start to ensure we
 // match everything correctly
-const MultiLineComment_Start_Regex = /^\/*/g;
-const SingleLineComment_Regex = /^(\/\/).*$/g;
-const Operator_Regex = /^(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|wait|exit|get_mouse)\s+/g;
-const Function_Regex = /^(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(\([^\)\(]*\))/g;
-const MacroEnd_Regex = /^(#macro_end)(\s|$)/g;
-const MacroBegin_Regex = /^(#macro_begin)($|\s+([^ \(\)]+)?(\([^\)\(]*\))?)/g;
-const Define_Regex = /^(#define)($|\s+([^ \(\)]+))/g;
-const Label_Regex = /^.+:/g;
+const MultiLineComment_Start_Regex = /^\/\*/g;
+const SingleLineComment_Regex = /^\/\/(.*)$/g;
+const Operator_Regex = /^(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|wait|exit|get_mouse)(?=\s)/g;
+const Function_Regex = /^(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(?=\([^\)\(]*\))/g;
+const MacroEnd_Regex = /^(#macro_end)(?=\s|$)/g;
+const MacroBegin_Regex = /^#macro_begin($|\s+([^ ,\(\)]+)?(?=\([^\)\(]*\))?)/g;
+const Define_Regex = /^#define($|\s+([^ ,\(\)]+))/g;
+const Label_Regex = /^[^ ,\(\)]+:/g;
 const Include_Regex = /^#include(\s|$)/g;
-const Number_Regex = /^\s*(?<=[^$])((0(x|X)[0-9a-fA-F]+)|([0-9]+))/g;
-const String_Regex = /^"[^"]*"/g;
+const Number_Regex = /^((0(x|X)[0-9a-fA-F]+)|([0-9]+))/g;
+const String_Regex = /^"([^"]*)"/g;
 // Any other function looking thing is assumed to be a macro invoked unless proven otherwise
-const MacroInvoked_Regex = /^([^ \(\)]+)(\([^\)\(]*\))/g;
+const MacroInvoked_Regex = /^([^ ,\(\)]+)(?=\([^\)\(]*\))/g;
 // Finally, any other word like thing is assumed to be a define unless proven otherwise
-const DefineInvoked_Regex = /^([^ \(\)]+)/g;
-const Whitespace_Regex = /^(\s*)/g;
+const DefineInvoked_Regex = /^([^ ,\(\)]+)/g;
+const Comma_Regex = /^,/g;
+const OpenBracket_Regex = /^\(/g;
+const CloseBracket_Regex = /^\)/g;
+const Whitespace_Regex = /^(\s+)/g;
 
-export class MultiLineComment {
+export function getEnumKeyByEnumValue<
+  TEnumKey extends string,
+  TEnumVal extends string | number
+>(myEnum: { [key in TEnumKey]: TEnumVal }, enumValue: TEnumVal): string {
+  const keys = (Object.keys(myEnum) as TEnumKey[]).filter(
+    (x) => myEnum[x] === enumValue,
+  );
+  return keys.length > 0 ? keys[0] : '';
+}
+
+export class Token {}
+
+export class MultiLineComment_Token extends Token {
     comment: string
 
     constructor(comment: string) {
+        super();
         this.comment = comment;
     }
 }
 
-export class SingleLineComment {
+export class SingleLineComment_Token extends Token {
     comment: string
 
     constructor(comment: string) {
+        super();
         this.comment = comment;
     }
 }
 
-export class Include {
-    path: string
-
-    constructor(path: string) {
-        this.path = path
+export class Include_Token extends Token {
+    constructor() {
+        super();
     }
 }
 
 // A define copies one symbol to another
-export class Define {
+export class Define_Token extends Token {
     name: string
-    value: string
 
-    constructor(name: string, value: string)
-    {
+    constructor(name: string) {
+        super();
         this.name = name;
-        this.value = value;
     }
 }
 
 // A macro is parameterised and can insert a whole chunk of text
-export class MacroBegin {
+export class MacroBegin_Token extends Token {
     name: string
-    arguments: string[]
 
-    constructor(name: string, args: string[]) {
+    constructor(name: string) {
+        super();
         this.name = name;
-        this.arguments = args;
     }
 }
 
-export class MacroEnd {
-    constructor() {}
+export class MacroEnd_Token extends Token {
+    constructor() {
+        super();
+    }
 }
 
 // A label that can be used to refer to an address in the code
-export class Label {
+export class Label_Token extends Token {
     name: string
 
     constructor(name: string) {
-        this.name = name;
-    }
-}
-
-export class LabelInvoked {
-    name: string
-
-    constructor(name: string) {
+        super();
         this.name = name;
     }
 }
 
 // The use of a define somewhere
-export class DefineInvoked {
+export class DefineInvoked_Token extends Token {
     name: string
 
     constructor(name: string) {
+        super();
         this.name = name;
     }
 }
 
-export class MacroInvoked {
+export class MacroInvoked_Token extends Token {
     name: string
-    arguments: string[]
 
-    constructor(name: string, args: string[]) {
+    constructor(name: string) {
+        super();
         this.name = name;
-        this.arguments = args;
     }
 }
 
-export class Comment {
+export class Comment_Token extends Token {
     text: string
     constructor(text: string) {
+        super();
         this.text = text;
     }
 }
 
-export class NumberLiteral {
+export class NumberLiteral_Token extends Token {
     value: number
     constructor(value: number) {
+        super();
         this.value = value;
     }
 }
 
-export class StringLiteral {
+export class StringLiteral_Token extends Token {
     text: string
     constructor(text: string) {
+        super();
         this.text = text;
+    }
+}
+
+export class Comma_Token extends Token {
+    constructor() {
+        super();
+    }
+}
+
+export class OpenBracket_Token extends Token {
+    constructor() {
+        super();
+    }
+}
+
+export class CloseBracket_Token extends Token {
+    constructor() {
+        super();
     }
 }
 
 // Represent anything the parser does not recognise
-export class Unknown {
+export class Unknown_Token extends Token {
     text: string
     constructor(text: string) {
+        super();
         this.text = text;
     }
 }
 
-enum FunctionType {
+export enum FunctionType {
     Music = "music",
     Sound = "sound",
     Sprite = "sprite",
@@ -149,7 +181,7 @@ enum FunctionType {
     Mouse_Released = "mouse_released"
 }
 
-enum OperationType {
+export enum OperationType {
     No_Operation = "nop",
     Store = "store",
     Copy = "copy",
@@ -181,9 +213,14 @@ enum OperationType {
     Get_Mouse_Position = "get_mouse"
 }
 
+function enumFromStringValue<T> (enm: { [s: string]: T}, value: string): T | undefined {
+    return (Object.values(enm) as unknown as string[]).includes(value)
+        ? value as unknown as T
+        : undefined;
+}
 
 // Functions are simple in this language, not allowing for recursive function calls
-type FunctionArgument = StringLiteral | NumberLiteral | DefineInvoked;
+type FunctionArgument = StringLiteral_Token | NumberLiteral_Token | DefineInvoked_Token;
 
 enum FunctionArgumentType {
     String,
@@ -194,17 +231,13 @@ enum FunctionArgumentType {
 export class Function
 {
     type: FunctionType;
-    argument_types: FunctionArgumentType[];
-    arguments: FunctionArgument[];
 
-    constructor(type: FunctionType, argument_types: FunctionArgumentType[], args: FunctionArgument[]) {
+    constructor(type: FunctionType) {
         this.type = type;
-        this.argument_types = argument_types;
-        this.arguments = args;
     }
 }
 
-type OperationArgument = LabelInvoked | DefineInvoked | NumberLiteral | StringLiteral | Function;
+type OperationArgument = Label_Token | DefineInvoked_Token | NumberLiteral_Token | StringLiteral_Token | Function;
 
 enum OperationArgumentType {
     Label,
@@ -217,14 +250,10 @@ enum OperationArgumentType {
 export class Operation
 {
     operation: OperationType;
-    argument_types: OperationArgumentType[];
-    arguments: OperationArgument[];
 
-    constructor(operation: OperationType, argument_types: OperationArgumentType[], args: OperationArgument[])
+    constructor(operation: OperationType)
     {
         this.operation = operation;
-        this.argument_types = argument_types;
-        this.arguments = args;
     }
 }
 
@@ -235,14 +264,23 @@ export class Operation
  * It's pretty complicated actually...
  */
 
-export class TokenResult {
-    tokens: any[];
-    existing_comment_block: MultiLineComment | null;
+export class TokenLineResult {
+    tokens: Token[];
+    existing_comment_block: MultiLineComment_Token | null;
 
-    constructor(tokens: any[], existing_comment_block: MultiLineComment | null)
+    constructor(tokens: Token[], existing_comment_block: MultiLineComment_Token | null)
     {
         this.tokens = tokens;
         this.existing_comment_block = existing_comment_block;
+    }
+}
+
+export class TokenFileResult {
+    // Tokens ordered by line number. Note that for multi-line comments, the line span can be recovered from \n's in the line
+    tokens: Token[][];
+    
+    constructor(tokens: Token[][]) {
+        this.tokens = tokens;
     }
 }
 
@@ -251,7 +289,7 @@ export class TokenResult {
  * @param line the line to tokenise
  * @param inside_block_comment if we are inside a comment block already
  */
-export function tokenise_line(line: string, existing_comment_block: MultiLineComment | null): TokenResult
+export function tokenise_line(line: string, existing_comment_block: MultiLineComment_Token | null): TokenLineResult
 {
     var previous_position: number = 0;
     var current_position: number = 0;
@@ -266,12 +304,12 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
         }
         else
         {
-            existing_comment_block.comment += line;
-            return new TokenResult([], existing_comment_block);
+            existing_comment_block.comment += line + "\n";
+            return new TokenLineResult([], existing_comment_block);
         }
     }
 
-    var tokens: any[] = [];
+    var tokens: Token[] = [];
     // We are now at the end of the previous comment block. Continue matching from here as normal
     while (!!line)
     {
@@ -281,109 +319,178 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
         {
             break;
         }
-        // Order we check matches in is important
-        var matches = [...line.matchAll(Whitespace_Regex)];
+
+        // The order we check matches in is important
+        var matches: RegExpMatchArray = [...line.matchAll(Whitespace_Regex)][0];
         if (!!matches) {
             // Ignore whitespace
             current_position += matches[0].length;
             continue;
         }
 
-        matches = [...line.matchAll(Operator_Regex)];
+        matches = [...line.matchAll(Operator_Regex)][0];
         if (!!matches) {
             // For now we do not try to parse the rest of the operator's arguments. We'll sanitise the arguments later
             current_position += matches[0].length;
-            tokens.push(new Operation(OperationType.Add, [], []));
+            tokens.push(new Operation(enumFromStringValue(OperationType, matches[1])));
             continue;
         }
 
-        matches = [...line.matchAll(Function_Regex)];
+        matches = [...line.matchAll(Function_Regex)][0];
+        if (!!matches) {
+            // Same story, we ignore the arguments detail for now
+            current_position += matches[0].length;
+            tokens.push(new Function(enumFromStringValue(FunctionType, matches[1])));
+            continue;
+        }
+
+        matches = [...line.matchAll(Label_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new Function(FunctionType.Colour, [], []));
+            tokens.push(new Label_Token(matches[0]));
             continue;
         }
 
-        matches = [...line.matchAll(Label_Regex)];
+        matches = [...line.matchAll(Number_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new Label(""));
+            tokens.push(new NumberLiteral_Token(parseInt(matches[0])));
             continue;
         }
 
-        matches = [...line.matchAll(Number_Regex)];
+        matches = [...line.matchAll(String_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new NumberLiteral(0));
+            tokens.push(new StringLiteral_Token(matches[1]));
             continue;
         }
 
-        matches = [...line.matchAll(String_Regex)];
+        matches = [...line.matchAll(MacroBegin_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new StringLiteral(""));
+            tokens.push(new MacroBegin_Token(matches[2]));
             continue;
         }
 
-        matches = [...line.matchAll(MacroBegin_Regex)];
+        matches = [...line.matchAll(MacroEnd_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new MacroBegin("", []));
+            tokens.push(new MacroEnd_Token());
             continue;
         }
 
-        matches = [...line.matchAll(MacroEnd_Regex)];
+        matches = [...line.matchAll(Define_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new MacroEnd());
+            tokens.push(new Define_Token(matches[2]));
             continue;
         }
 
-        matches = [...line.matchAll(Define_Regex)];
+        matches = [...line.matchAll(Include_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new Define("", ""));
+            tokens.push(new Include_Token());
             continue;
         }
 
-        matches = [...line.matchAll(Include_Regex)];
+        matches = [...line.matchAll(SingleLineComment_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new Include(""));
+            tokens.push(new SingleLineComment_Token(matches[1]));
             continue;
         }
 
-        matches = [...line.matchAll(SingleLineComment_Regex)];
+        matches = [...line.matchAll(MultiLineComment_Start_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new SingleLineComment(""));
+            // This puts us into more of a mess. We search the rest of the line for the closing
+            // comment. If we fail to find it, we return and say it is continuing.
+            let end_position = line.indexOf("*/", 2);
+            if (end_position >= 0)
+            {
+                let comment: string = line.slice(2, end_position);
+                current_position += end_position + 2 - matches[0].length;
+                tokens.push(new MultiLineComment_Token(comment));
+            }
+            else
+            {
+                // Otherwise this comment is continuing onto the next line
+                let comment_block = new MultiLineComment_Token(line.slice(2) + "\n");
+                tokens.push(comment_block)
+                return new TokenLineResult(tokens, comment_block);
+            }
             continue;
         }
 
-        matches = [...line.matchAll(MultiLineComment_Start_Regex)];
+        matches = [...line.matchAll(MacroInvoked_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new MultiLineComment(""));
+            tokens.push(new MacroInvoked_Token(matches[1]));
             continue;
         }
 
-        matches = [...line.matchAll(MacroInvoked_Regex)];
-        if (!!matches) {
-            current_position += matches[0].length;
-            tokens.push(new MacroInvoked("", []));
-            continue;
-        }
-
-        matches = [...line.matchAll(DefineInvoked_Regex)];
+        matches = [...line.matchAll(DefineInvoked_Regex)][0];
         if (!!matches)
         {
             current_position += matches[0].length;
-            tokens.push(new DefineInvoked(""));
+            tokens.push(new DefineInvoked_Token(matches[1]));
             continue;
         }
 
-        tokens.push(new Unknown(line));
+        matches = [...line.matchAll(Comma_Regex)][0];
+        if (!!matches)
+        {
+            current_position += matches[0].length;
+            tokens.push(new Comma_Token());
+            continue;
+        }
+
+        matches = [...line.matchAll(OpenBracket_Regex)][0];
+        if (!!matches)
+        {
+            current_position += matches[0].length;
+            tokens.push(new OpenBracket_Token());
+            continue;
+        }
+
+        matches = [...line.matchAll(CloseBracket_Regex)][0];
+        if (!!matches)
+        {
+            current_position += matches[0].length;
+            tokens.push(new OpenBracket_Token());
+            continue;
+        }
+
+        tokens.push(new Unknown_Token(line));
         current_position += line.length;
     }
-    return new TokenResult(tokens, null);
+    return new TokenLineResult(tokens, null);
+}
+
+export function get_file_lines(file_path: string): string[]
+{
+    const contents = readFileSync(file_path, 'utf-8');
+    return contents.split(/\r?\n/);
+}
+
+export function tokenise_file(file_lines: string[]): TokenFileResult
+{
+    var tokens: Token[][] = [];
+    var existing_multi_comment_block: MultiLineComment_Token | null = null;
+    file_lines.forEach(line => 
+    {
+        let result: TokenLineResult = tokenise_line(line, existing_multi_comment_block);
+
+        if (!!result.existing_comment_block)
+        {
+            existing_multi_comment_block = result.existing_comment_block;
+        }
+        else
+        {
+            existing_multi_comment_block = null;
+        }
+        tokens.push(result.tokens)
+    });
+
+    return new TokenFileResult(tokens)
 }
