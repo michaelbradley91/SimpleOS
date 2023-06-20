@@ -1,4 +1,4 @@
-/*
+/**
  * This file manages the abstract syntax tree for an sos file
  */
 
@@ -228,7 +228,7 @@ enum FunctionArgumentType {
     Define
 }
 
-export class Function
+export class Function_Token
 {
     type: FunctionType;
 
@@ -237,7 +237,7 @@ export class Function
     }
 }
 
-type OperationArgument = Label_Token | DefineInvoked_Token | NumberLiteral_Token | StringLiteral_Token | Function;
+type OperationArgument = Label_Token | DefineInvoked_Token | NumberLiteral_Token | StringLiteral_Token | Function_Token;
 
 enum OperationArgumentType {
     Label,
@@ -247,7 +247,7 @@ enum OperationArgumentType {
     Function
 }
 
-export class Operation
+export class Operation_Token
 {
     operation: OperationType;
 
@@ -332,7 +332,7 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
         if (!!matches) {
             // For now we do not try to parse the rest of the operator's arguments. We'll sanitise the arguments later
             current_position += matches[0].length;
-            tokens.push(new Operation(enumFromStringValue(OperationType, matches[1])));
+            tokens.push(new Operation_Token(enumFromStringValue(OperationType, matches[1])));
             continue;
         }
 
@@ -340,7 +340,7 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
         if (!!matches) {
             // Same story, we ignore the arguments detail for now
             current_position += matches[0].length;
-            tokens.push(new Function(enumFromStringValue(FunctionType, matches[1])));
+            tokens.push(new Function_Token(enumFromStringValue(FunctionType, matches[1])));
             continue;
         }
 

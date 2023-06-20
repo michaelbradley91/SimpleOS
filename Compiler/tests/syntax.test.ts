@@ -1,12 +1,12 @@
-import { writeFile, writeFileSync } from "fs";
+import { writeFileSync } from "fs";
 import { fileSync } from "tmp";
-import { CloseBracket_Token, Comma_Token, Define_Token, DefineInvoked_Token, Include_Token, Label_Token, MacroBegin_Token, MacroEnd_Token, MultiLineComment_Token, NumberLiteral_Token, OpenBracket_Token, Operation, OperationType, SingleLineComment_Token, StringLiteral_Token, TokenLineResult, tokenise_line, get_file_lines, tokenise_file, TokenFileResult } from "../src/syntax";
+import { CloseBracket_Token, Comma_Token, Define_Token, DefineInvoked_Token, Include_Token, Label_Token, MacroBegin_Token, MacroEnd_Token, MultiLineComment_Token, NumberLiteral_Token, OpenBracket_Token, Operation_Token, OperationType, SingleLineComment_Token, StringLiteral_Token, TokenLineResult, tokenise_line, get_file_lines, tokenise_file, TokenFileResult } from "../src/syntax";
 
 test("Add command can be tokenised correctly", () => {
     expect(tokenise_line("add 3 4", null)).toEqual(
         new TokenLineResult(
         [
-            new Operation(OperationType.Add),
+            new Operation_Token(OperationType.Add),
             new NumberLiteral_Token(3),
             new NumberLiteral_Token(4)
         ], null)
@@ -85,7 +85,7 @@ test("Label can be tokenised correctly", () => {
     expect(tokenise_line("jmp bob:", null)).toEqual(
         new TokenLineResult(
             [
-                new Operation(OperationType.Jump),
+                new Operation_Token(OperationType.Jump),
                 new Label_Token("bob:")
             ],
             null
@@ -116,7 +116,7 @@ test("Single line comment can be tokenised correctly", () => {
     expect(tokenise_line("xor 400 500 // howdy \"stranger\", woo", null)).toEqual(
         new TokenLineResult(
             [
-                new Operation(OperationType.Bitwise_Xor),
+                new Operation_Token(OperationType.Bitwise_Xor),
                 new NumberLiteral_Token(400),
                 new NumberLiteral_Token(500),
                 new SingleLineComment_Token(" howdy \"stranger\", woo")
@@ -130,7 +130,7 @@ test("Multi line comment can be tokenised correctly", () => {
     expect(tokenise_line("sub 3 /*howdy*/ 4", null)).toEqual(
         new TokenLineResult(
             [
-                new Operation(OperationType.Subtract),
+                new Operation_Token(OperationType.Subtract),
                 new NumberLiteral_Token(3),
                 new MultiLineComment_Token("howdy"),
                 new NumberLiteral_Token(4)
@@ -149,7 +149,7 @@ test("Multi line comment can be tokenised correctly", () => {
     expect(tokenise_line("div 40 8 /*what is up dude?*/", null)).toEqual(
         new TokenLineResult(
             [
-                new Operation(OperationType.Divide),
+                new Operation_Token(OperationType.Divide),
                 new NumberLiteral_Token(40),
                 new NumberLiteral_Token(8),
                 new MultiLineComment_Token("what is up dude?")
@@ -160,7 +160,7 @@ test("Multi line comment can be tokenised correctly", () => {
     expect(tokenise_line("div 40 8 /*what is up dude?", null)).toEqual(
         new TokenLineResult(
             [
-                new Operation(OperationType.Divide),
+                new Operation_Token(OperationType.Divide),
                 new NumberLiteral_Token(40),
                 new NumberLiteral_Token(8),
                 new MultiLineComment_Token("what is up dude?\n")
@@ -173,7 +173,7 @@ test("Multi line comment can be tokenised correctly", () => {
     old_multi_line_comment)).toEqual(
         new TokenLineResult(
             [
-                new Operation(OperationType.Divide),
+                new Operation_Token(OperationType.Divide),
                 new NumberLiteral_Token(40),
                 new NumberLiteral_Token(8),
                 new MultiLineComment_Token("what is up dude?\n")
@@ -238,7 +238,7 @@ test("Can tokenise a whole file", () => {
         new TokenFileResult(
         [
             [
-                new Operation(OperationType.Add),
+                new Operation_Token(OperationType.Add),
                 new NumberLiteral_Token(3),
                 new NumberLiteral_Token(4),
                 new SingleLineComment_Token(" hello")
