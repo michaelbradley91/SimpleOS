@@ -307,6 +307,9 @@ export class ParserContext
 {
     defines: Map<string, ConstantValue> = new Map<string, ConstantValue>();
     macros: Map<string, Token[]> = new Map<string, Token[]>();
+    music: Map<string, number> = new Map<string, number>();
+    sounds: Map<string, number> = new Map<string, number>();
+    sprites: Map<string, number> = new Map<string, number>();
     line: number = 0;
 
     constructor() {}
@@ -334,12 +337,12 @@ export class ConstantValue
 {
     type: ConstantValueType
     tokens: Token[];
-    data: SemanticError | number | string;
+    data: SemanticError | bigint | string;
     error: SemanticError | null = null;
-    value: number | null = null;
+    value: bigint | null = null;
     text: string | null = null;
 
-    constructor(tokens: Token[], data: SemanticError | number | string)
+    constructor(tokens: Token[], data: SemanticError | bigint | string)
     {
         this.tokens = tokens;
         this.data = data;
@@ -366,6 +369,255 @@ export class ConstantValue
             this.value = data;
         }
     }
+}
+
+function evaluate_colour(args: ConstantValue[], parser_context: ParserContext): ConstantValue
+{
+    var usage_string = "Usage: colour(r,g,b,a) all between 0 and 255"
+    var usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
+    if (args.length != 4)
+    {
+        return usage_error;
+    }
+    
+    args.forEach(arg => {
+        if (arg.type != ConstantValueType.Number)
+        {
+            return usage_error;
+        }
+        if (arg.value < 0n || arg.value > 255n)
+        {
+            return usage_error;
+        }
+    });
+
+    // All arguments are valid! Evaluate...
+    var value: bigint = 0n;
+    value += args[3].value & 0xFFn;
+    value += ((args[2].value & 0xFFn) << (1n * 8n))
+    value += ((args[1].value & 0xFFn) << (2n * 8n))
+    value += ((args[0].value & 0xFFn) << (3n * 8n))
+    return new ConstantValue([], value);
+}
+
+enum EventTypes {
+    Mouse_Button_Pressed = 1,
+    Mouse_Button_Released = 2,
+    Key_Pressed = 3,
+    Key_Released = 4
+}
+
+function evaluate_key_pressed(args: ConstantValue[], parser_context: ParserContext): ConstantValue
+{
+    var usage_string = "Usage: key_pressed(key_code)"
+    var usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
+
+    if (args.length != 1)
+    {
+        return usage_error;
+    }
+    
+    args.forEach(arg => {
+        if (arg.type != ConstantValueType.Number)
+        {
+            return usage_error;
+        }
+        if (arg.value < 0n || arg.value > 0xFFFFFFFFFFFFn)
+        {
+            return usage_error;
+        }
+    });
+
+    var value: bigint = args[0].value
+    value = value & 0xFFFFFFFFFFFFn;
+    value += BigInt(EventTypes.Key_Pressed) << (6n * 8n);
+	return new ConstantValue([], value);
+}
+
+function evaluate_key_released(args: ConstantValue[], parser_context: ParserContext): ConstantValue
+{
+    var usage_string = "Usage: key_released(key_code)"
+    var usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
+
+    if (args.length != 1)
+    {
+        return usage_error;
+    }
+    
+    args.forEach(arg => {
+        if (arg.type != ConstantValueType.Number)
+        {
+            return usage_error;
+        }
+        if (arg.value < 0n || arg.value > 0xFFFFFFFFFFFFn)
+        {
+            return usage_error;
+        }
+    });
+
+    var value: bigint = args[0].value
+    value = value & 0xFFFFFFFFFFFFn;
+    value += BigInt(EventTypes.Key_Released) << (6n * 8n);
+	return new ConstantValue([], value);
+}
+
+function evaluate_mouse_pressed(args: ConstantValue[], parser_context: ParserContext): ConstantValue
+{
+    var usage_string = "Usage: mouse_pressed(x, y, button)"
+    var usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
+
+    if (args.length != 3)
+    {
+        return usage_error;
+    }
+    
+    args.forEach(arg => {
+        if (arg.type != ConstantValueType.Number)
+        {
+            return usage_error;
+        }
+        if (arg.value < 0n || arg.value > 0xFFFFn)
+        {
+            return usage_error;
+        }
+    });
+
+    var value: bigint = args[2].value
+    value = value & 0xFFFFn;
+    value += ((args[1].value & 0xFFFFn) << (2n * 8n))
+    value += ((args[0].value & 0xFFFFn) << (4n * 8n))
+    value += BigInt(EventTypes.Mouse_Button_Pressed) << (6n * 8n);
+	return new ConstantValue([], value);
+}
+
+function evaluate_mouse_released(args: ConstantValue[], parser_context: ParserContext): ConstantValue
+{
+    var usage_string = "Usage: mouse_released(x, y, button)"
+    var usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
+
+    if (args.length != 3)
+    {
+        return usage_error;
+    }
+    
+    args.forEach(arg => {
+        if (arg.type != ConstantValueType.Number)
+        {
+            return usage_error;
+        }
+        if (arg.value < 0n || arg.value > 0xFFFFn)
+        {
+            return usage_error;
+        }
+    });
+
+    var value: bigint = args[2].value
+    value = value & 0xFFFFn;
+    value += ((args[1].value & 0xFFFFn) << (2n * 8n))
+    value += ((args[0].value & 0xFFFFn) << (4n * 8n))
+    value += BigInt(EventTypes.Mouse_Button_Released) << (6n * 8n);
+	return new ConstantValue([], value);
+}
+
+function evaluate_music(args: ConstantValue[], parser_context: ParserContext): ConstantValue
+{
+    var usage_string = "Usage: music(\"my_music\")"
+    var usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
+
+    if (args.length != 3)
+    {
+        return usage_error;
+    }
+    
+    args.forEach(arg => {
+        if (arg.type != ConstantValueType.String)
+        {
+            return usage_error;
+        }
+        if (!parser_context.music.has(arg.text))
+        {
+            return new ConstantValue([], new SemanticError(parser_context.line, "music not found"));
+        }
+    });
+
+    return parser_context.music[args[0].text];
+}
+
+function evaluate_sound(args: ConstantValue[], parser_context: ParserContext): ConstantValue
+{
+    var usage_string = "Usage: sound(\"my_sound\")"
+    var usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
+
+    if (args.length != 3)
+    {
+        return usage_error;
+    }
+    
+    args.forEach(arg => {
+        if (arg.type != ConstantValueType.String)
+        {
+            return usage_error;
+        }
+        if (!parser_context.sounds.has(arg.text))
+        {
+            return new ConstantValue([], new SemanticError(parser_context.line, "sound not found"));
+        }
+    });
+
+    return parser_context.sounds[args[0].text];
+}
+
+function evaluate_sprite(args: ConstantValue[], parser_context: ParserContext): ConstantValue
+{
+    var usage_string = "Usage: sprite(\"my_sprite\")"
+    var usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
+
+    if (args.length != 3)
+    {
+        return usage_error;
+    }
+    
+    args.forEach(arg => {
+        if (arg.type != ConstantValueType.String)
+        {
+            return usage_error;
+        }
+        if (!parser_context.sprites.has(arg.text))
+        {
+            return new ConstantValue([], new SemanticError(parser_context.line, "sprite not found"));
+        }
+    });
+
+    return parser_context.sprites[args[0].text];
+}
+
+function evaluate_rectangle(args: ConstantValue[], parser_context: ParserContext): ConstantValue
+{
+    var usage_string = "Usage: rect(x, y, width, height)"
+    var usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
+
+    if (args.length != 4)
+    {
+        return usage_error;
+    }
+    
+    args.forEach(arg => {
+        if (arg.type != ConstantValueType.Number)
+        {
+            return usage_error;
+        }
+        if (arg.value < 0n || arg.value > 0xFFFFn)
+        {
+            return usage_error;
+        }
+    });
+
+    var value: bigint = 0n
+	value += args[3].value & 0xFFFFn;
+    value += (args[2].value & 0xFFFFn) << (2n * 8n);
+    value += (args[1].value & 0xFFFFn) << (4n * 8n);
+    value += (args[0].value & 0xFFFFn) << (6n * 8n);
+    return new ConstantValue([], value);
 }
 
 /**
@@ -395,23 +647,25 @@ export function evaluate_function(token: Function_Token, args: ConstantValue[], 
     switch(token.type)
     {
         case FunctionType.Colour:
-            break;
+            return evaluate_colour(args, parser_context);
         case FunctionType.Key_Pressed:
-            break;
+            return evaluate_key_pressed(args, parser_context);
         case FunctionType.Key_Released:
-            break;
+            return evaluate_key_released(args, parser_context);
         case FunctionType.Mouse_Pressed:
-            break;
+            return evaluate_mouse_pressed(args, parser_context);
         case FunctionType.Mouse_Released:
-            break;
+            return evaluate_mouse_released(args, parser_context);
         case FunctionType.Music:
-            break;
+            return evaluate_music(args, parser_context);
         case FunctionType.Sound:
-            break;
-        case FunctionType.Rectangle:
-            break;
+            return evaluate_sound(args, parser_context);
         case FunctionType.Sprite:
-            break;
+            return evaluate_sprite(args, parser_context);
+        case FunctionType.Rectangle:
+            return evaluate_rectangle(args, parser_context);
+        default:
+            return new ConstantValue([], new SemanticError(parser_context.line, "Unsupported function type"));
     }
 }
 
@@ -436,7 +690,10 @@ export function evaluate_value(tokens: Token[], parser_context: ParserContext): 
         var current_token = 2;
         if (tokens.length > current_token && tokens[current_token] instanceof CloseBracket_Token)
         {
-            // No arguments
+            // No arguments - evaluate the function
+            var result = evaluate_function(tokens[0], [], parser_context);
+            result.tokens = tokens.slice(0, 3);
+            return result;
         }
         else
         {
@@ -456,7 +713,9 @@ export function evaluate_value(tokens: Token[], parser_context: ParserContext): 
                     {
                         included_tokens = tokens.slice(0, current_token + 1);
                         
-                        // Evaluate the function
+                        var result = evaluate_function(tokens[0], args, parser_context);
+                        result.tokens = included_tokens;
+                        return result;
                     }
                     if (tokens[current_token] instanceof Comma_Token)
                     {
@@ -469,7 +728,7 @@ export function evaluate_value(tokens: Token[], parser_context: ParserContext): 
         }
     }
 
-    // If this is normal value, just return it
+    // If this is a normal value, just return it
     var used_tokens = tokens.slice(0, 1);
     if (tokens[0] instanceof DefineInvoked_Token)
     {

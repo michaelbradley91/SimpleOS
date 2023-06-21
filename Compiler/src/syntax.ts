@@ -127,8 +127,8 @@ export class Comment_Token extends Token {
 }
 
 export class NumberLiteral_Token extends Token {
-    value: number
-    constructor(value: number) {
+    value: bigint
+    constructor(value: bigint) {
         super();
         this.value = value;
     }
@@ -354,7 +354,7 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
         matches = [...line.matchAll(Number_Regex)][0];
         if (!!matches) {
             current_position += matches[0].length;
-            tokens.push(new NumberLiteral_Token(parseInt(matches[0])));
+            tokens.push(new NumberLiteral_Token(BigInt(matches[0])));
             continue;
         }
 
