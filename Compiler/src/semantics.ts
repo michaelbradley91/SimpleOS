@@ -132,11 +132,14 @@ export function identify_value(tokens: Token[]): Token[]
  * 
  * They will always be a list of commands, not part of a command etc.
  * This implies their invocation only makes sense at the start of a line.
+ * 
+ * This function verifies that macros contain the right sort of commands, that includes
+ * look okay etc.
  */
-export function validate(result: TokenFileResult): SemanticError[]
+export function validate_basic_token_structure(result: TokenFileResult): SemanticError[]
 {
     var errors: SemanticError[] = [];
-    var macro_context: MacroContext | null = null;
+    var macro_context: boolean = false;
     for (var line_number = 0; line_number < result.tokens.length; line_number++)
     {
         var line_tokens = result.tokens[line_number];
@@ -158,7 +161,7 @@ export function validate(result: TokenFileResult): SemanticError[]
         }
 
         // Inside a macro we disable a bunch of other statements as well
-        if (!!macro_context) {
+        if (macro_context) {
             if (start_token instanceof Define_Token || 
                 start_token instanceof Include_Token || 
                 start_token instanceof MacroBegin_Token)
@@ -194,7 +197,7 @@ export function validate(result: TokenFileResult): SemanticError[]
                 continue;
             }
             // End the context
-            macro_context = null;
+            macro_context = false;
         }
 
         if (start_token instanceof Include_Token)
@@ -274,6 +277,7 @@ export function validate(result: TokenFileResult): SemanticError[]
                 errors.push(new SemanticError(line_number, "Excess code seen after macro definition. The definition should be on its own line"));
                 continue;
             }
+            macro_context = true;
             continue;
         }
 
@@ -294,4 +298,202 @@ export function validate(result: TokenFileResult): SemanticError[]
     }
 
     return errors;
+}
+
+/**
+ * Information about the parser as it processes the file
+ */
+export class ParserContext
+{
+    defines: Map<string, ConstantValue> = new Map<string, ConstantValue>();
+    macros: Map<string, Token[]> = new Map<string, Token[]>();
+    line: number = 0;
+
+    constructor() {}
+}
+
+/**
+ * The different kinds of values allowed in the program
+ * 
+ * Note that labels do eventually resolve to a number - the text address - but since
+ * we can jump forward or backward to a label, we leave evaluation of labels until the end
+ * after the program's code has been expanded.
+ */
+export enum ConstantValueType
+{
+    Error,
+    Number,
+    Label,
+    String
+}
+
+/**
+ * The value of a constant of some kind that has been evaluated
+ */
+export class ConstantValue
+{
+    type: ConstantValueType
+    tokens: Token[];
+    data: SemanticError | number | string;
+    error: SemanticError | null = null;
+    value: number | null = null;
+    text: string | null = null;
+
+    constructor(tokens: Token[], data: SemanticError | number | string)
+    {
+        this.tokens = tokens;
+        this.data = data;
+        if (data instanceof SemanticError)
+        {
+            this.type = ConstantValueType.Error;
+            this.error = data;
+        }
+        else if (typeof data == "string")
+        {
+            if (data.endsWith(":"))
+            {
+                this.type = ConstantValueType.Label;
+            }
+            else
+            {
+                this.type = ConstantValueType.String;
+            }
+            this.text = data;
+        }
+        else
+        {
+            this.type = ConstantValueType.Number;
+            this.value = data;
+        }
+    }
+}
+
+/**
+ * Evaluate a specific function with the given arguments
+ * 
+ * To keep things simple, since labels cannot be easily evaluated until the program is expanded, they are not permitted
+ * as arguments to functions.
+ * 
+ * Note: the tokens returned in the value will be wrong here, since we don't have comma tokens etc. This should be fixed by
+ * the caller.
+ * 
+ * @param token - the function token we are evaluating
+ * @param args - the arguments passed to the function
+ * @param parser_context - the parser's current context
+ */
+export function evaluate_function(token: Function_Token, args: ConstantValue[], parser_context: ParserContext): ConstantValue
+{
+    // Check for any args we would always reject
+    args.forEach(arg => {
+        if (arg.type == ConstantValueType.Label || arg.type == ConstantValueType.Error)
+        {
+            return new ConstantValue([], new SemanticError(parser_context.line, `Bad arguments to function ${token.type}`));
+        }
+    });
+
+    // Now for the individual functions...
+    switch(token.type)
+    {
+        case FunctionType.Colour:
+            break;
+        case FunctionType.Key_Pressed:
+            break;
+        case FunctionType.Key_Released:
+            break;
+        case FunctionType.Mouse_Pressed:
+            break;
+        case FunctionType.Mouse_Released:
+            break;
+        case FunctionType.Music:
+            break;
+        case FunctionType.Sound:
+            break;
+        case FunctionType.Rectangle:
+            break;
+        case FunctionType.Sprite:
+            break;
+    }
+}
+
+/**
+ * Evaluate a "value" in the language according to the parser context
+ * @param tokens the tokens making up the "value" type
+ */
+export function evaluate_value(tokens: Token[], parser_context: ParserContext): ConstantValue
+{
+    if (tokens.length == 0) return new ConstantValue([], new SemanticError(parser_context.line, "No value found"));
+
+    // If this is a function or a macro, look for the arguments
+    if (tokens[0] instanceof Function_Token)
+    {
+        var included_tokens: Token[] = [];
+        var args: ConstantValue[] = [];
+
+        // one of the predefined functions. Should be followed by some number of argument values itself
+        if (tokens.length < 2 || !(tokens[1] instanceof OpenBracket_Token)) {
+            return new ConstantValue([], new SemanticError(parser_context.line, "Open bracket for function not found"));
+        }
+        var current_token = 2;
+        if (tokens.length > current_token && tokens[current_token] instanceof CloseBracket_Token)
+        {
+            // No arguments
+        }
+        else
+        {
+            while(tokens.length > current_token)
+            {
+                var arg = evaluate_value(tokens.slice(current_token), parser_context);
+                if (arg.tokens.length == 0) {
+                    return new ConstantValue([], new SemanticError(parser_context.line, "Improperly terminated arguments provided to function"));
+                }
+                current_token += arg.tokens.length;
+                args.push(arg);
+
+                // An argument should be followed either by a closing bracket or a comma.
+                if (tokens.length > current_token)
+                {
+                    if (tokens[current_token] instanceof CloseBracket_Token)
+                    {
+                        included_tokens = tokens.slice(0, current_token + 1);
+                        
+                        // Evaluate the function
+                    }
+                    if (tokens[current_token] instanceof Comma_Token)
+                    {
+                        current_token += 1;
+                    }
+                }
+            }
+            // Failed to find the end of the arguments list
+            return new ConstantValue([], new SemanticError(parser_context.line, "Improperly terminated arguments provided to function"));
+        }
+    }
+
+    // If this is normal value, just return it
+    var used_tokens = tokens.slice(0, 1);
+    if (tokens[0] instanceof DefineInvoked_Token)
+    {
+        if (parser_context.defines.has(tokens[0].name))
+        {
+            var define_value = parser_context.defines.get(tokens[0].name);
+            return new ConstantValue(used_tokens, define_value.data);
+        }
+        else
+        {
+            return new ConstantValue(used_tokens, new SemanticError(parser_context.line, "Unknown define \"" + tokens[0].name + "\""));
+        }
+    }
+    if (tokens[0] instanceof Label_Token)
+    {
+        return new ConstantValue(used_tokens, tokens[0].name);
+    }
+    if (tokens[0] instanceof NumberLiteral_Token)
+    {
+        return new ConstantValue(used_tokens, tokens[0].value);
+    }
+    if (tokens[0] instanceof StringLiteral_Token)
+    {
+        return new ConstantValue(used_tokens, tokens[0].text);
+    }
+    return new ConstantValue([], new SemanticError(parser_context.line, "Unrecognised value"));
 }
