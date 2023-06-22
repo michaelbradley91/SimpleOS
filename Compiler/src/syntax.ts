@@ -12,16 +12,16 @@ const SingleLineComment_Regex = /^\/\/(.*)$/g;
 const Operator_Regex = /^(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|wait|exit|get_mouse)(?=\s)/g;
 const Function_Regex = /^(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(?=\([^\)\(]*\))/g;
 const MacroEnd_Regex = /^(#macro_end)(?=\s|$)/g;
-const MacroBegin_Regex = /^#macro_begin($|\s+([^ ,\(\)]+)?(?=\([^\)\(]*\))?)/g;
-const Define_Regex = /^#define($|\s+([^ ,\(\)]+))/g;
-const Label_Regex = /^[^ ,\(\)]+:/g;
+const MacroBegin_Regex = /^#macro_begin($|\s+([^ :,\(\)]+)?(?=\([^\)\(]*\))?)/g;
+const Define_Regex = /^#define($|\s+([^ :,\(\)]+))/g;
+const Label_Regex = /^[^ :,\(\)]+:(b|f)?/g;
 const Include_Regex = /^#include(\s|$)/g;
 const Number_Regex = /^((0(x|X)[0-9a-fA-F]+)|([0-9]+))/g;
 const String_Regex = /^"([^"]*)"/g;
 // Any other function looking thing is assumed to be a macro invoked unless proven otherwise
-const MacroInvoked_Regex = /^([^ ,\(\)]+)(?=\([^\)\(]*\))/g;
+const MacroInvoked_Regex = /^([^ :,\(\)]+)(?=\([^\)\(]*\))/g;
 // Finally, any other word like thing is assumed to be a define unless proven otherwise
-const DefineInvoked_Regex = /^([^ ,\(\)]+)/g;
+const DefineInvoked_Regex = /^([^ :,\(\)]+)/g;
 const Comma_Regex = /^,/g;
 const OpenBracket_Regex = /^\(/g;
 const CloseBracket_Regex = /^\)/g;
@@ -96,6 +96,18 @@ export class Label_Token extends Token {
     constructor(name: string) {
         super();
         this.name = name;
+    }
+}
+
+export class Label extends Label_Token {
+    line: number
+    file: string
+
+    constructor(name: string, line: number, file: string)
+    {
+        super(name);
+        this.line = line;
+        this.file = file;
     }
 }
 
@@ -201,7 +213,7 @@ export enum OperationType {
     Bitwise_Or = "or",
     Bitwise_And = "and",
     Bitwise_Not = "not",
-    Full = "fill",
+    Fill = "fill",
     Draw = "draw",
     Clear = "clear",
     Play_Music = "play_music",
@@ -457,7 +469,7 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
         if (!!matches)
         {
             current_position += matches[0].length;
-            tokens.push(new OpenBracket_Token());
+            tokens.push(new CloseBracket_Token());
             continue;
         }
 

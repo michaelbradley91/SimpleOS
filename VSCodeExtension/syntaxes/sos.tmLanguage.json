@@ -17,7 +17,9 @@
 				{ "include": "#definition" },
 				{ "include": "#do-include" },
 				{ "include": "#comment-block" },
-				{ "include": "#comment-line" }
+				{ "include": "#comment-line" },
+				{ "include": "#macro-invoked"},
+				{ "include": "#define-invoked"}
 			]
 		},
 		"command": {
@@ -41,11 +43,11 @@
 			"name": "comment.line.double-slash.sos"
 		},
 		"operator": {
-			"match": "(?i)(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|wait|exit|get_mouse)[\\s]+",
+			"match": "(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|wait|exit|get_mouse)[\\s]+",
 			"name": "keyword.control.sos markup.bold"
 		},
 		"functions": {
-			"match": "(?i)(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(?:\\()",
+			"match": "(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(?:\\()",
 			"captures": {
 				"1": {
 					"name": "entity.name.function.sos"
@@ -63,6 +65,14 @@
 					"name": "entity.name.function.preprocessor.sos"
 				}
 			}
+		},
+		"define-invoked": {
+			"match": "([^ :,\\(\\)]+)",
+			"name": "entity.name.function.preprocessor.sos"
+		},
+		"macro-invoked": {
+			"match": "([^ :,\\(\\)]+)(?=\\([^\\)\\(]*\\))",
+			"name": "entity.name.function.preprocessor.sos"
 		},
 		"macro": {
 			"begin": "(#macro_begin)($|\\s+([^ \\(\\)]+)?(\\(.*\\))?)",
@@ -100,11 +110,11 @@
 			}
 		},
 		"label": {
-			"match": ".+:",
+			"match": "[^ :,\\(\\)]+:(b|f)?",
 			"name": "entity.name.label.sos"
 		},
 		"string": {
-			"match": "\".*\"",
+			"match": "\"([^\"]*)\"",
 			"name": "string.quoted.double.sos"
 		},
 		"literal": {

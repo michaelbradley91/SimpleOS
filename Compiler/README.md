@@ -15,5 +15,5 @@ npm run compiler -- < path to your program >
 
 Or alternatively:
 ```bash
-ts-node compiler.ts -- < path to your program >
+ts-node main.ts -- < path to your program >
 ```

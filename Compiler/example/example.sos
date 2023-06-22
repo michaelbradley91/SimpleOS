@@ -1,0 +1,23 @@
+// Hello world
+#define BOB 4
+
+#macro_begin FUNC()
+div 4 5
+#macro_end
+
+#macro_begin XXX(RGB)
+xor RGB 0x400
+#macro_end
+
+add 3 4
+
+#include "./helpers.sos"
+
+label:
+XXX(0x500)
+SAVE_STUFF(0x99, 0x88)
+jmp 0x100 label:
+
+sub BOB 5
+
+FUNC()

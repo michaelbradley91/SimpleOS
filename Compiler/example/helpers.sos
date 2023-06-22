@@ -1,0 +1,7 @@
+
+not 6
+div 5 6
+
+#macro_begin SAVE_STUFF(ALICE, BOB)
+add ALICE BOB
+#macro_end

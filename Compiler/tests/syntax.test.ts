@@ -7,8 +7,8 @@ test("Add command can be tokenised correctly", () => {
         new TokenLineResult(
         [
             new Operation_Token(OperationType.Add),
-            new NumberLiteral_Token(3),
-            new NumberLiteral_Token(4)
+            new NumberLiteral_Token(3n),
+            new NumberLiteral_Token(4n)
         ], null)
     )
 });
@@ -30,7 +30,7 @@ test("Define can be tokenised correctly", () => {
         new TokenLineResult(
             [
                 new Define_Token("X"),
-                new NumberLiteral_Token(0x400)
+                new NumberLiteral_Token(0x400n)
             ],
             null
         )
@@ -117,8 +117,8 @@ test("Single line comment can be tokenised correctly", () => {
         new TokenLineResult(
             [
                 new Operation_Token(OperationType.Bitwise_Xor),
-                new NumberLiteral_Token(400),
-                new NumberLiteral_Token(500),
+                new NumberLiteral_Token(400n),
+                new NumberLiteral_Token(500n),
                 new SingleLineComment_Token(" howdy \"stranger\", woo")
             ],
             null
@@ -131,9 +131,9 @@ test("Multi line comment can be tokenised correctly", () => {
         new TokenLineResult(
             [
                 new Operation_Token(OperationType.Subtract),
-                new NumberLiteral_Token(3),
+                new NumberLiteral_Token(3n),
                 new MultiLineComment_Token("howdy"),
-                new NumberLiteral_Token(4)
+                new NumberLiteral_Token(4n)
             ],
             null
         )
@@ -150,8 +150,8 @@ test("Multi line comment can be tokenised correctly", () => {
         new TokenLineResult(
             [
                 new Operation_Token(OperationType.Divide),
-                new NumberLiteral_Token(40),
-                new NumberLiteral_Token(8),
+                new NumberLiteral_Token(40n),
+                new NumberLiteral_Token(8n),
                 new MultiLineComment_Token("what is up dude?")
             ],
             null
@@ -161,8 +161,8 @@ test("Multi line comment can be tokenised correctly", () => {
         new TokenLineResult(
             [
                 new Operation_Token(OperationType.Divide),
-                new NumberLiteral_Token(40),
-                new NumberLiteral_Token(8),
+                new NumberLiteral_Token(40n),
+                new NumberLiteral_Token(8n),
                 new MultiLineComment_Token("what is up dude?\n")
             ],
             new MultiLineComment_Token("what is up dude?\n")
@@ -174,8 +174,8 @@ test("Multi line comment can be tokenised correctly", () => {
         new TokenLineResult(
             [
                 new Operation_Token(OperationType.Divide),
-                new NumberLiteral_Token(40),
-                new NumberLiteral_Token(8),
+                new NumberLiteral_Token(40n),
+                new NumberLiteral_Token(8n),
                 new MultiLineComment_Token("what is up dude?\n")
             ],
             new MultiLineComment_Token("what is up dude?\n")
@@ -239,8 +239,8 @@ test("Can tokenise a whole file", () => {
         [
             [
                 new Operation_Token(OperationType.Add),
-                new NumberLiteral_Token(3),
-                new NumberLiteral_Token(4),
+                new NumberLiteral_Token(3n),
+                new NumberLiteral_Token(4n),
                 new SingleLineComment_Token(" hello")
             ],
             [new MultiLineComment_Token(" bob\n\n")],

@@ -20,6 +20,19 @@
             "windows": {
                 "program": "${workspaceFolder}/node_modules/jest/bin/jest"
             }
+        },
+        {
+            "name": "Example",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/ts-node",
+            "args": [
+                "src/main.ts", "--", "example/example.sos"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "sourceMaps": true
         }
     ]
 }
