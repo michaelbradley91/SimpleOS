@@ -38,7 +38,7 @@ function strip_comments(token_file_result: TokenFileResult): TokenFileResult
 /**
  * Represents a semantic error of any kind
  */
-class SemanticError
+export class SemanticError
 {
     line: number
     message: string

@@ -134,7 +134,7 @@
 			"name": "punctuation.separator.delimiter.sos"
 		},
 		"numeric-literal": {
-			"match": "\\s*(?<=[^$])((0(x|X)[0-9a-fA-F]+)|([0-9]+))",
+			"match": "\\s*(?<=[^$])(\\-?)((0(x|X)[0-9a-fA-F]+)|([0-9]+))",
 			"name": "constant.numeric.sos"
 		},
 		"arguments-list": {

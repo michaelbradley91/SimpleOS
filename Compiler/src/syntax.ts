@@ -16,7 +16,7 @@ const MacroBegin_Regex = /^#macro_begin($|\s+([^ :,\(\)]+)?(?=\([^\)\(]*\))?)/g;
 const Define_Regex = /^#define($|\s+([^ :,\(\)]+))/g;
 const Label_Regex = /^[^ :,\(\)]+:(b|f)?/g;
 const Include_Regex = /^#include(\s|$)/g;
-const Number_Regex = /^((0(x|X)[0-9a-fA-F]+)|([0-9]+))/g;
+const Number_Regex = /^(\-?(0(x|X)[0-9a-fA-F]+)|([0-9]+))/g;
 const String_Regex = /^"([^"]*)"/g;
 // Any other function looking thing is assumed to be a macro invoked unless proven otherwise
 const MacroInvoked_Regex = /^([^ :,\(\)]+)(?=\([^\)\(]*\))/g;

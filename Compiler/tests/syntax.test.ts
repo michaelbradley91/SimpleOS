@@ -253,3 +253,15 @@ test("Can tokenise a whole file", () => {
         ])
     );
 });
+
+test("Bigints behave as expected", () => {
+    expect(BigInt.asUintN(64, -1n)).toEqual(0xFFFFFFFFFFFFFFFFn);
+    expect(BigInt.asUintN(64, -2n)).toEqual(0xFFFFFFFFFFFFFFFEn);
+    expect(BigInt.asUintN(64, 0xFFFFFFFFFFFFFFFFn)).toEqual(0xFFFFFFFFFFFFFFFFn);
+});
+
+test("Buffer behaves as expected", () => {
+    var byte_array: Uint8Array = new Uint8Array(Buffer.from("hello", "utf-8"));
+    console.log(byte_array);
+    expect(byte_array).toEqual(new Uint8Array([0x68, 0x65, 0x6c, 0x6c, 0x6f]));
+});

@@ -128,7 +128,7 @@ class Asset:
 # Finally, at the very top of the file are header values. Each entry is 8 bytes and
 # and appears in the exact order of the class below:
 const HEADER_SIZE_BYTES = 48
-const HEADER_MAGIC = 0xC0FFEEBABE # Magic to identify the start of the program
+const HEADER_MAGIC = 0xFEEDC0FFEE # Magic to identify the start of the program
 class Header:
 	var magic: int
 	var view_width: int
