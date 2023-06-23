@@ -15,7 +15,7 @@ export function bigint_to_bytes64(big_number: bigint | number): Uint8Array
     for (var i = 0; i < 8; i++)
     {
         bytes[i] = Number(non_negative_big_number & 0xFFn);
-        non_negative_big_number = non_negative_big_number / 0xFFn;
+        non_negative_big_number = non_negative_big_number / 0x100n;
     }
     return bytes;
 }
@@ -51,7 +51,6 @@ export function bigint_to_bytes48(big_number: bigint | number): Uint8Array
     }
     return bytes;
 }
-
 
 /**
  * Convert a file to a byte array of its contents
@@ -106,7 +105,7 @@ export function right_pad_bytes(bytes: Uint8Array, padding: number): Uint8Array
  * @param byte_arrays the individual byte arrays to concatenate together
  * @returns a new byte array with all the bytes in order from the individual arrays
  */
-export function concat_bytes(byte_arrays = Uint8Array[])
+export function concat_bytes(byte_arrays: Uint8Array[])
 {
     // Get the total length of all arrays.
     var total_length = 0;

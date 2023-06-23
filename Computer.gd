@@ -91,6 +91,9 @@ func load_program(program_path: String):
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	var file = FileAccess.open("user://temp_resource.png", FileAccess.WRITE);
+	file.store_buffer();
+	file.close()
 	pass
 	
 func _draw():

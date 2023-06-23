@@ -839,43 +839,6 @@ export function evaluate_arguments(tokens: Token[], parser_context: ParserContex
 }
 
 /**
- * How instructions are written into machine code.
- * This should match Godot's interpretation
- */
-enum InstructionType
-{
-	NOP = 0,
-	STORE = 1,
-	COPY = 2,
-	ADD = 3,
-	MULTIPLY = 4,
-	SUBTRACT = 5,
-	DIVIDE = 6,
-	IS_NOT_EQUAL = 7,
-	IS_EQUAL = 8,
-	IS_LESS_THAN = 9,
-	IS_GREATER_THAN = 10,
-	IS_LESS_THAN_OR_EQUAL = 11,
-	IS_GREATER_THAN_OR_EQUAL = 12,
-	JUMP = 13,
-	MODULO = 14,
-	BITWISE_XOR = 15,
-	BITWISE_OR = 16,
-	BITWISE_AND = 17,
-	BITWISE_NOT = 18,
-	DRAW_COLOUR = 19,
-	DRAW_SPRITE = 20,
-	DRAW_CLEAR = 21,
-	MUSIC_PLAY = 22,
-	MUSIC_STOP = 23,
-	SOUND_PLAY = 24,
-	GET_EVENT = 25,
-	WAIT_FRAME = 26,
-	EXIT = 27,
-	GET_MOUSE_POSITION = 28
-}
-
-/**
  * Represents the instructions in the final parsed form of the code
  */
 export class Instruction
@@ -899,71 +862,6 @@ export class ProcessFileResult
     success: boolean = false;
     errors: Map<string, Set<SemanticError>> = new Map<string, Set<SemanticError>>();
     instructions: InstructionOrLabel[] = [];
-}
-
-export function operation_to_instructon(operation: OperationType): InstructionType
-{
-    switch (operation)
-    {
-        case OperationType.Add:
-            return InstructionType.ADD;
-        case OperationType.Bitwise_And:
-            return InstructionType.BITWISE_AND;
-        case OperationType.Bitwise_Or:
-            return InstructionType.BITWISE_OR;
-        case OperationType.Bitwise_Xor:
-            return InstructionType.BITWISE_XOR;
-        case OperationType.Copy:
-            return InstructionType.COPY;
-        case OperationType.Divide:
-            return InstructionType.DIVIDE;
-        case OperationType.Draw:
-            return InstructionType.DRAW_SPRITE;
-        case OperationType.Fill:
-            return InstructionType.DRAW_COLOUR;
-        case OperationType.Is_Equal:
-            return InstructionType.IS_EQUAL;
-        case OperationType.Is_Greater_Than:
-            return InstructionType.IS_GREATER_THAN;
-        case OperationType.Is_Greater_Than_Or_Equal:
-            return InstructionType.IS_GREATER_THAN_OR_EQUAL;
-        case OperationType.Is_Less_Than:
-            return InstructionType.IS_LESS_THAN;
-        case OperationType.Is_Less_Than_Or_Equal:
-            return InstructionType.IS_LESS_THAN_OR_EQUAL;
-        case OperationType.Is_Not_Equal:
-            return InstructionType.IS_NOT_EQUAL;
-        case OperationType.Jump:
-            return InstructionType.JUMP;
-        case OperationType.Modulo:
-            return InstructionType.MODULO;
-        case OperationType.Multiply:
-            return InstructionType.MULTIPLY;
-        case OperationType.Play_Music:
-            return InstructionType.MUSIC_PLAY;
-        case OperationType.Play_Sound:
-            return InstructionType.SOUND_PLAY;
-        case OperationType.Store:
-            return InstructionType.STORE;
-        case OperationType.Subtract:
-            return InstructionType.SUBTRACT;
-        case OperationType.Clear:
-            return InstructionType.DRAW_CLEAR;
-        case OperationType.Bitwise_Not:
-            return InstructionType.BITWISE_NOT;
-        case OperationType.Wait:
-            return InstructionType.WAIT_FRAME;
-        case OperationType.Stop_Music:
-            return InstructionType.MUSIC_STOP;
-        case OperationType.No_Operation:
-            return InstructionType.NOP;
-        case OperationType.Get_Event:
-            return InstructionType.GET_EVENT;
-        case OperationType.Get_Mouse_Position:
-            return InstructionType.GET_MOUSE_POSITION;
-        case OperationType.Exit:
-            return InstructionType.EXIT;
-    }
 }
 
 export function get_number_arguments(operation: OperationType): number

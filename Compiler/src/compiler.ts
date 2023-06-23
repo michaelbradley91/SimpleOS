@@ -1,7 +1,10 @@
 import path from "path";
 import { ProgramHeader, parse_program_header } from "./configuration";
-import { ParserContext, ProcessFileResult, SemanticError, process_file, resolve_labels } from "./semantics";
-import { bigint_to_bytes16, bigint_to_bytes48, concat_bytes, file_to_bytes, right_pad_bytes, string_to_bytes } from "./byte_converters";
+import { Instruction, ParserContext, ProcessFileResult, SemanticError, process_file, resolve_labels } from "./semantics";
+import { bigint_to_bytes16, bigint_to_bytes48, bigint_to_bytes64, concat_bytes, file_to_bytes, right_pad_bytes, string_to_bytes } from "./byte_converters";
+import { Label, OperationType } from "./syntax";
+import { assert } from "console";
+import { writeFileSync } from "fs";
 
 export class CompilationResult
 {
@@ -46,12 +49,6 @@ export function compile(file_path: string): CompilationResult
     var processed_file = process_file(program_path, parser_context);
     resolve_labels(program_header, processed_file);
     return new CompilationResult(program_header, processed_file);
-}
-
-export class ProgramHeaderToBytesResult
-{
-    errors: SemanticError[] = [];
-    bytes: number[] = new
 }
 
 /**
@@ -104,7 +101,7 @@ export function program_header_to_bytes(program_header: ProgramHeader): Uint8Arr
  * Asset types in the binary format
  * 
  * Assets are stored in the format:
- * <2 byte type> | <6 byte length> | <file name padded to 8 bytes with a null terminator> | <bytes... padded to 8 bytes>
+ * <2 byte type> | <6 byte length> | <extension padded to 8 bytes with a null terminator> | <bytes... padded to 8 bytes>
  */
 enum AssetTypes {
 	NO_ASSET = 0,
@@ -126,9 +123,10 @@ export function assets_to_bytes(program_header: ProgramHeader): Uint8Array
         var file_bytes = file_to_bytes(music_entry);
         var file_length_bytes = bigint_to_bytes48(file_bytes.length);
         file_bytes = right_pad_bytes(file_bytes, 8);
-        var file_name_bytes = right_pad_bytes(string_to_bytes(music_entry), 8);
+        var file_extension = path.parse(music_entry).ext;
+        var file_extension_bytes = right_pad_bytes(string_to_bytes(file_extension), 8);
 
-        asset_bytes.push(concat_bytes([file_type_bytes, file_length_bytes, file_name_bytes, file_bytes]));
+        asset_bytes.push(concat_bytes([file_type_bytes, file_length_bytes, file_extension_bytes, file_bytes]));
     });
 
     program_header.sounds.forEach(sound_entry => {
@@ -136,9 +134,10 @@ export function assets_to_bytes(program_header: ProgramHeader): Uint8Array
         var file_bytes = file_to_bytes(sound_entry);
         var file_length_bytes = bigint_to_bytes48(file_bytes.length);
         file_bytes = right_pad_bytes(file_bytes, 8);
-        var file_name_bytes = right_pad_bytes(string_to_bytes(sound_entry), 8);
+        var file_extension = path.parse(sound_entry).ext;
+        var file_extension_bytes = right_pad_bytes(string_to_bytes(file_extension), 8);
 
-        asset_bytes.push(concat_bytes([file_type_bytes, file_length_bytes, file_name_bytes, file_bytes]));
+        asset_bytes.push(concat_bytes([file_type_bytes, file_length_bytes, file_extension_bytes, file_bytes]));
     });
 
     program_header.sprites.forEach(sprite_entry => {
@@ -146,12 +145,144 @@ export function assets_to_bytes(program_header: ProgramHeader): Uint8Array
         var file_bytes = file_to_bytes(sprite_entry);
         var file_length_bytes = bigint_to_bytes48(file_bytes.length);
         file_bytes = right_pad_bytes(file_bytes, 8);
-        var file_name_bytes = right_pad_bytes(string_to_bytes(sprite_entry), 8);
+        var file_extension = path.parse(sprite_entry).ext;
+        var file_extension_bytes = right_pad_bytes(string_to_bytes(file_extension), 8);
 
-        asset_bytes.push(concat_bytes([file_type_bytes, file_length_bytes, file_name_bytes, file_bytes]));
+        asset_bytes.push(concat_bytes([file_type_bytes, file_length_bytes, file_extension_bytes, file_bytes]));
     });
 
     return concat_bytes(asset_bytes);
+}
+
+/**
+ * How instructions are written into machine code.
+ * This should match Godot's interpretation
+ */
+enum InstructionType
+{
+	NOP = 0,
+	STORE = 1,
+	COPY = 2,
+	ADD = 3,
+	MULTIPLY = 4,
+	SUBTRACT = 5,
+	DIVIDE = 6,
+	IS_NOT_EQUAL = 7,
+	IS_EQUAL = 8,
+	IS_LESS_THAN = 9,
+	IS_GREATER_THAN = 10,
+	IS_LESS_THAN_OR_EQUAL = 11,
+	IS_GREATER_THAN_OR_EQUAL = 12,
+	JUMP = 13,
+	MODULO = 14,
+	BITWISE_XOR = 15,
+	BITWISE_OR = 16,
+	BITWISE_AND = 17,
+	BITWISE_NOT = 18,
+	DRAW_COLOUR = 19,
+	DRAW_SPRITE = 20,
+	DRAW_CLEAR = 21,
+	MUSIC_PLAY = 22,
+	MUSIC_STOP = 23,
+	SOUND_PLAY = 24,
+	GET_EVENT = 25,
+	WAIT_FRAME = 26,
+	EXIT = 27,
+	GET_MOUSE_POSITION = 28
+}
+
+export function operation_to_instructon(operation: OperationType): InstructionType
+{
+    switch (operation)
+    {
+        case OperationType.Add:
+            return InstructionType.ADD;
+        case OperationType.Bitwise_And:
+            return InstructionType.BITWISE_AND;
+        case OperationType.Bitwise_Or:
+            return InstructionType.BITWISE_OR;
+        case OperationType.Bitwise_Xor:
+            return InstructionType.BITWISE_XOR;
+        case OperationType.Copy:
+            return InstructionType.COPY;
+        case OperationType.Divide:
+            return InstructionType.DIVIDE;
+        case OperationType.Draw:
+            return InstructionType.DRAW_SPRITE;
+        case OperationType.Fill:
+            return InstructionType.DRAW_COLOUR;
+        case OperationType.Is_Equal:
+            return InstructionType.IS_EQUAL;
+        case OperationType.Is_Greater_Than:
+            return InstructionType.IS_GREATER_THAN;
+        case OperationType.Is_Greater_Than_Or_Equal:
+            return InstructionType.IS_GREATER_THAN_OR_EQUAL;
+        case OperationType.Is_Less_Than:
+            return InstructionType.IS_LESS_THAN;
+        case OperationType.Is_Less_Than_Or_Equal:
+            return InstructionType.IS_LESS_THAN_OR_EQUAL;
+        case OperationType.Is_Not_Equal:
+            return InstructionType.IS_NOT_EQUAL;
+        case OperationType.Jump:
+            return InstructionType.JUMP;
+        case OperationType.Modulo:
+            return InstructionType.MODULO;
+        case OperationType.Multiply:
+            return InstructionType.MULTIPLY;
+        case OperationType.Play_Music:
+            return InstructionType.MUSIC_PLAY;
+        case OperationType.Play_Sound:
+            return InstructionType.SOUND_PLAY;
+        case OperationType.Store:
+            return InstructionType.STORE;
+        case OperationType.Subtract:
+            return InstructionType.SUBTRACT;
+        case OperationType.Clear:
+            return InstructionType.DRAW_CLEAR;
+        case OperationType.Bitwise_Not:
+            return InstructionType.BITWISE_NOT;
+        case OperationType.Wait:
+            return InstructionType.WAIT_FRAME;
+        case OperationType.Stop_Music:
+            return InstructionType.MUSIC_STOP;
+        case OperationType.No_Operation:
+            return InstructionType.NOP;
+        case OperationType.Get_Event:
+            return InstructionType.GET_EVENT;
+        case OperationType.Get_Mouse_Position:
+            return InstructionType.GET_MOUSE_POSITION;
+        case OperationType.Exit:
+            return InstructionType.EXIT;
+    }
+}
+
+/**
+ * Output the bytes corresponding to the compiled program
+ * @param compilation_result the compilation of the program
+ */
+export function instructions_to_bytes(compilation_result: CompilationResult): Uint8Array
+{
+    var instruction_bytes: Uint8Array[] = [];
+    compilation_result.process_file_result.instructions.forEach(instruction => {
+        if (instruction instanceof Instruction && !(instruction.arg1 instanceof Label) && !(instruction.arg2 instanceof Label))
+        {
+            var instruction_type = bigint_to_bytes16(operation_to_instructon(instruction.type));
+            var arg1 = bigint_to_bytes48(instruction.arg1);
+            var arg2 = bigint_to_bytes64(instruction.arg2);
+            var all_bytes = concat_bytes([instruction_type, arg1, arg2]);
+            instruction_bytes.push(all_bytes);
+        }
+        else
+        {
+            assert(false, "No instructions should have been left unresolved");
+        }
+    });
+    return concat_bytes(instruction_bytes);
+}
+
+export function write_binary(bytes: Uint8Array, out_file: string)
+{
+    writeFileSync(out_file, bytes);
 }
 
 /**
@@ -159,8 +290,19 @@ export function assets_to_bytes(program_header: ProgramHeader): Uint8Array
  * @param compilation_result the compiled program to export
  * @param out_file where to write the final binary
  */
-export function output_binary(program_header: ProgramHeader, compilation_result: CompilationResult, out_file: string): boolean
+export function output_binary(compilation_result: CompilationResult, out_file: string): boolean
 {
-    var x: bigint = 0n;
-    x.
+    if (!compilation_result.process_file_result.success)
+    {
+        console.log("Will not output binary when compilation failed");
+        return false;
+    }
+
+    var program_header_bytes: Uint8Array = program_header_to_bytes(compilation_result.program_header);
+    var asset_bytes: Uint8Array = assets_to_bytes(compilation_result.program_header);
+    var instruction_bytes: Uint8Array = instructions_to_bytes(compilation_result);
+
+    var file_bytes = concat_bytes([program_header_bytes, asset_bytes, instruction_bytes]);
+    write_binary(file_bytes, out_file);
+    return true;
 }
