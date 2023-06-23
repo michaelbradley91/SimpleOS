@@ -131,6 +131,9 @@ class Asset:
 		self.bytes = bytes.slice(end, end + length);
 		
 	func size():
+		if (type == ASSET_TYPES.NO_ASSET):
+			return 16
+		
 		var extension_bytes = extension.length() + 1
 		if (extension_bytes % 8 != 0):
 			extension_bytes += 8 - (extension_bytes % 8);
