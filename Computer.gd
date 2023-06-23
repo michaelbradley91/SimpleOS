@@ -41,17 +41,17 @@ func load_program(program_path: String):
 	current_program = MachineCodeTranslator.parse_machine_code(bytes)
 	
 	# Now load all the assets
-	var music: Array[String] = []
-	var sounds: Array[String] = []
-	var sprites: Array[String] = []
+	var music: Array[MachineCodeTranslator.Asset] = []
+	var sounds: Array[MachineCodeTranslator.Asset] = []
+	var sprites: Array[MachineCodeTranslator.Asset] = []
 	
 	for asset in current_program.assets:
 		if asset.type == MachineCodeTranslator.ASSET_TYPES.MUSIC_ASSET:
-			music.append(asset.location)
+			music.append(asset)
 		elif asset.type == MachineCodeTranslator.ASSET_TYPES.SOUND_ASSET:
-			sounds.append(asset.location)
+			sounds.append(asset)
 		elif asset.type == MachineCodeTranslator.ASSET_TYPES.SPRITE_ASSET:
-			sprites.append(asset.location)
+			sprites.append(asset)
 		elif asset.type == MachineCodeTranslator.ASSET_TYPES.NO_ASSET:
 			continue
 		else:
@@ -91,10 +91,7 @@ func load_program(program_path: String):
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	var file = FileAccess.open("user://temp_resource.png", FileAccess.WRITE);
-	file.store_buffer();
-	file.close()
-	pass
+	load_program("C:\\Users\\micha\\repos\\SimpleOS\\Compiler\\example\\example.sosexe")
 	
 func _draw():
 	print("Drawing")

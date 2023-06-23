@@ -3,6 +3,9 @@ extends Node
 @onready
 var Memory: Memory = get_node("/root/Memory")
 
+@onready
+var MachineCodeTranslator: MachineCodeTranslator = get_node("/root/MachineCodeTranslator")
+
 # Controls drawing to the screen!
 class Rectangle:
 	var x: int
@@ -67,10 +70,15 @@ func load_image(path: String) -> ImageTexture:
 	var image_texture = ImageTexture.create_from_image(image)
 	return image_texture
 
-func load_assets(image_paths: Array[String]):
+func load_assets(sprites: Array[MachineCodeTranslator.Asset]):
 	# Load all the assets for the program ahead of their use
-	for image_path in image_paths:
-		images.append(load_image(image_path))
+	for sprite in sprites:
+		var file_path = "user://temp_resource." + sprite.extension;
+		var file = FileAccess.open(file_path, FileAccess.WRITE);
+		file.store_buffer(sprite.bytes);
+		file.close()
+		
+		images.append(load_image(file_path))
 	
 	print("Images loaded")
 

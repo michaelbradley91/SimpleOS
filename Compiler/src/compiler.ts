@@ -51,32 +51,6 @@ export function compile(file_path: string): CompilationResult
     return new CompilationResult(program_header, processed_file);
 }
 
-/**
- * 
- * @param program_header
-const HEADER_SIZE_BYTES = 48
-const HEADER_MAGIC = 0xFEEDC0FFEE # Magic to identify the start of the program
-class Header:
-	var magic: int
-	var view_width: int
-	var view_height: int
-	var fps: int
-	var code_address: int
-	var memory_size: int
-	
-	func _init(bytes: PackedByteArray, offset: int):
-		magic = bytes.decode_s64(offset)
-		view_width = bytes.decode_s64(offset + 8)
-		view_height = bytes.decode_s64(offset + 16)
-		fps = bytes.decode_s64(offset + 24)
-		code_address = bytes.decode_s64(offset + 32)
-		memory_size = bytes.decode_s64(offset + 40)
-	
-	func size():
-		return HEADER_SIZE_BYTES
- * @returns 
- */
-
 // Magic at the start of every executable file
 export const PROGRAM_HEADER_MAGIC = 0xFEEDC0FFEEn;
 
@@ -104,7 +78,7 @@ export function program_header_to_bytes(program_header: ProgramHeader): Uint8Arr
  * <2 byte type> | <6 byte length> | <extension padded to 8 bytes with a null terminator> | <bytes... padded to 8 bytes>
  */
 enum AssetTypes {
-	NO_ASSET = 0,
+	NO_ASSET = 0,     // we assume this is zero below
 	SPRITE_ASSET = 1,
 	MUSIC_ASSET = 2,
 	SOUND_ASSET = 3
@@ -150,6 +124,9 @@ export function assets_to_bytes(program_header: ProgramHeader): Uint8Array
 
         asset_bytes.push(concat_bytes([file_type_bytes, file_length_bytes, file_extension_bytes, file_bytes]));
     });
+
+    // Finally add the null terminator (no_asset)
+    asset_bytes.push(new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]));
 
     return concat_bytes(asset_bytes);
 }

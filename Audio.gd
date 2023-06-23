@@ -5,6 +5,10 @@ var Errors: Errors = get_node("/root/Errors")
 
 @onready
 var AudioImport: AudioImport = get_node("/root/AudioImport")
+
+@onready
+var MachineCodeTranslator: MachineCodeTranslator = get_node("/root/MachineCodeTranslator")
+
 # Handles all music and sound related operations
 
 var music: Array[AudioStream] = []
@@ -21,10 +25,15 @@ func unload():
 	music.clear()
 	sounds.clear()
 
-func load_music(music_files: Array[String]):
+func load_music(music_files: Array[MachineCodeTranslator.Asset]):
 	# Load all the assets for the program ahead of their use
 	for music_file in music_files:
-		var stream: AudioStream = AudioImport.loadfile(music_file)
+		var file_path = "user://temp_resource." + music_file.extension;
+		var file = FileAccess.open(file_path, FileAccess.WRITE);
+		file.store_buffer(music_file.bytes);
+		file.close()
+		
+		var stream: AudioStream = AudioImport.loadfile(file_path)
 		if stream is AudioStreamWAV:
 			stream.loop_mode = 1
 		else:
@@ -32,10 +41,15 @@ func load_music(music_files: Array[String]):
 		
 		music.append(stream)
 
-func load_sounds(sound_files: Array[String]):
+func load_sounds(sound_files: Array[MachineCodeTranslator.Asset]):
 	# Load all the assets for the program ahead of their use
 	for sound_file in sound_files:
-		var stream: AudioStream = AudioImport.loadfile(sound_file)
+		var file_path = "user://temp_resource." + sound_file.extension;
+		var file = FileAccess.open(file_path, FileAccess.WRITE);
+		file.store_buffer(sound_file.bytes);
+		file.close()
+		
+		var stream: AudioStream = AudioImport.loadfile(file_path)
 		if stream is AudioStreamWAV:
 			stream.loop_mode = 0
 		else:

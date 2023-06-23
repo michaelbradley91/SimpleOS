@@ -104,6 +104,7 @@ func get_instruction_from_memory(address: int) -> Instruction:
 
 # Assets appear in the header of a program and point to paths on the file system
 # They are terminated by a "no asset" entry
+# <2 byte type> | <6 byte length> | <extension padded to 8 bytes with a null terminator> | <bytes... padded to 8 bytes>
 enum ASSET_TYPES {
 	NO_ASSET = 0,
 	SPRITE_ASSET = 1,
@@ -113,17 +114,30 @@ enum ASSET_TYPES {
 
 class Asset:
 	var type: int
-	var location: String
+	var extension: String
+	var bytes: PackedByteArray
 	
 	func _init(bytes: PackedByteArray, offset: int):
 		type = bytes.decode_u16(offset)
+		var length = bytes.decode_u64(offset) >> 16;
 		
 		# Work out where the string is
-		var end = bytes.find(0, offset + 2)
-		location = bytes.slice(offset + 2, end + 1).get_string_from_utf8()
-	
+		var end = bytes.find(0, offset + 8)
+		extension = bytes.slice(offset + 8, end + 1).get_string_from_utf8()
+		
+		if (end % 8 != 0):
+			end += 8 - (end % 8);
+		
+		self.bytes = bytes.slice(end, end + length);
+		
 	func size():
-		return 2 + location.length() + 1
+		var extension_bytes = extension.length() + 1
+		if (extension_bytes % 8 != 0):
+			extension_bytes += 8 - (extension_bytes % 8);
+		var total_bytes_length = bytes.size();
+		if (total_bytes_length % 8 != 0):
+			total_bytes_length += 8 - (total_bytes_length % 8);
+		return 8 + extension_bytes + total_bytes_length
 
 # Finally, at the very top of the file are header values. Each entry is 8 bytes and
 # and appears in the exact order of the class below:
