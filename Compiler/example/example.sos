@@ -2,7 +2,7 @@
 #define BOB 4
 
 #macro_begin FUNC()
-div 4 5
+add 4 5
 #macro_end
 
 #macro_begin XXX(RGB)
@@ -21,3 +21,5 @@ jmp 0x100 label:
 sub BOB 5
 
 FUNC()
+
+exit

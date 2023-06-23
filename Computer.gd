@@ -94,13 +94,7 @@ func _ready():
 	load_program("C:\\Users\\micha\\repos\\SimpleOS\\Compiler\\example\\example.sosexe")
 	
 func _draw():
-	print("Drawing")
-	Memory.write(2, 0xFFFF00AA)
-	Memory.write(3, Video.new_rectangle(0, 0, 300, 300).as_int())
-	Memory.write(4, 0)
-	Memory.write(5, Video.new_rectangle(300, 300, 300, 300).as_int())
-	Video.draw_sprite(3, 4, self)
-	Video.draw_colour(3, 2, self)
+	pass
 
 func _unhandled_input(event: InputEvent):
 	# Remember the input event so it can be processed next time
@@ -200,9 +194,10 @@ func exit_program():
 
 func abort_program():
 	# TODO
-	exit_program()
+	var instruction_pointer = Memory.read(Memory.INSTRUCTION_POINTER);
 	print("Program crashed. Error %s" % Errors.errno)
-	pass
+	print("Instruction pointer. %s" % instruction_pointer);
+	exit_program()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -227,6 +222,7 @@ func _process(delta):
 				break
 			
 			var should_continue = process_instruction(instruction)
+			print("Handling instruction %s" % instruction.type)
 			if not should_continue:
 				if instruction.type == MachineCodeTranslator.INSTRUCTIONS.EXIT:
 					exit_program()

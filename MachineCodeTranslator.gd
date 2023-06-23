@@ -69,20 +69,20 @@ class Instruction:
 		
 		type = bytes.decode_u16(offset)
 		# The six byte value is tricky. We need to do a signed extension...
-
+		
 		var arg1_temp = bytes.slice(offset + 2, offset + 8)
-		if bytes.decode_s8(offset + 2) < 0:
-			arg1_temp.insert(0, 0xFF)
-			arg1_temp.insert(0, 0xFF)
+		if bytes.decode_s8(offset + 7) < 0:
+			arg1_temp.append(0xFF)
+			arg1_temp.append(0xFF)
 		else:
-			arg1_temp.insert(0, 0)
-			arg1_temp.insert(0, 0)
+			arg1_temp.append(0)
+			arg1_temp.append(0)
 		arg1 = arg1_temp.decode_s64(0)
 		
 		arg2 = bytes.decode_s64(offset + 8)
 	
 	func as_ints():
-		return [(type & 0xFFFF) << (6 * 8) + arg1, arg2]
+		return [((type & 0xFFFF) << (6 * 8)) + arg1, arg2]
 	
 	func size():
 		return 16
