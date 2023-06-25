@@ -24,7 +24,22 @@ var music_player: AudioStreamPlayer = $MusicPlayer
 var sound_player: AudioStreamPlayer = $SoundPlayer
 
 @onready
+var computer_sound_player: AudioStreamPlayer = $ComputerSoundPlayer
+
+@onready
+var file_dialog: FileDialog = $FileDialog
+
+@onready
 var program_canvas: Node2D = self
+
+@onready
+var cat_meow: AudioStream = AudioImport.loadfile("res://Art/kitty-meow-85182.mp3")
+
+@onready
+var floppy_disk_insert: AudioStream = AudioImport.loadfile("res://Art/inserting_floppy_disc-93172.mp3")
+
+@onready
+var computer_startup: AudioStream = AudioImport.loadfile("res://Art/start-computeraif-14572.mp3")
 
 var current_program: MachineCodeTranslator.MachineCode = null
 
@@ -91,6 +106,25 @@ func load_program(program_path: String):
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	if cat_meow is AudioStreamWAV:
+		cat_meow.loop_mode = 0
+	else:
+		cat_meow.loop = false
+	
+	if floppy_disk_insert is AudioStreamWAV:
+		floppy_disk_insert.loop_mode = 0
+	else:
+		floppy_disk_insert.loop = false
+	
+	if computer_startup is AudioStreamWAV:
+		computer_startup.loop_mode = 0
+	else:
+		computer_startup.loop = false
+	
+	computer_sound_player.stream = computer_startup
+	computer_sound_player.volume_db = linear_to_db(30000 / 65535.0)
+	computer_sound_player.play()
+	
 	load_program("C:\\Users\\micha\\repos\\SimpleOS\\Compiler\\example\\example.sosexe")
 	
 func _draw():
@@ -231,3 +265,25 @@ func _process(delta):
 			if Errors.errno != 0:
 				abort_program()
 				break
+
+func _on_play_button_pressed():
+	computer_sound_player.stream = floppy_disk_insert
+	computer_sound_player.volume_db = linear_to_db(30000 / 65535.0)
+	computer_sound_player.play()
+	
+	file_dialog.show()
+	file_dialog.request_attention()
+
+func _on_exit_button_pressed():
+	get_tree().get_root().propagate_notification(NOTIFICATION_WM_CLOSE_REQUEST)
+	get_tree().quit(0)
+
+func _on_file_dialog_file_selected(path):
+	file_dialog.hide()
+	
+	print("Loading program: " + path)
+
+func _on_cat_pressed():
+	computer_sound_player.stream = cat_meow
+	computer_sound_player.volume_db = linear_to_db(30000 / 65535.0)
+	computer_sound_player.play()

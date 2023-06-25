@@ -1,7 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://de7l8vdta786q"]
+[gd_scene load_steps=10 format=3 uid="uid://de7l8vdta786q"]
 
 [ext_resource type="Script" path="res://Computer.gd" id="1_3kvsg"]
 [ext_resource type="AudioStream" uid="uid://dbvnv758jqmpp" path="res://sample-3s.mp3" id="2_rveje"]
+[ext_resource type="Texture2D" uid="uid://bpac1benwt5l8" path="res://Art/MainBackground.png" id="3_luq2v"]
+[ext_resource type="Texture2D" uid="uid://basogv2bsmlr8" path="res://Art/PlayButton.png" id="4_fjxg2"]
+[ext_resource type="Texture2D" uid="uid://blvkwxwhx7x8t" path="res://Art/PlayButtonPressed.png" id="5_msclu"]
+[ext_resource type="Texture2D" uid="uid://bfm0bbr8dqp6h" path="res://Art/ExitButton.png" id="5_rkyav"]
+[ext_resource type="Texture2D" uid="uid://c2ro7aewmyxff" path="res://Art/PlayButtonHover-export.png" id="6_wnwo4"]
+[ext_resource type="Texture2D" uid="uid://ct80mq6uq7fc0" path="res://Art/ExitButtonHover.png" id="8_flh52"]
+[ext_resource type="Texture2D" uid="uid://nxgv3orvq12c" path="res://Art/cat-export.png" id="9_ebh1c"]
 
 [node name="Computer" type="Node2D"]
 script = ExtResource("1_3kvsg")
@@ -12,3 +19,52 @@ max_polyphony = 10
 
 [node name="SoundPlayer" type="AudioStreamPlayer" parent="."]
 max_polyphony = 10
+
+[node name="Background" type="Sprite2D" parent="."]
+position = Vector2(960, 540)
+texture = ExtResource("3_luq2v")
+
+[node name="PlayButton" type="TextureButton" parent="Background"]
+offset_left = 399.0
+offset_top = 436.0
+offset_right = 883.0
+offset_bottom = 516.0
+texture_normal = ExtResource("4_fjxg2")
+texture_pressed = ExtResource("5_msclu")
+texture_hover = ExtResource("6_wnwo4")
+
+[node name="ExitButton" type="TextureButton" parent="Background"]
+offset_left = -320.0
+offset_top = 436.0
+offset_right = -240.0
+offset_bottom = 516.0
+texture_normal = ExtResource("5_rkyav")
+texture_pressed = ExtResource("8_flh52")
+texture_hover = ExtResource("8_flh52")
+
+[node name="FileDialog" type="FileDialog" parent="."]
+title = "Select Simple OS Executable"
+position = Vector2i(510, 240)
+size = Vector2i(900, 600)
+ok_button_text = "Open"
+dialog_hide_on_ok = true
+mode_overrides_title = false
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.sosexe ; Simple OS Executables")
+show_hidden_files = true
+
+[node name="Cat" type="TextureButton" parent="."]
+offset_left = 224.0
+offset_top = 305.0
+offset_right = 384.0
+offset_bottom = 465.0
+texture_normal = ExtResource("9_ebh1c")
+
+[node name="ComputerSoundPlayer" type="AudioStreamPlayer" parent="."]
+max_polyphony = 10
+
+[connection signal="pressed" from="Background/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="Background/ExitButton" to="." method="_on_exit_button_pressed"]
+[connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]
+[connection signal="pressed" from="Cat" to="." method="_on_cat_pressed"]
