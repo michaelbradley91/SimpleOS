@@ -6,6 +6,23 @@ var Memory: Memory = get_node("/root/Memory")
 @onready
 var MachineCodeTranslator: MachineCodeTranslator = get_node("/root/MachineCodeTranslator")
 
+var draw_mutex: Mutex = Mutex.new()
+
+var draw_instructions = []
+
+func lock_draw_instructions():
+	draw_mutex.lock()
+
+func unlock_draw_instructions():
+	draw_mutex.unlock()
+
+func get_draw_instructions():
+	print("getting draw instructions: ", draw_instructions.size())
+	return draw_instructions
+
+func clear_draw_instructions():
+	draw_instructions = []
+
 # Controls drawing to the screen!
 class Rectangle:
 	var x: int
@@ -61,6 +78,14 @@ class Colour:
 		value += ((red & 0xFF) << (3 * 8))
 		return value
 
+func new_colour(red: int, green: int, blue: int, alpha: int) -> Colour:
+	var colour = Colour.new(0)
+	colour.red = red
+	colour.green = green
+	colour.blue = blue
+	colour.alpha = alpha
+	return colour
+
 var images: Array[ImageTexture] = []
 
 func load_image(path: String) -> ImageTexture:
@@ -89,15 +114,19 @@ func unload():
 	
 	images.clear()
 
-func draw_colour(rectangle_address: int, colour_address: int, node2D: Node2D):
+func draw_colour(rectangle_address: int, colour_address: int):
 	var rectangle = Rectangle.new(Memory.read(rectangle_address))
 	var colour = Colour.new(Memory.read(colour_address))
 	if Errors.errno != Errors.SUCCESS:
 		return
-	
-	node2D.draw_rect(rectangle.as_rect(), colour.as_color(), true)
+	print("Adding to draw instructions")
+	draw_mutex.lock()
+	draw_instructions.push_back(func(node):
+		node.draw_rect(rectangle.as_rect(), colour.as_color(), true)
+	)
+	draw_mutex.unlock()
 
-func draw_sprite(rectangle_address: int, sprite_address: int, node2D: Node2D):
+func draw_sprite(rectangle_address: int, sprite_address: int):
 	var rectangle = Rectangle.new(Memory.read(rectangle_address))
 	var sprite_index = Memory.read(sprite_address)
 	if Errors.errno != Errors.SUCCESS:
@@ -108,8 +137,13 @@ func draw_sprite(rectangle_address: int, sprite_address: int, node2D: Node2D):
 		Errors.errno = Errors.NO_SUCH_SPRITE_ERROR
 		return
 	
-	node2D.draw_texture_rect(images[sprite_index], rectangle.as_rect(), false)
+	print("Adding to draw instructions")
+	draw_mutex.lock()
+	draw_instructions.push_back(func(node):
+		node.draw_texture_rect(images[sprite_index], rectangle.as_rect(), false)
+	)
+	draw_mutex.unlock()
 
-func clear(rectangle_address: int, node2D: Node2D):
-	draw_colour(rectangle_address, Memory.SCREEN_DEFAULT_COLOUR, node2D)
+func clear(rectangle_address: int):
+	draw_colour(rectangle_address, Memory.SCREEN_DEFAULT_COLOUR)
 	

@@ -15,6 +15,9 @@ var Memory: Memory = get_node("/root/Memory")
 var GlobalInput: GlobalInput = get_node("/root/GlobalInput")
 
 @onready
+var Video: Video = get_node("/root/Video")
+
+@onready
 var MachineCodeTranslator: MachineCodeTranslator = get_node("/root/MachineCodeTranslator")
 
 @onready
@@ -41,7 +44,55 @@ var floppy_disk_insert: AudioStream = AudioImport.loadfile("res://Art/inserting_
 @onready
 var computer_startup: AudioStream = AudioImport.loadfile("res://Art/start-computeraif-14572.mp3")
 
+@onready
+var subviewport_container: SubViewportContainer = $SubViewportContainer
+
+@onready
+var computer_screen: TextureRect = $SubViewportContainer/SubViewport/ComputerScreen
+
+@onready
+var computer_screen_viewport: SubViewport = $SubViewportContainer/SubViewport
+
 var current_program: MachineCodeTranslator.MachineCode = null
+
+#
+# The sub viewport's size 2D override should be set to preserve
+# the aspect ratio and meet the larger of width or height
+# 
+# The transform of the computer screen (texture rect) should be given a size
+# equal to the targer resolution, and then the positon should offset by the correct amount
+# to centre the content.
+#
+func set_computer_resolution(width: int, height: int):
+	
+	# If the width is bigger than the screen allows, we scale to that
+	# Otherwise we scale to the height
+	var target_width = width
+	var target_height = height
+	if (width * 9 >= height * 16):
+		# The screen is wider than we can handle, so the viewport height
+		# will be larger than the desired resolution
+		target_height = (width * 9) / 16
+	else:
+		# The screen is higher than we can handle, so the apparent width
+		# will be larger than the desired resolution
+		target_width = (height * 16) / 9
+	
+	computer_screen_viewport.size_2d_override = Vector2i(target_width, target_height)
+	# Now the computer screen needs to centre its contents inside the viewport	
+	if (width * 9 >= height * 16):
+		# The screen is too wide, so we need to lower ourselves to compensate
+		# for the added height in the viewport
+		computer_screen_viewport.canvas_transform.origin.x = 0
+		computer_screen_viewport.canvas_transform.origin.y = (target_height - height) / 2
+	else:
+		# The screen is too tall, so we need to shift right to compensate
+		# for the added height in the viewport
+		computer_screen_viewport.canvas_transform.origin.x = (target_width - width) / 2
+		computer_screen_viewport.canvas_transform.origin.y = 0
+	
+	computer_screen.size.x = width
+	computer_screen.size.y = height
 
 func load_program(program_path: String):
 	# Reset errors
@@ -51,7 +102,7 @@ func load_program(program_path: String):
 	var file = FileAccess.open(program_path, FileAccess.READ)
 	var bytes = file.get_buffer(file.get_length())
 	file.close()
-	
+
 	# Parse the machine code first
 	current_program = MachineCodeTranslator.parse_machine_code(bytes)
 	
@@ -124,18 +175,20 @@ func _ready():
 	computer_sound_player.stream = computer_startup
 	computer_sound_player.volume_db = linear_to_db(30000 / 65535.0)
 	computer_sound_player.play()
-	
+
+	# TODO - remove
 	load_program("C:\\Users\\micha\\repos\\SimpleOS\\Compiler\\example\\example.sosexe")
-	
-func _draw():
-	pass
+	set_computer_resolution(300, 300)
+	Memory.write(1, Video.new_rectangle(0, 0, 300, 300).as_int())
+	Memory.write(2, Video.new_colour(255, 255, 0, 255).as_int())
+	Video.draw_colour(1, 2)
 
 func _unhandled_input(event: InputEvent):
 	# Remember the input event so it can be processed next time
 	GlobalInput.queue_event(event)
 
 func trigger_draw():
-	program_canvas.queue_redraw()
+	computer_screen.queue_redraw()
 
 func process_instruction(instruction: MachineCodeTranslator.Instruction) -> bool:
 	# Process an instruction. Return true if the program should try to process the next instruction
@@ -180,13 +233,13 @@ func process_instruction(instruction: MachineCodeTranslator.Instruction) -> bool
 		MachineCodeTranslator.INSTRUCTIONS.BITWISE_NOT:
 			Operations.bitwise_not(instruction.arg1)
 		MachineCodeTranslator.INSTRUCTIONS.DRAW_COLOUR:
-			Video.draw_colour(instruction.arg1, instruction.arg2, program_canvas)
+			Video.draw_colour(instruction.arg1, instruction.arg2)
 			trigger_draw()
 		MachineCodeTranslator.INSTRUCTIONS.DRAW_SPRITE:
-			Video.draw_sprite(instruction.arg1, instruction.arg2, program_canvas)
+			Video.draw_sprite(instruction.arg1, instruction.arg2)
 			trigger_draw()
 		MachineCodeTranslator.INSTRUCTIONS.DRAW_CLEAR:
-			Video.clear(instruction.arg1, program_canvas)
+			Video.clear(instruction.arg1)
 			trigger_draw()
 		MachineCodeTranslator.INSTRUCTIONS.MUSIC_PLAY:
 			Audio.music_play(instruction.arg1, instruction.arg2, music_player)
@@ -233,6 +286,7 @@ func abort_program():
 	print("Instruction pointer. %s" % instruction_pointer);
 	exit_program()
 
+var elapsed = 0
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if current_program != null:
