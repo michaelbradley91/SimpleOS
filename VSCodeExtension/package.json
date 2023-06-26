@@ -16,31 +16,17 @@
 	"engines": {
 		"vscode": "^1.75.0"
 	},
-	"activationEvents": [
-		"onLanguage:sos"
-	],
 	"main": "./client/out/extension",
 	"contributes": {
 		"configuration": {
 			"type": "object",
 			"title": "Simple OS Configuration",
 			"properties": {
-				"simpleOS.maxNumberOfProblems": {
+				"simpleOS.working_directory": {
 					"scope": "resource",
-					"type": "number",
-					"default": 100,
-					"description": "Controls the maximum number of problems produced by the server."
-				},
-				"simpleOS.trace.server": {
-					"scope": "window",
 					"type": "string",
-					"enum": [
-						"off",
-						"messages",
-						"verbose"
-					],
-					"default": "off",
-					"description": "Traces the communication between VS Code and the language server."
+					"default": "",
+					"description": "Controls the maximum number of problems produced by the server."
 				}
 			}
 		},

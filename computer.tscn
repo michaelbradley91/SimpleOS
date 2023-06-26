@@ -78,7 +78,6 @@ offset_bottom = 40.0
 script = ExtResource("9_qkoa4")
 
 [node name="Cat" type="TextureButton" parent="."]
-visible = false
 offset_left = 224.0
 offset_top = 305.0
 offset_right = 384.0
