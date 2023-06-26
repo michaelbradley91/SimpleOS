@@ -8,8 +8,11 @@
 		"type": "git",
 		"url": "https://github.com/michaelbradley91/SimpleOS"
 	},
+	"type": "module",
 	"publisher": "Michael Bradley",
-	"categories": ["Language Packs"],
+	"categories": [
+		"Language Packs"
+	],
 	"keywords": [
 		"multi-root ready"
 	],
@@ -33,7 +36,11 @@
 		"languages": [
 			{
 				"id": "sos",
-				"aliases": ["SimpleOS", "simpleos", "SOS"],
+				"aliases": [
+					"SimpleOS",
+					"simpleos",
+					"SOS"
+				],
 				"extensions": [
 					".sos"
 				],
@@ -57,15 +64,23 @@
 		"watch": "tsc -b -w",
 		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-		"test": "sh ./scripts/e2e.sh"
+		"test": "sh ./scripts/e2e.sh",
+		"compiler-tests": "mocha  --require ts-node/register \"./server/src/compiler/tests/**/*.ts\""
+	},
+	"dependencies": {
+		"@types/node": "^20.2.4",
+		"ts-node": "^6.0.1"
 	},
 	"devDependencies": {
 		"@types/mocha": "^9.1.0",
 		"@types/node": "^16.18.34",
+		"@types/tmp": "^0.2.3",
 		"@typescript-eslint/eslint-plugin": "^5.54.0",
 		"@typescript-eslint/parser": "^5.54.0",
 		"eslint": "^8.35.0",
-		"mocha": "^9.2.1",
+		"mocha": "^9.2.2",
+		"tmp": "^0.2.1",
+		"ts-node-dev": "^2.0.0",
 		"typescript": "^5.1.3"
 	}
 }
