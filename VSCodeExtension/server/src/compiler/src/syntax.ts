@@ -486,10 +486,34 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
     return new TokenLineResult(tokens, null);
 }
 
-export function get_file_lines(file_path: string): string[]
+export function get_file_lines_from_filesystem(file_path: string): string[] | null
 {
-    const contents = readFileSync(file_path, 'utf-8');
-    return contents.split(/\r?\n/);
+    try
+    {
+        const contents = readFileSync(file_path, 'utf-8');
+        return contents.split(/\r?\n/);
+    } catch(e)
+    {
+        return null;
+    }
+}
+
+
+let get_file_lines_callback: (path: string) => string[] | null;
+
+/**
+ * Choose how to get the lines of a file.
+ * When running as a VSCode extension, we have to get the files from the editor since they may not have been
+ * saved yet.
+ */
+export function set_get_file_lines(callback: (path: string) => string[] | null)
+{
+    get_file_lines_callback = callback;
+}
+
+export function get_file_lines(file_path: string): string[] | null
+{
+    return get_file_lines_callback(file_path);
 }
 
 export function tokenise_file(file_lines: string[]): TokenFileResult

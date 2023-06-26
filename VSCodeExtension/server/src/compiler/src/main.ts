@@ -2,9 +2,12 @@ import { exit } from 'process';
 import { compile, output_binary } from './compiler';
 import { print_process_file_result } from './semantics';
 import path = require('node:path');
+import { set_get_file_lines, get_file_lines_from_filesystem } from './syntax';
+
+// Use the filesystem for path resolution
+set_get_file_lines(get_file_lines_from_filesystem);
 
 const command_line_arguments: string[] = process.argv.slice(1);
-
 if (command_line_arguments.length < 2)
 {
     console.log(`Usage: ${command_line_arguments[0]} <file path>`);

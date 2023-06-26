@@ -10,22 +10,28 @@ export class CompilationResult
 {
     program_header: ProgramHeader;
     process_file_result: ProcessFileResult;
+    parser_context: ParserContext;
 
-    constructor(program_header: ProgramHeader, process_file_result: ProcessFileResult)
+    constructor(program_header: ProgramHeader, process_file_result: ProcessFileResult, parser_context: ParserContext)
     {
         this.program_header = program_header;
         this.process_file_result = process_file_result;
+        this.parser_context = parser_context;
     }
 }
 
 export function compile(file_path: string): CompilationResult
-{     
+{
     const program_path: string = path.resolve(file_path);
     const configuration_path = program_path + ".json";
 
     const program_header: ProgramHeader = parse_program_header(configuration_path);
     const working_directory = path.dirname(program_path);
+    return compile_with_program_header(program_path, program_header, working_directory);
+}
 
+export function compile_with_program_header(program_path: string, program_header: ProgramHeader, working_directory: string)
+{
     // Construct a parser context...
     const parser_context = new ParserContext();
     parser_context.active_file = program_path;
@@ -48,7 +54,7 @@ export function compile(file_path: string): CompilationResult
 
     const processed_file = process_file(program_path, parser_context);
     resolve_labels(program_header, processed_file);
-    return new CompilationResult(program_header, processed_file);
+    return new CompilationResult(program_header, processed_file, parser_context);
 }
 
 // Magic at the start of every executable file

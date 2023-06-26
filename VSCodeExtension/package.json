@@ -8,7 +8,6 @@
 		"type": "git",
 		"url": "https://github.com/michaelbradley91/SimpleOS"
 	},
-	"type": "module",
 	"publisher": "Michael Bradley",
 	"categories": [
 		"Language Packs"
@@ -30,6 +29,12 @@
 					"type": "string",
 					"default": "",
 					"description": "Controls the maximum number of problems produced by the server."
+				},
+				"simpleOS.program_configuration": {
+					"scope": "resource",
+					"type": "string",
+					"default": "",
+					"description": "The location of your program's JSON configuration file."
 				}
 			}
 		},
@@ -65,7 +70,9 @@
 		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
 		"test": "sh ./scripts/e2e.sh",
-		"compiler-tests": "mocha  --require ts-node/register \"./server/src/compiler/tests/**/*.ts\""
+		"compiler-tests": "mocha  --require ts-node/register \"./server/src/compiler/tests/**/*.ts\"",
+		"compile-sos": "ts-node server/src/compiler/src/main.ts",
+		"start": "ts-node server/src/compiler/src/main.ts -- example/example.sos"
 	},
 	"dependencies": {
 		"@types/node": "^20.2.4",

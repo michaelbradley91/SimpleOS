@@ -408,7 +408,9 @@ function evaluate_colour(args: ConstantValue[], parser_context: ParserContext): 
         return usage_error;
     }
     
-    args.forEach(arg => {
+    for (let i = 0; i < args.length; i++)
+    {
+        const arg = args[i];
         if (arg.type != ConstantValueType.Number)
         {
             return usage_error;
@@ -417,7 +419,7 @@ function evaluate_colour(args: ConstantValue[], parser_context: ParserContext): 
         {
             return usage_error;
         }
-    });
+    }
 
     if (args[3].value == null || args[2].value == null || args[1].value == null || args[0].value == null)
     {
@@ -452,7 +454,9 @@ function evaluate_key_pressed(args: ConstantValue[], parser_context: ParserConte
         return usage_error;
     }
     
-    args.forEach(arg => {
+    for (let i = 0; i < args.length; i++)
+    {
+        const arg = args[i];
         if (arg.type != ConstantValueType.Number)
         {
             return usage_error;
@@ -461,7 +465,8 @@ function evaluate_key_pressed(args: ConstantValue[], parser_context: ParserConte
         {
             return usage_error;
         }
-    });
+    }
+
     if (args[0].value == null)
     {
         return usage_error;
@@ -485,7 +490,9 @@ function evaluate_key_released(args: ConstantValue[], parser_context: ParserCont
         return usage_error;
     }
     
-    args.forEach(arg => {
+    for (let i = 0; i < args.length; i++)
+    {
+        const arg = args[i];
         if (arg.type != ConstantValueType.Number)
         {
             return usage_error;
@@ -494,7 +501,7 @@ function evaluate_key_released(args: ConstantValue[], parser_context: ParserCont
         {
             return usage_error;
         }
-    });
+    }
 
     if (args[0].value == null)
     {
@@ -519,7 +526,9 @@ function evaluate_mouse_pressed(args: ConstantValue[], parser_context: ParserCon
         return usage_error;
     }
     
-    args.forEach(arg => {
+    for (let i = 0; i < args.length; i++)
+    {
+        const arg = args[i];
         if (arg.type != ConstantValueType.Number)
         {
             return usage_error;
@@ -528,7 +537,7 @@ function evaluate_mouse_pressed(args: ConstantValue[], parser_context: ParserCon
         {
             return usage_error;
         }
-    });
+    }
 
     if (args[2].value == null || args[1].value == null || args[0].value == null)
     {
@@ -555,7 +564,9 @@ function evaluate_mouse_released(args: ConstantValue[], parser_context: ParserCo
         return usage_error;
     }
     
-    args.forEach(arg => {
+    for (let i = 0; i < args.length; i++)
+    {
+        const arg = args[i];
         if (arg.type != ConstantValueType.Number)
         {
             return usage_error;
@@ -564,7 +575,7 @@ function evaluate_mouse_released(args: ConstantValue[], parser_context: ParserCo
         {
             return usage_error;
         }
-    });
+    }
 
     if (args[2].value == null || args[1].value == null || args[0].value == null)
     {
@@ -588,7 +599,9 @@ function evaluate_music(args: ConstantValue[], parser_context: ParserContext): C
         return usage_error;
     }
     
-    args.forEach(arg => {
+    for (let i = 0; i < args.length; i++)
+    {
+        const arg = args[i];
         if (arg.type != ConstantValueType.String)
         {
             return usage_error;
@@ -597,7 +610,7 @@ function evaluate_music(args: ConstantValue[], parser_context: ParserContext): C
         {
             return new ConstantValue([], new SemanticError(parser_context.line, "music not found"));
         }
-    });
+    }
 
     if (args[0].text == null)
     {
@@ -622,7 +635,9 @@ function evaluate_sound(args: ConstantValue[], parser_context: ParserContext): C
         return usage_error;
     }
     
-    args.forEach(arg => {
+    for (let i = 0; i < args.length; i++)
+    {
+        const arg = args[i];
         if (arg.type != ConstantValueType.String)
         {
             return usage_error;
@@ -631,7 +646,7 @@ function evaluate_sound(args: ConstantValue[], parser_context: ParserContext): C
         {
             return new ConstantValue([], new SemanticError(parser_context.line, "sound not found"));
         }
-    });
+    }
 
     if (args[0].text == null)
     {
@@ -657,7 +672,9 @@ function evaluate_sprite(args: ConstantValue[], parser_context: ParserContext): 
         return usage_error;
     }
     
-    args.forEach(arg => {
+    for (let i = 0; i < args.length; i++)
+    {
+        const arg = args[i];
         if (arg.type != ConstantValueType.String)
         {
             return usage_error;
@@ -666,7 +683,7 @@ function evaluate_sprite(args: ConstantValue[], parser_context: ParserContext): 
         {
             return new ConstantValue([], new SemanticError(parser_context.line, "sprite not found"));
         }
-    });
+    }
 
     if (args[0].text == null)
     {
@@ -692,7 +709,9 @@ function evaluate_rectangle(args: ConstantValue[], parser_context: ParserContext
         return usage_error;
     }
     
-    args.forEach(arg => {
+    for (let i = 0; i < args.length; i++)
+    {
+        const arg = args[i];
         if (arg.type != ConstantValueType.Number)
         {
             return usage_error;
@@ -701,7 +720,7 @@ function evaluate_rectangle(args: ConstantValue[], parser_context: ParserContext
         {
             return usage_error;
         }
-    });
+    }
 
     if (args[3].value == null || args[2].value == null || args[1].value == null || args[0].value == null)
     {
@@ -732,12 +751,14 @@ function evaluate_rectangle(args: ConstantValue[], parser_context: ParserContext
 export function evaluate_function(token: Function_Token, args: ConstantValue[], parser_context: ParserContext): ConstantValue
 {
     // Check for any args we would always reject
-    args.forEach(arg => {
+    for (let i = 0; i < args.length; i++)
+    {
+        const arg = args[i];
         if (arg.type == ConstantValueType.Label || arg.type == ConstantValueType.Error)
         {
             return new ConstantValue([], new SemanticError(parser_context.line, `Bad arguments to function ${token.type}`));
         }
-    });
+    }
 
     // Now for the individual functions...
     switch(token.type)
@@ -1028,12 +1049,14 @@ export function process_operation(operation: OperationType, args: Token[], parse
     }
 
     // Are the arguments all of the right form?
-    arg_values.forEach(value => {
+    for (let i = 0; i < arg_values.length; i++)
+    {
+        const value = arg_values[i];
         if (value.type != ConstantValueType.Number && value.type != ConstantValueType.Label)
         {
             return new ProcessOperationResult(new SemanticError(parser_context.line, "Wrong argument type"));
         }
-    });
+    }
 
     if (arg_values.length > 2)
     {
@@ -1409,10 +1432,22 @@ export function process_file(file_path: string, parser_context: ParserContext): 
     // Update the include context. If we have hit a cycle, give up
     if (parser_context.include_stack.find(value => value == file_path))
     {
-        const file_errors = process_file_result.errors.get(file_path);
+        const file_errors = process_file_result.errors.get(parser_context.active_file);
         if (file_errors)
         {
             file_errors.add(new SemanticError(parser_context.line, "Cyclic include detected."));
+        }
+        return process_file_result;
+    }
+
+    // First, tokenise the file
+    const lines = get_file_lines(file_path);
+    if (!lines)
+    {
+        const file_errors = process_file_result.errors.get(parser_context.active_file);
+        if (file_errors)
+        {
+            file_errors.add(new SemanticError(parser_context.line, "File not found"));
         }
         return process_file_result;
     }
@@ -1424,8 +1459,6 @@ export function process_file(file_path: string, parser_context: ParserContext): 
     parser_context.active_file = file_path;
     parser_context.line = 0;
 
-    // First, tokenise the file
-    const lines = get_file_lines(file_path);
     let token_result = tokenise_file(lines);
     token_result = strip_comments(token_result);
     const semantic_errors = validate_basic_token_structure(token_result);
@@ -1439,11 +1472,11 @@ export function process_file(file_path: string, parser_context: ParserContext): 
             semantic_errors.forEach(error => file_errors.add(error));
         }
 
-        parser_context.active_file = old_file;
-        parser_context.line = old_line;
-        parser_context.include_stack.pop();
+        // parser_context.active_file = old_file;
+        // parser_context.line = old_line;
+        // parser_context.include_stack.pop();
 
-        return process_file_result;
+        // return process_file_result;
     }
 
     process_tokens(token_result.tokens, parser_context, process_file_result);

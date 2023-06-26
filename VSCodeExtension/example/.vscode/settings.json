@@ -1,4 +1,4 @@
 {
-    "simpleOS.working_directory": "./",
+    "simpleOS.working_directory": ".",
     "simpleOS.program_configuration": "./example.sos.json"
 }

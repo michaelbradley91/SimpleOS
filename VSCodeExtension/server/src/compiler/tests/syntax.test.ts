@@ -2,6 +2,7 @@ import { writeFileSync } from "fs";
 import { fileSync } from "tmp";
 import { CloseBracket_Token, Comma_Token, Define_Token, DefineInvoked_Token, Include_Token, Label_Token, MacroBegin_Token, MacroEnd_Token, MultiLineComment_Token, NumberLiteral_Token, OpenBracket_Token, Operation_Token, OperationType, SingleLineComment_Token, StringLiteral_Token, TokenLineResult, tokenise_line, get_file_lines, tokenise_file, TokenFileResult } from "../src/syntax";
 import * as assert from 'assert';
+import { fileURLToPath } from 'url';
 
 describe("tokenise_line", () =>
 {
@@ -267,5 +268,11 @@ describe("tokenise_line", () =>
         const byte_array: Uint8Array = new Uint8Array(Buffer.from("hello", "utf-8"));
         console.log(byte_array);
         assert.deepEqual(byte_array, new Uint8Array([0x68, 0x65, 0x6c, 0x6c, 0x6f]));
+    });
+
+    it("Decodes a file URI", () => {
+        const url = new URL("file:///c%3A/Users/micha/repos/SimpleOS/Compiler/example/example.sos");
+        const path = fileURLToPath(url);
+        assert.deepEqual(path, "c:\\Users\\micha\\repos\\SimpleOS\\Compiler\\example\\example.sos");
     });
 });

@@ -1,4 +1,4 @@
-import * as fs from 'fs'
+import * as fs from 'fs';
 
 export interface ProgramHeader {
     fps: number;
@@ -14,6 +14,6 @@ export interface ProgramHeader {
 export function parse_program_header(path: string): ProgramHeader
 {
     const configuration_json: string = fs.readFileSync(path, "utf-8");
-    let program_header: ProgramHeader = JSON.parse(configuration_json);
+    const program_header: ProgramHeader = JSON.parse(configuration_json);
     return program_header;
 }

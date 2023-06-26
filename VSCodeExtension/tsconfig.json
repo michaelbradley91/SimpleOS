@@ -1,23 +1,25 @@
 {
 	"compilerOptions": {
 		"esModuleInterop": true,
+		"moduleResolution": "node",
 		"module": "commonjs",
-		"target": "es2020",
-		"lib": ["es2020"],
+		"target": "es2022",
+		"lib": ["es2022"],
 		"outDir": "out",
 		"rootDir": "src",
 		"sourceMap": true,
 		"skipLibCheck": true
 	},
 	"include": [
-		"src"
+		"src/**/*.ts"
 	],
 	"exclude": [
 		"node_modules",
 		"node_modules/@types",
 		"client/node_modules",
 		"server/node_modules",
-		".vscode-test"
+		".vscode-test",
+		".sos"
 	],
 	"references": [
 		{ "path": "./client" },
