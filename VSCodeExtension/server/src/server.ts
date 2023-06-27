@@ -462,7 +462,7 @@ const function_signatures: SignatureHelp[] = [
 ];
 
 const directive_names: string[] = [
-	"#define", "#include", "#macro_begin", "#macro_end"
+	"#constant", "#include", "#template_begin", "#template_end"
 ];
 
 
@@ -487,39 +487,39 @@ connection.onDefinition(async (_definitionParams: DefinitionParams): Promise<Def
 		return null;
 	}
 
-	// Check defines first...
-	const all_defines = [...compilation_result.parser_context.defines.keys()];
-	for (let i = 0; i < all_defines.length; i++)
+	// Check constants first...
+	const all_constants = [...compilation_result.parser_context.constants.keys()];
+	for (let i = 0; i < all_constants.length; i++)
 	{
-		if (all_defines[i] == word)
+		if (all_constants[i] == word)
 		{
-			const define_definition = compilation_result.parser_context.defines.get(all_defines[i]);
-			if (define_definition)
+			const constant_definition = compilation_result.parser_context.constants.get(all_constants[i]);
+			if (constant_definition)
 			{
-				const documentUri = path_to_document_uri(define_definition.file);
-				const lines = get_file_lines(define_definition.file);
+				const documentUri = path_to_document_uri(constant_definition.file);
+				const lines = get_file_lines(constant_definition.file);
 				if (documentUri && lines)
 				{
 					const definition_link: DefinitionLink = {
 						targetUri: documentUri,
 						targetRange: {
 							start: {
-								line: define_definition.line,
+								line: constant_definition.line,
 								character: 0
 							},
 							end: {
-								line: define_definition.line,
-								character: lines[define_definition.line].length
+								line: constant_definition.line,
+								character: lines[constant_definition.line].length
 							}
 						},
 						targetSelectionRange: {
 							start: {
-								line: define_definition.line,
+								line: constant_definition.line,
 								character: 0
 							},
 							end: {
-								line: define_definition.line,
-								character: lines[define_definition.line].length
+								line: constant_definition.line,
+								character: lines[constant_definition.line].length
 							}
 						}
 					};
@@ -529,42 +529,42 @@ connection.onDefinition(async (_definitionParams: DefinitionParams): Promise<Def
 		}
 	}
 
-	// Check macros...
-	const all_macros = [...compilation_result.parser_context.macros.keys()];
-	for (let i = 0; i < all_macros.length; i++)
+	// Check templates...
+	const all_templates = [...compilation_result.parser_context.templates.keys()];
+	for (let i = 0; i < all_templates.length; i++)
 	{
-		if (all_macros[i] == word)
+		if (all_templates[i] == word)
 		{
-			console.log("Found macro");
-			const macro_definition = compilation_result.parser_context.macros.get(all_macros[i]);
-			if (macro_definition)
+			console.log("Found template");
+			const template_definition = compilation_result.parser_context.templates.get(all_templates[i]);
+			if (template_definition)
 			{
-				console.log("Found macro definition " + macro_definition.file);
-				const documentUri = path_to_document_uri(macro_definition.file);
-				const lines = get_file_lines(macro_definition.file);
+				console.log("Found template definition " + template_definition.file);
+				const documentUri = path_to_document_uri(template_definition.file);
+				const lines = get_file_lines(template_definition.file);
 				if (documentUri && lines)
 				{
-					console.log("Found macro definition with file");
+					console.log("Found template definition with file");
 					const definition_link: DefinitionLink = {
 						targetUri: documentUri,
 						targetRange: {
 							start: {
-								line: macro_definition.line,
+								line: template_definition.line,
 								character: 0
 							},
 							end: {
-								line: macro_definition.line,
-								character: lines[macro_definition.line].length
+								line: template_definition.line,
+								character: lines[template_definition.line].length
 							}
 						},
 						targetSelectionRange: {
 							start: {
-								line: macro_definition.line,
+								line: template_definition.line,
 								character: 0
 							},
 							end: {
-								line: macro_definition.line,
-								character: lines[macro_definition.line].length
+								line: template_definition.line,
+								character: lines[template_definition.line].length
 							}
 						}
 					};
@@ -653,32 +653,32 @@ connection.onSignatureHelp(async (_signatureHelpParams: SignatureHelpParams): Pr
 	{
 		return null;
 	}
-	// Check for macros
-	const all_macros = [...compilation_result.parser_context.macros.keys()];
+	// Check for templates
+	const all_templates = [...compilation_result.parser_context.templates.keys()];
 	for (let i = 0; i < function_names.length; i++)
 	{
-		if (current_word.startsWith(all_macros[i]))
+		if (current_word.startsWith(all_templates[i]))
 		{
-			const macro_definition = compilation_result.parser_context.macros.get(all_macros[i]);
-			if (macro_definition)
+			const template_definition = compilation_result.parser_context.templates.get(all_templates[i]);
+			if (template_definition)
 			{
 				const string_args = [];
 				const parameters: ParameterInformation[] = [];
-				for (let i = 0; i < macro_definition.arguments.length; i++)
+				for (let i = 0; i < template_definition.arguments.length; i++)
 				{
-					string_args.push(macro_definition.arguments[i].name);
+					string_args.push(template_definition.arguments[i].name);
 					parameters.push(
 						{
-							label: macro_definition.arguments[i].name
+							label: template_definition.arguments[i].name
 						}
 					);
 				}
-				const macro_label = all_macros[i] + "(" + string_args.join(",") + ")";
+				const template_label = all_templates[i] + "(" + string_args.join(",") + ")";
 				
 				const signature_help: SignatureHelp = {
 					signatures: [
 						{
-							label: macro_label,
+							label: template_label,
 							parameters: parameters,
 							activeParameter: (current_word.match(/,/g) || []).length
 						}
@@ -749,31 +749,31 @@ connection.onCompletion(
 			return completion_items;
 		}
 		console.log("Got a compilation result we can use");
-		// Check the defines and macros...
-		const all_defines = [...compilation_result.parser_context.defines.keys()];
-		console.log("Found defines: " + all_defines.toString());
-		for (let i = 0; i < all_defines.length; i++)
+		// Check the constants and templates...
+		const all_constants = [...compilation_result.parser_context.constants.keys()];
+		console.log("Found constants: " + all_constants.toString());
+		for (let i = 0; i < all_constants.length; i++)
 		{
-			if (all_defines[i].startsWith(current_word))
+			if (all_constants[i].startsWith(current_word))
 			{
 				completion_items.push({
 					// Not entirely sure why, but VSCode completes these with the # added back in
-					label: all_defines[i],
+					label: all_constants[i],
 					kind: CompletionItemKind.Constant,
 					data: i
 				});
 			}
 		}
-		const all_macros = [...compilation_result.parser_context.macros.keys()];
-		console.log("Found macros: " + all_macros.toString());
-		for (let i = 0; i < all_macros.length; i++)
+		const all_templates = [...compilation_result.parser_context.templates.keys()];
+		console.log("Found templates: " + all_templates.toString());
+		for (let i = 0; i < all_templates.length; i++)
 		{
-			if (all_macros[i].startsWith(current_word))
+			if (all_templates[i].startsWith(current_word))
 			{
-				console.log("Suggesting macro " + all_macros[i]);
+				console.log("Suggesting template " + all_templates[i]);
 				completion_items.push({
 					// Not entirely sure why, but VSCode completes these with the # added back in
-					label: all_macros[i],
+					label: all_templates[i],
 					kind: CompletionItemKind.Method,
 					data: i
 				});

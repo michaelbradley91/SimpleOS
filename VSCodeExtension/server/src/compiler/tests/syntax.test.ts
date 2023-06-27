@@ -1,6 +1,6 @@
 import { writeFileSync } from "fs";
 import { fileSync } from "tmp";
-import { CloseBracket_Token, Comma_Token, Define_Token, DefineInvoked_Token, Include_Token, Label_Token, MacroBegin_Token, MacroEnd_Token, MultiLineComment_Token, NumberLiteral_Token, OpenBracket_Token, Operation_Token, OperationType, SingleLineComment_Token, StringLiteral_Token, TokenLineResult, tokenise_line, get_file_lines, tokenise_file, TokenFileResult, set_get_file_lines, get_file_lines_from_filesystem } from "../src/syntax";
+import { CloseBracket_Token, Comma_Token, Constant_Token, ConstantInvoked_Token, Include_Token, Label_Token, TemplateBegin_Token, TemplateEnd_Token, MultiLineComment_Token, NumberLiteral_Token, OpenBracket_Token, Operation_Token, OperationType, SingleLineComment_Token, StringLiteral_Token, TokenLineResult, tokenise_line, get_file_lines, tokenise_file, TokenFileResult, set_get_file_lines, get_file_lines_from_filesystem } from "../src/syntax";
 import * as assert from 'assert';
 import { fileURLToPath } from 'url';
 
@@ -29,46 +29,46 @@ describe("tokenise_line", () =>
         );
     });
 
-    it("Define can be tokenised correctly", () => {
-        assert.deepEqual(tokenise_line("#define X 0x400", null),
+    it("Constant can be tokenised correctly", () => {
+        assert.deepEqual(tokenise_line("#constant X 0x400", null),
             new TokenLineResult(
                 [
-                    new Define_Token("X"),
+                    new Constant_Token("X"),
                     new NumberLiteral_Token(0x400n)
                 ],
                 null
             )
         );
-        assert.deepEqual(tokenise_line("#define HELLO \"bob\"", null),
+        assert.deepEqual(tokenise_line("#constant HELLO \"bob\"", null),
             new TokenLineResult(
                 [
-                    new Define_Token("HELLO"),
-                    new StringLiteral_Token("bob", 14, 19)
+                    new Constant_Token("HELLO"),
+                    new StringLiteral_Token("bob", 16, 21)
                 ],
                 null
             )
         );
     });
 
-    it("Macro begin can be tokenised correctly", () => {
-        assert.deepEqual(tokenise_line("#macro_begin FUNC()", null),
+    it("Template begin can be tokenised correctly", () => {
+        assert.deepEqual(tokenise_line("#template_begin FUNC()", null),
             new TokenLineResult(
                 [
-                    new MacroBegin_Token("FUNC"),
+                    new TemplateBegin_Token("FUNC"),
                     new OpenBracket_Token(),
                     new CloseBracket_Token()
                 ],
                 null
             )
         );
-        assert.deepEqual(tokenise_line("#macro_begin FUNC(X, STUFF)", null),
+        assert.deepEqual(tokenise_line("#template_begin FUNC(X, STUFF)", null),
             new TokenLineResult(
                 [
-                    new MacroBegin_Token("FUNC"),
+                    new TemplateBegin_Token("FUNC"),
                     new OpenBracket_Token(),
-                    new DefineInvoked_Token("X"),
+                    new ConstantInvoked_Token("X"),
                     new Comma_Token(),
-                    new DefineInvoked_Token("STUFF"),
+                    new ConstantInvoked_Token("STUFF"),
                     new CloseBracket_Token()
                 ],
                 null
@@ -97,11 +97,11 @@ describe("tokenise_line", () =>
         );
     });
 
-    it("Macro end can be tokenised correctly", () => {
-        assert.deepEqual(tokenise_line("#macro_end", null),
+    it("Template end can be tokenised correctly", () => {
+        assert.deepEqual(tokenise_line("#template_end", null),
             new TokenLineResult(
                 [
-                    new MacroEnd_Token()
+                    new TemplateEnd_Token()
                 ],
                 null
             )

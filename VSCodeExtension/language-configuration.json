@@ -40,8 +40,8 @@
 	],
 	"folding": {
 		"markers": {
-			"start": "^\\s*\\s*#?macro_begin\\b",
-			"end": "^\\s*\\s*#?macro_end\\b"
+			"start": "^\\s*\\s*#?template_begin\\b",
+			"end": "^\\s*\\s*#?template_end\\b"
 		},
 	},
 	"wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\'\\\"\\,\\.\\<\\>\\/\\?\\s]+)",

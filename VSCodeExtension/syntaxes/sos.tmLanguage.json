@@ -13,13 +13,13 @@
 		"code": {
 			"patterns": [
 				{ "include": "#command" },
-				{ "include": "#macro" },
+				{ "include": "#template" },
 				{ "include": "#definition" },
 				{ "include": "#do-include" },
 				{ "include": "#comment-block" },
 				{ "include": "#comment-line" },
-				{ "include": "#macro-invoked"},
-				{ "include": "#define-invoked"}
+				{ "include": "#template-invoked"},
+				{ "include": "#constant-invoked"}
 			]
 		},
 		"command": {
@@ -55,45 +55,45 @@
 			}
 		},
 		"definition": {
-			"match": "(#define)($|\\s+([^ \\(\\)]+))",
+			"match": "(#constant)($|\\s+([^ \\(\\)]+))",
 			"name": "definition.sos",
 			"captures": {
 				"1": {
-					"name": "keyword.control.directive.define.sos"
+					"name": "keyword.control.directive.constant.sos"
 				},
 				"3": {
 					"name": "entity.name.function.preprocessor.sos"
 				}
 			}
 		},
-		"define-invoked": {
+		"constant-invoked": {
 			"match": "([^ :,\\(\\)]+)",
 			"name": "entity.name.function.preprocessor.sos"
 		},
-		"macro-invoked": {
+		"template-invoked": {
 			"match": "([^ :,\\(\\)]+)(?=\\([^\\)\\(]*\\))",
 			"name": "entity.name.function.preprocessor.sos"
 		},
-		"macro": {
-			"begin": "(#macro_begin)($|\\s+([^ \\(\\)]+)?(\\(.*\\))?)",
+		"template": {
+			"begin": "(#template_begin)($|\\s+([^ \\(\\)]+)?(\\(.*\\))?)",
 			"beginCaptures": {
 				"1": {
-					"name": "keyword.control.directive.define.sos"
+					"name": "keyword.control.directive.constant.sos"
 				},
 				"3": {
 					"name": "entity.name.function.preprocessor.sos"
 				},
 				"4": {
-					"name": "meta.preprocessor.macro.sos",
+					"name": "meta.preprocessor.template.sos",
 					"patterns": [
 						{ "include": "#arguments-list" }
 					]
 				}
 			},
-			"end": "#macro_end($|\\s+)",
+			"end": "#template_end($|\\s+)",
 			"endCaptures": {
 				"0": {
-					"name": "keyword.control.directive.define.sos"
+					"name": "keyword.control.directive.constant.sos"
 				}
 			},
 			"patterns": [

@@ -1,13 +1,13 @@
 // Hello world
-#define BOB 4
+#constant BOB 4
 
-#macro_begin FUNC()
+#template_begin FUNC()
 add 4 5
-#macro_end
+#template_end
 
-#macro_begin XXX(RGB)
+#template_begin XXX(RGB)
 xor RGB 0x400
-#macro_end
+#template_end
 add 3 4
 and 3 4
 

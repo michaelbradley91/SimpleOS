@@ -1,14 +1,14 @@
-import { ConstantValue, DefineDefinition, ParserContext, evaluate_value, identify_value } from "../src/semantics";
-import { CloseBracket_Token, Comma_Token, DefineInvoked_Token, FunctionType, Function_Token, Label_Token, MacroInvoked_Token, NumberLiteral_Token, OpenBracket_Token, StringLiteral_Token } from "../src/syntax";
+import { ConstantValue, ConstantDefinition, ParserContext, evaluate_value, identify_value } from "../src/semantics";
+import { CloseBracket_Token, Comma_Token, ConstantInvoked_Token, FunctionType, Function_Token, Label_Token, TemplateInvoked_Token, NumberLiteral_Token, OpenBracket_Token, StringLiteral_Token } from "../src/syntax";
 import * as assert from 'assert';
 
 describe("identify_value", () => {
     it("identify_value can pull single values", () => {
         assert.deepEqual((identify_value([
-            new DefineInvoked_Token("HELLO"),
+            new ConstantInvoked_Token("HELLO"),
             new Comma_Token()
         ])), [
-            new DefineInvoked_Token("HELLO")
+            new ConstantInvoked_Token("HELLO")
         ]);
 
         assert.deepEqual(identify_value([
@@ -71,11 +71,11 @@ describe("identify_value", () => {
             new Comma_Token(),
             new StringLiteral_Token("Hello", 0, 0),
             new Comma_Token(),
-            new MacroInvoked_Token("FUNC"),
+            new TemplateInvoked_Token("FUNC"),
             new OpenBracket_Token(),
             new NumberLiteral_Token(400n),
             new Comma_Token(),
-            new DefineInvoked_Token("BOB"),
+            new ConstantInvoked_Token("BOB"),
             new CloseBracket_Token(),
             new CloseBracket_Token(),
             new Comma_Token()
@@ -86,11 +86,11 @@ describe("identify_value", () => {
             new Comma_Token(),
             new StringLiteral_Token("Hello", 0 ,0),
             new Comma_Token(),
-            new MacroInvoked_Token("FUNC"),
+            new TemplateInvoked_Token("FUNC"),
             new OpenBracket_Token(),
             new NumberLiteral_Token(400n),
             new Comma_Token(),
-            new DefineInvoked_Token("BOB"),
+            new ConstantInvoked_Token("BOB"),
             new CloseBracket_Token(),
             new CloseBracket_Token()
         ]);
@@ -110,9 +110,9 @@ describe("identify_value", () => {
         assert.deepEqual(evaluate_value([new Label_Token("bob:")], parser_context),
         new ConstantValue([new Label_Token("bob:")], "bob:"));
 
-        parser_context.defines.set("YELLOW", new DefineDefinition(new ConstantValue([new NumberLiteral_Token(0xFFFF00FFn)], 0xFFFF00FFn), [], "", 0));
-        assert.deepEqual(evaluate_value([new DefineInvoked_Token("YELLOW")], parser_context),
-        new ConstantValue([new DefineInvoked_Token("YELLOW")], 0xFFFF00FFn)); 
+        parser_context.constants.set("YELLOW", new ConstantDefinition(new ConstantValue([new NumberLiteral_Token(0xFFFF00FFn)], 0xFFFF00FFn), [], "", 0));
+        assert.deepEqual(evaluate_value([new ConstantInvoked_Token("YELLOW")], parser_context),
+        new ConstantValue([new ConstantInvoked_Token("YELLOW")], 0xFFFF00FFn)); 
     });
 
     it("evaluate_value can evaluate functions", () => {

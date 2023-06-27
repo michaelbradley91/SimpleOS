@@ -4,7 +4,7 @@
  */
 
 import { start } from "repl";
-import { CloseBracket_Token, Comma_Token, DefineInvoked_Token, Define_Token, FunctionType, Function_Token, Include_Token, Label, Label_Token, MacroBegin_Token, MacroEnd_Token, MacroInvoked_Token, MultiLineComment_Token, NumberLiteral_Token, OpenBracket_Token, OperationType, Operation_Token, SingleLineComment_Token, StringLiteral_Token, Token, TokenFileResult, get_file_lines, tokenise_file } from "./syntax";
+import { CloseBracket_Token, Comma_Token, ConstantInvoked_Token, Constant_Token, FunctionType, Function_Token, Include_Token, Label, Label_Token, TemplateBegin_Token, TemplateEnd_Token, TemplateInvoked_Token, MultiLineComment_Token, NumberLiteral_Token, OpenBracket_Token, OperationType, Operation_Token, SingleLineComment_Token, StringLiteral_Token, Token, TokenFileResult, get_file_lines, tokenise_file } from "./syntax";
 import { error } from "console";
 import { ProgramHeader } from "./configuration";
 import path = require('node:path');
@@ -50,10 +50,10 @@ export class SemanticError
     }
 }
 
-class MacroContext {
-    variables: Define_Token[];
+class TemplateContext {
+    variables: Constant_Token[];
 
-    constructor(variables: Define_Token[])
+    constructor(variables: Constant_Token[])
     {
         this.variables = variables;
     }
@@ -68,10 +68,10 @@ export function identify_value(tokens: Token[]): Token[]
 {
     if (tokens.length == 0) return [];
 
-    // If this is a function or a macro, look for the arguments
-    if (tokens[0] instanceof Function_Token || tokens[0] instanceof MacroInvoked_Token || tokens[0] instanceof MacroBegin_Token)
+    // If this is a function or a template, look for the arguments
+    if (tokens[0] instanceof Function_Token || tokens[0] instanceof TemplateInvoked_Token || tokens[0] instanceof TemplateBegin_Token)
     {
-        // one of the predefined functions. Should be followed by some number of argument values itself
+        // one of the preconstantd functions. Should be followed by some number of argument values itself
         if (tokens.length < 2 || !(tokens[1] instanceof OpenBracket_Token)) {
             return [];
         }
@@ -105,7 +105,7 @@ export function identify_value(tokens: Token[]): Token[]
     }
 
     // If this is normal value, just return it
-    if (tokens[0] instanceof DefineInvoked_Token ||
+    if (tokens[0] instanceof ConstantInvoked_Token ||
         tokens[0] instanceof Label_Token ||
         tokens[0] instanceof NumberLiteral_Token ||
         tokens[0] instanceof StringLiteral_Token)
@@ -121,56 +121,56 @@ export function identify_value(tokens: Token[]): Token[]
  * 
  * Some rules:
  * 
- * 1. Defines can only include "value" types.
+ * 1. Constants can only include "value" types.
  * 
  * This is anything that essentially evaluates to an integer or string. So for example:
  * rect(1,3,40,50)
- * Would be okay. Use of other defines is okay (but will need resolving)
+ * Would be okay. Use of other constants is okay (but will need resolving)
  * 
- * 2. Macro arguments are "value" types as well
+ * 2. Template arguments are "value" types as well
  * 
- * In other words they act exactly like "defines" inside the macro body.
- * This means a macro argument cannot be used as a command itself
+ * In other words they act exactly like "constants" inside the template body.
+ * This means a template argument cannot be used as a command itself
  * 
- * 3. Macros are lists of commands
+ * 3. Templates are lists of commands
  * 
  * They will always be a list of commands, not part of a command etc.
  * This implies their invocation only makes sense at the start of a line.
  * 
- * This function verifies that macros contain the right sort of commands, that includes
+ * This function verifies that templates contain the right sort of commands, that includes
  * look okay etc.
  */
 export function validate_basic_token_structure(result: TokenFileResult): SemanticError[]
 {
     const errors: SemanticError[] = [];
-    let macro_context = false;
+    let template_context = false;
     for (let line_number = 0; line_number < result.tokens.length; line_number++)
     {
         const line_tokens = result.tokens[line_number];
         if (line_tokens.length == 0) continue;
 
         // Firstly, a token at the start of a line must be an approved token
-        // This implies that macros must be blocks of lines, which they are required to be
+        // This implies that templates must be blocks of lines, which they are required to be
         const start_token = line_tokens[0];
         if (!(start_token instanceof Operation_Token || 
-            start_token instanceof Define_Token || 
-            start_token instanceof MacroInvoked_Token ||
+            start_token instanceof Constant_Token || 
+            start_token instanceof TemplateInvoked_Token ||
             start_token instanceof Include_Token ||
-            start_token instanceof MacroBegin_Token ||
-            start_token instanceof MacroEnd_Token ||
+            start_token instanceof TemplateBegin_Token ||
+            start_token instanceof TemplateEnd_Token ||
             start_token instanceof Label_Token))
         {
-            errors.push(new SemanticError(line_number, "Line should begin with an operation, macro, define, label, or include."));
+            errors.push(new SemanticError(line_number, "Line should begin with an operation, template, constant, label, or include."));
             continue;
         }
 
-        // Inside a macro we disable a bunch of other statements as well
-        if (macro_context) {
-            if (start_token instanceof Define_Token || 
+        // Inside a template we disable a bunch of other statements as well
+        if (template_context) {
+            if (start_token instanceof Constant_Token || 
                 start_token instanceof Include_Token || 
-                start_token instanceof MacroBegin_Token)
+                start_token instanceof TemplateBegin_Token)
             {
-                errors.push(new SemanticError(line_number, "Line inside a macro should begin with an operation or label"));
+                errors.push(new SemanticError(line_number, "Line inside a template should begin with an operation or label"));
                 continue;
             }
         }
@@ -186,27 +186,27 @@ export function validate_basic_token_structure(result: TokenFileResult): Semanti
             }
         }
 
-        if (start_token instanceof MacroEnd_Token)
+        if (start_token instanceof TemplateEnd_Token)
         {
-            // No other tokens should be present on a line ending a macro (after comments are removed)
+            // No other tokens should be present on a line ending a template (after comments are removed)
             if (line_tokens.length > 1)
             {
-                errors.push(new SemanticError(line_number, "A macro end statement should not be followed by anything."));
+                errors.push(new SemanticError(line_number, "A template end statement should not be followed by anything."));
                 continue;
             }
-            // Check we are in a macro context
-            if (!macro_context)
+            // Check we are in a template context
+            if (!template_context)
             {
-                errors.push(new SemanticError(line_number, "end_macro without a begin_macro"));
+                errors.push(new SemanticError(line_number, "end_template without a begin_template"));
                 continue;
             }
             // End the context
-            macro_context = false;
+            template_context = false;
         }
 
         if (start_token instanceof Include_Token)
         {
-            // For includes we do not support defines or anything besides the string path for simplicity
+            // For includes we do not support constants or anything besides the string path for simplicity
             if (line_tokens.length !=2 || !(line_tokens[1] instanceof StringLiteral_Token))
             {
                 errors.push(new SemanticError(line_number, "Include statement can only be followed by a single string"));
@@ -214,26 +214,26 @@ export function validate_basic_token_structure(result: TokenFileResult): Semanti
             }
         }
 
-        if (start_token instanceof Define_Token)
+        if (start_token instanceof Constant_Token)
         {
             if (line_tokens.length < 2)
             {
-                errors.push(new SemanticError(line_number, "Define not given a value"));
+                errors.push(new SemanticError(line_number, "Constant not given a value"));
                 continue;
             }
 
-            // We need to consume a value after the define
+            // We need to consume a value after the constant
             const value_tokens = identify_value(line_tokens.slice(1));
             if (value_tokens.length == 0)
             {
-                errors.push(new SemanticError(line_number, "Could not identify define value"));
+                errors.push(new SemanticError(line_number, "Could not identify constant value"));
                 continue;
             }
 
             // There should be no remaining tokens on the line
             if (line_tokens.length != 1 + value_tokens.length)
             {
-                errors.push(new SemanticError(line_number, "Additional arguments found after define"));
+                errors.push(new SemanticError(line_number, "Additional arguments found after constant"));
                 continue;
             }
         }
@@ -255,13 +255,13 @@ export function validate_basic_token_structure(result: TokenFileResult): Semanti
             continue;
         }
 
-        if (start_token instanceof MacroBegin_Token)
+        if (start_token instanceof TemplateBegin_Token)
         {
-            // We only allow brackets, defines and commas after a macro begin token
+            // We only allow brackets, constants and commas after a template begin token
             const value_tokens = identify_value(line_tokens);
             if (value_tokens.length == 0)
             {
-                errors.push(new SemanticError(line_number, "Could not identify macro definition"));
+                errors.push(new SemanticError(line_number, "Could not identify template definition"));
                 continue;
             }
             // Check all the tokens are what we expect
@@ -270,32 +270,32 @@ export function validate_basic_token_structure(result: TokenFileResult): Semanti
                 if (!(value_tokens[value_token_index] instanceof Comma_Token ||
                     value_tokens[value_token_index] instanceof OpenBracket_Token ||
                     value_tokens[value_token_index] instanceof CloseBracket_Token ||
-                    value_tokens[value_token_index] instanceof DefineInvoked_Token))
+                    value_tokens[value_token_index] instanceof ConstantInvoked_Token))
                 {
-                    errors.push(new SemanticError(line_number, "Macro arguments should have a unique name like defines"));
+                    errors.push(new SemanticError(line_number, "Template arguments should have a unique name like constants"));
                     break;
                 }
             }
             if (value_tokens.length != line_tokens.length)
             {
-                errors.push(new SemanticError(line_number, "Excess code seen after macro definition. The definition should be on its own line"));
+                errors.push(new SemanticError(line_number, "Excess code seen after template definition. The definition should be on its own line"));
                 continue;
             }
-            macro_context = true;
+            template_context = true;
             continue;
         }
 
-        if (start_token instanceof MacroInvoked_Token)
+        if (start_token instanceof TemplateInvoked_Token)
         {
             const value_tokens = identify_value(line_tokens);
             if (value_tokens.length == 0)
             {
-                errors.push(new SemanticError(line_number, "Could not identify arguments to macro invocation"));
+                errors.push(new SemanticError(line_number, "Could not identify arguments to template invocation"));
                 continue;
             }
             if (value_tokens.length != line_tokens.length)
             {
-                errors.push(new SemanticError(line_number, "Excess arguments after macro invocation"));
+                errors.push(new SemanticError(line_number, "Excess arguments after template invocation"));
                 continue;
             }
         }
@@ -305,16 +305,16 @@ export function validate_basic_token_structure(result: TokenFileResult): Semanti
 }
 
 /**
- * Represents the definition of a macro for the parser context
+ * Represents the definition of a template for the parser context
  */
-export class MacroDefinition
+export class TemplateDefinition
 {
-    arguments: DefineInvoked_Token[];
+    arguments: ConstantInvoked_Token[];
     tokens: Token[][];
     file: string;
     line: number;
 
-    constructor(args: DefineInvoked_Token[], tokens: Token[][], file: string, line: number)
+    constructor(args: ConstantInvoked_Token[], tokens: Token[][], file: string, line: number)
     {
         this.arguments = args;
         this.tokens = tokens;
@@ -323,7 +323,7 @@ export class MacroDefinition
     }
 }
 
-export class DefineDefinition
+export class ConstantDefinition
 {
     value: ConstantValue;
     tokens: Token[];
@@ -344,8 +344,8 @@ export class DefineDefinition
  */
 export class ParserContext
 {
-    defines: Map<string, DefineDefinition> = new Map<string, DefineDefinition>();
-    macros: Map<string, MacroDefinition> = new Map<string, MacroDefinition>();
+    constants: Map<string, ConstantDefinition> = new Map<string, ConstantDefinition>();
+    templates: Map<string, TemplateDefinition> = new Map<string, TemplateDefinition>();
     music: Map<string, number> = new Map<string, number>();
     sounds: Map<string, number> = new Map<string, number>();
     sprites: Map<string, number> = new Map<string, number>();
@@ -355,10 +355,10 @@ export class ParserContext
     working_directory = ".";
     // The files currently in the include stack. This is used to detect cycles
     include_stack: string[] = [];
-    // The current macro stack. This is also used to detect cycles
-    macro_stack: string[] = [];
-    // A macro definition is currently in use
-    active_macro: string | null = null;
+    // The current template stack. This is also used to detect cycles
+    template_stack: string[] = [];
+    // A template definition is currently in use
+    active_template: string | null = null;
     // The file currently being parsed
     active_file = "";
 }
@@ -814,13 +814,13 @@ export function evaluate_value(tokens: Token[], parser_context: ParserContext): 
 {
     if (tokens.length == 0) return new ConstantValue([], new SemanticError(parser_context.line, "No value found"));
 
-    // If this is a function or a macro, look for the arguments
+    // If this is a function or a template, look for the arguments
     if (tokens[0] instanceof Function_Token)
     {
         let included_tokens: Token[] = [];
         const args: ConstantValue[] = [];
 
-        // one of the predefined functions. Should be followed by some number of argument values itself
+        // one of the preconstantd functions. Should be followed by some number of argument values itself
         if (tokens.length < 2 || !(tokens[1] instanceof OpenBracket_Token)) {
             return new ConstantValue([], new SemanticError(parser_context.line, "Open bracket for function not found"));
         }
@@ -867,16 +867,16 @@ export function evaluate_value(tokens: Token[], parser_context: ParserContext): 
 
     // If this is a normal value, just return it
     const used_tokens = tokens.slice(0, 1);
-    if (tokens[0] instanceof DefineInvoked_Token)
+    if (tokens[0] instanceof ConstantInvoked_Token)
     {
-        const define_value = parser_context.defines.get(tokens[0].name);
-        if (define_value)
+        const constant_value = parser_context.constants.get(tokens[0].name);
+        if (constant_value)
         {
-            return new ConstantValue(used_tokens, define_value.value.data);
+            return new ConstantValue(used_tokens, constant_value.value.data);
         }
         else
         {
-            return new ConstantValue(used_tokens, new SemanticError(parser_context.line, "Unknown define \"" + tokens[0].name + "\""));
+            return new ConstantValue(used_tokens, new SemanticError(parser_context.line, "Unknown constant \"" + tokens[0].name + "\""));
         }
     }
     if (tokens[0] instanceof Label_Token)
@@ -906,7 +906,7 @@ export function evaluate_arguments(tokens: Token[], parser_context: ParserContex
 {
     const args: ConstantValue[] = [];
 
-    // one of the predefined functions. Should be followed by some number of argument values itself
+    // one of the preconstantd functions. Should be followed by some number of argument values itself
     if (tokens.length < 1 || !(tokens[0] instanceof OpenBracket_Token)) {
         return [new ConstantValue([], new SemanticError(parser_context.line, "Open bracket for function not found"))];
     }
@@ -1122,28 +1122,28 @@ export function process_tokens(tokens: Token[][], parser_context: ParserContext,
     {
         const line_tokens = tokens[line_number];
 
-        // If we are in the definition of a macro, just copy the tokens into the definition unless we reached the end
-        if (parser_context.active_macro)
+        // If we are in the definition of a template, just copy the tokens into the definition unless we reached the end
+        if (parser_context.active_template)
         {
-            if (line_tokens[0] instanceof MacroEnd_Token)
+            if (line_tokens[0] instanceof TemplateEnd_Token)
             {
                 // Finished!
-                parser_context.active_macro = null;
+                parser_context.active_template = null;
             }
             else
             {
                 // Should always be true
-                const running_macro = parser_context.macros.get(parser_context.active_macro);
-                if (running_macro)
+                const running_template = parser_context.templates.get(parser_context.active_template);
+                if (running_template)
                 {
-                    running_macro.tokens.push(line_tokens);
+                    running_template.tokens.push(line_tokens);
                 }
             }
             continue;
         }
         
-        // If we are in a macro, the line hasn't really changed
-        if (parser_context.macro_stack.length == 0)
+        // If we are in a template, the line hasn't really changed
+        if (parser_context.template_stack.length == 0)
         {
             parser_context.line = line_number;
         }
@@ -1171,131 +1171,131 @@ export function process_tokens(tokens: Token[][], parser_context: ParserContext,
                 process_file_result.instructions.push(processed_operation.instruction);
             }
         }
-        else if (line_tokens[0] instanceof Define_Token)
+        else if (line_tokens[0] instanceof Constant_Token)
         {
-            // Cannot declare a define within a macro
+            // Cannot declare a constant within a template
             const file_errors = process_file_result.errors.get(parser_context.active_file);
-            if (parser_context.macro_stack.length != 0 && file_errors)
+            if (parser_context.template_stack.length != 0 && file_errors)
             {
-                file_errors.add(new SemanticError(parser_context.line, "Cannot declare a define within a macro"));
+                file_errors.add(new SemanticError(parser_context.line, "Cannot declare a constant within a template"));
             }
             else
             {
-                const define_value = evaluate_value(line_tokens.slice(1), parser_context);
-                if (define_value.type == ConstantValueType.Error && file_errors && define_value.error)
+                const constant_value = evaluate_value(line_tokens.slice(1), parser_context);
+                if (constant_value.type == ConstantValueType.Error && file_errors && constant_value.error)
                 {
-                    file_errors.add(define_value.error);
+                    file_errors.add(constant_value.error);
                 }
                 else
                 {
-                    // Update the parser context with this define
-                    const define_definition: DefineDefinition = new DefineDefinition(define_value, line_tokens, parser_context.active_file, parser_context.line);
-                    parser_context.defines.set(line_tokens[0].name, define_definition);
+                    // Update the parser context with this constant
+                    const constant_definition: ConstantDefinition = new ConstantDefinition(constant_value, line_tokens, parser_context.active_file, parser_context.line);
+                    parser_context.constants.set(line_tokens[0].name, constant_definition);
                 }
             }
         }
-        else if (line_tokens[0] instanceof MacroInvoked_Token)
+        else if (line_tokens[0] instanceof TemplateInvoked_Token)
         {
-            const macro_name = line_tokens[0].name;
-            // We need to paste the macro in, applying its arguments...
-            const macro_args = evaluate_arguments(line_tokens.slice(1), parser_context);
+            const template_name = line_tokens[0].name;
+            // We need to paste the template in, applying its arguments...
+            const template_args = evaluate_arguments(line_tokens.slice(1), parser_context);
             let found_error = false;
             const file_errors = process_file_result.errors.get(parser_context.active_file);
-            macro_args.forEach(macro_arg => {
-                if (macro_arg.type == ConstantValueType.Error && macro_arg.error && file_errors)
+            template_args.forEach(template_arg => {
+                if (template_arg.type == ConstantValueType.Error && template_arg.error && file_errors)
                 {
                     found_error = true;
-                    file_errors.add(macro_arg.error);
+                    file_errors.add(template_arg.error);
                 }
             });
             if (!found_error)
             {
                 if (file_errors)
                 {
-                    const macro = parser_context.macros.get(macro_name);
-                    if (!macro)
+                    const template = parser_context.templates.get(template_name);
+                    if (!template)
                     {
-                        file_errors.add(new SemanticError(parser_context.line, "Macro not found"));
+                        file_errors.add(new SemanticError(parser_context.line, "Template not found"));
                     }
-                    else if (macro.arguments.length != macro_args.length)
+                    else if (template.arguments.length != template_args.length)
                     {
-                        file_errors.add(new SemanticError(parser_context.line, "Wrong number of arguments passed to macro"));
+                        file_errors.add(new SemanticError(parser_context.line, "Wrong number of arguments passed to template"));
                     }
-                    else if (parser_context.macro_stack.find(macro => macro == macro_name))
+                    else if (parser_context.template_stack.find(template => template == template_name))
                     {
-                        file_errors.add(new SemanticError(parser_context.line, "Macro cycle detected"));
+                        file_errors.add(new SemanticError(parser_context.line, "Template cycle detected"));
                     }
                     else
                     {
-                        // Evaluate the macro... update the parser context with the macro arguments...
-                        // Since macros cannot themselves contain define statements, we can save off the defines and restore them after the macro
-                        const old_defines = new Map<string, DefineDefinition>(parser_context.defines);                    
-                        parser_context.macro_stack.push(macro_name);
-                        for (let macro_arg_index = 0; macro_arg_index < macro_args.length; macro_arg_index++)
+                        // Evaluate the template... update the parser context with the template arguments...
+                        // Since templates cannot themselves contain constant statements, we can save off the constants and restore them after the template
+                        const old_constants = new Map<string, ConstantDefinition>(parser_context.constants);                    
+                        parser_context.template_stack.push(template_name);
+                        for (let template_arg_index = 0; template_arg_index < template_args.length; template_arg_index++)
                         {
-                            parser_context.defines.set(macro.arguments[macro_arg_index].name, new DefineDefinition(macro_args[macro_arg_index], [], "", 0));
+                            parser_context.constants.set(template.arguments[template_arg_index].name, new ConstantDefinition(template_args[template_arg_index], [], "", 0));
                         }
                         
-                        // Now we recursively invoke ourselves to evaluate the macro tokens
-                        process_tokens(macro.tokens, parser_context, process_file_result);
+                        // Now we recursively invoke ourselves to evaluate the template tokens
+                        process_tokens(template.tokens, parser_context, process_file_result);
 
                         // Restore the parser context
-                        parser_context.macro_stack.pop();
-                        parser_context.defines = old_defines;
+                        parser_context.template_stack.pop();
+                        parser_context.constants = old_constants;
                     }
                 }
             }
         }
-        else if (line_tokens[0] instanceof MacroBegin_Token)
+        else if (line_tokens[0] instanceof TemplateBegin_Token)
         {
-            // Cannot begin a macro within a macro
+            // Cannot begin a template within a template
             const file_errors = process_file_result.errors.get(parser_context.active_file);
-            if (parser_context.macro_stack.length != 0 && file_errors)
+            if (parser_context.template_stack.length != 0 && file_errors)
             {
-                file_errors.add(new SemanticError(parser_context.line, "Cannot begin a macro within a macro"));
+                file_errors.add(new SemanticError(parser_context.line, "Cannot begin a template within a template"));
             }
             else if (file_errors)
             {
-                // We need to identify the macro arguments, which should be a sequence of defines
+                // We need to identify the template arguments, which should be a sequence of constants
                 if (line_tokens.length < 2 || !(line_tokens[1] instanceof OpenBracket_Token)) {
-                    file_errors.add(new SemanticError(parser_context.line, "Open bracket for macro definition not found"));
+                    file_errors.add(new SemanticError(parser_context.line, "Open bracket for template definition not found"));
                     continue;
                 }
                 if (line_tokens.length == 3 && line_tokens[2] instanceof CloseBracket_Token)
                 {
                     // No arguments - add this to the parser context
-                    parser_context.macros.set(line_tokens[0].name, new MacroDefinition([], [], parser_context.active_file, parser_context.line));
-                    parser_context.active_macro = line_tokens[0].name;
+                    parser_context.templates.set(line_tokens[0].name, new TemplateDefinition([], [], parser_context.active_file, parser_context.line));
+                    parser_context.active_template = line_tokens[0].name;
                 }
                 else
                 {
                     let current_token = 2;
-                    const define_arguments: DefineInvoked_Token[] = [];
+                    const constant_arguments: ConstantInvoked_Token[] = [];
                     // eslint-disable-next-line no-constant-condition
                     while(true)
                     {
                         if (line_tokens.length <= current_token)
                         {
-                            file_errors.add(new SemanticError(parser_context.line, "End of macro definition not found"));
+                            file_errors.add(new SemanticError(parser_context.line, "End of template definition not found"));
                             break;
                         }
                         const argument_token = line_tokens[current_token];
-                        if (argument_token instanceof DefineInvoked_Token)
+                        if (argument_token instanceof ConstantInvoked_Token)
                         {
-                            define_arguments.push(argument_token);
+                            constant_arguments.push(argument_token);
                         }
                         else
                         {
-                            file_errors.add(new SemanticError(parser_context.line, "Invalid argument name in macro definition"));
+                            file_errors.add(new SemanticError(parser_context.line, "Invalid argument name in template definition"));
                             break;
                         }
                         current_token += 1;
                         // An argument should be followed either by a closing bracket or a comma.
                         if (line_tokens[current_token] instanceof CloseBracket_Token)
                         {
-                            // The end. Add the macro definition with its arguments to the context
-                            parser_context.macros.set(line_tokens[0].name, new MacroDefinition(define_arguments, [], parser_context.active_file, parser_context.line));
-                            parser_context.active_macro = line_tokens[0].name;
+                            // The end. Add the template definition with its arguments to the context
+                            parser_context.templates.set(line_tokens[0].name, new TemplateDefinition(constant_arguments, [], parser_context.active_file, parser_context.line));
+                            parser_context.active_template = line_tokens[0].name;
                             break;
                         }
                         if (line_tokens[current_token] instanceof Comma_Token)
@@ -1303,21 +1303,21 @@ export function process_tokens(tokens: Token[][], parser_context: ParserContext,
                             current_token += 1;
                         }
                     }
-                    if (!parser_context.active_macro)
+                    if (!parser_context.active_template)
                     {
                         // Failed to find the end of the arguments list
-                        file_errors.add(new SemanticError(parser_context.line, "Failed to find end of macro definition"));
+                        file_errors.add(new SemanticError(parser_context.line, "Failed to find end of template definition"));
                     }
                 }
             }
         }
-        else if (line_tokens[0] instanceof MacroEnd_Token)
+        else if (line_tokens[0] instanceof TemplateEnd_Token)
         {
             const file_errors = process_file_result.errors.get(parser_context.active_file);
             if (file_errors)
             {
-                // Should not have found this as we are not in a macro definition. Error
-                file_errors.add(new SemanticError(parser_context.line, "Macro end found without definition"));
+                // Should not have found this as we are not in a template definition. Error
+                file_errors.add(new SemanticError(parser_context.line, "Template end found without definition"));
             }
         }
         else if (line_tokens[0] instanceof Include_Token)
@@ -1326,9 +1326,9 @@ export function process_tokens(tokens: Token[][], parser_context: ParserContext,
             if (file_errors)
             {
                 // The big one. Include another file...
-                if (parser_context.macro_stack.length != 0)
+                if (parser_context.template_stack.length != 0)
                 {
-                    file_errors.add(new SemanticError(parser_context.line, "Cannot include within a macro"));
+                    file_errors.add(new SemanticError(parser_context.line, "Cannot include within a template"));
                 }
                 else if (line_tokens.length != 2 || !(line_tokens[1] instanceof StringLiteral_Token))
                 {
@@ -1597,7 +1597,7 @@ export function find_label(label: Label, instruction_address: number, label_addr
 
 /**
  * Resolve all the labels in the processed file to their code addresses
- * @param process_file_result the previously processed file. All macros etc must have been resolved already
+ * @param process_file_result the previously processed file. All templates etc must have been resolved already
  */
 export function resolve_labels(program_header: ProgramHeader, process_file_result: ProcessFileResult)
 {

@@ -12,10 +12,10 @@
 	"icon": "sos_icon.png",
 	"publisher": "Michael Bradley",
 	"categories": [
-		"Language Packs"
+		"Programming Languages"
 	],
 	"keywords": [
-		"multi-root ready"
+		"ready simple simpleOS simple-os"
 	],
 	"engines": {
 		"vscode": "^1.75.0"

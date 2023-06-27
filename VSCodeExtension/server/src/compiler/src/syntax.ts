@@ -10,17 +10,17 @@ const MultiLineComment_Start_Regex = /^\/\*/g;
 const SingleLineComment_Regex = /^\/\/(.*)$/g;
 const Operator_Regex = /^(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|wait|exit|get_mouse)(?=(\s|$))/g;
 const Function_Regex = /^(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(?=\([^)(]*\))/g;
-const MacroEnd_Regex = /^(#macro_end)(?=\s|$)/g;
-const MacroBegin_Regex = /^#macro_begin($|\s+([^ :,()]+)?(?=\([^)(]*\))?)/g;
-const Define_Regex = /^#define($|\s+([^ :,()]+))/g;
+const TemplateEnd_Regex = /^(#template_end)(?=\s|$)/g;
+const TemplateBegin_Regex = /^#template_begin($|\s+([^ :,()]+)?(?=\([^)(]*\))?)/g;
+const Constant_Regex = /^#constant($|\s+([^ :,()]+))/g;
 const Label_Regex = /^[^ :,()]+:(b|f)?/g;
 const Include_Regex = /^#include(\s|$)/g;
 const Number_Regex = /^(-?(0(x|X)[0-9a-fA-F]+)|([0-9]+))/g;
 const String_Regex = /^"([^"]*)"/g;
-// Any other function looking thing is assumed to be a macro invoked unless proven otherwise
-const MacroInvoked_Regex = /^([^ :,()]+)(?=\([^)(]*\))/g;
-// Finally, any other word like thing is assumed to be a define unless proven otherwise
-const DefineInvoked_Regex = /^([^ :,()]+)/g;
+// Any other function looking thing is assumed to be a template invoked unless proven otherwise
+const TemplateInvoked_Regex = /^([^ :,()]+)(?=\([^)(]*\))/g;
+// Finally, any other word like thing is assumed to be a constant unless proven otherwise
+const ConstantInvoked_Regex = /^([^ :,()]+)/g;
 const Comma_Regex = /^,/g;
 const OpenBracket_Regex = /^\(/g;
 const CloseBracket_Regex = /^\)/g;
@@ -62,8 +62,8 @@ export class Include_Token extends Token {
     }
 }
 
-// A define copies one symbol to another
-export class Define_Token extends Token {
+// A constant copies one symbol to another
+export class Constant_Token extends Token {
     name: string;
 
     constructor(name: string) {
@@ -72,8 +72,8 @@ export class Define_Token extends Token {
     }
 }
 
-// A macro is parameterised and can insert a whole chunk of text
-export class MacroBegin_Token extends Token {
+// A template is parameterised and can insert a whole chunk of text
+export class TemplateBegin_Token extends Token {
     name: string;
 
     constructor(name: string) {
@@ -82,7 +82,7 @@ export class MacroBegin_Token extends Token {
     }
 }
 
-export class MacroEnd_Token extends Token {
+export class TemplateEnd_Token extends Token {
     constructor() {
         super();
     }
@@ -110,8 +110,8 @@ export class Label extends Label_Token {
     }
 }
 
-// The use of a define somewhere
-export class DefineInvoked_Token extends Token {
+// The use of a constant somewhere
+export class ConstantInvoked_Token extends Token {
     name: string;
 
     constructor(name: string) {
@@ -120,7 +120,7 @@ export class DefineInvoked_Token extends Token {
     }
 }
 
-export class MacroInvoked_Token extends Token {
+export class TemplateInvoked_Token extends Token {
     name: string;
 
     constructor(name: string) {
@@ -235,12 +235,12 @@ function enumFromStringValue<T> (enm: { [s: string]: T}, value: string): T | und
 }
 
 // Functions are simple in this language, not allowing for recursive function calls
-type FunctionArgument = StringLiteral_Token | NumberLiteral_Token | DefineInvoked_Token;
+type FunctionArgument = StringLiteral_Token | NumberLiteral_Token | ConstantInvoked_Token;
 
 enum FunctionArgumentType {
     String,
     Number,
-    Define
+    Constant
 }
 
 export class Function_Token
@@ -252,11 +252,11 @@ export class Function_Token
     }
 }
 
-type OperationArgument = Label_Token | DefineInvoked_Token | NumberLiteral_Token | StringLiteral_Token | Function_Token;
+type OperationArgument = Label_Token | ConstantInvoked_Token | NumberLiteral_Token | StringLiteral_Token | Function_Token;
 
 enum OperationArgumentType {
     Label,
-    Define,
+    Constant,
     Number,
     String,
     Function
@@ -388,24 +388,24 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
             continue;
         }
 
-        matches = [...line.matchAll(MacroBegin_Regex)][0];
+        matches = [...line.matchAll(TemplateBegin_Regex)][0];
         if (matches) {
             current_position += matches[0].length;
-            tokens.push(new MacroBegin_Token(matches[2]));
+            tokens.push(new TemplateBegin_Token(matches[2]));
             continue;
         }
 
-        matches = [...line.matchAll(MacroEnd_Regex)][0];
+        matches = [...line.matchAll(TemplateEnd_Regex)][0];
         if (matches) {
             current_position += matches[0].length;
-            tokens.push(new MacroEnd_Token());
+            tokens.push(new TemplateEnd_Token());
             continue;
         }
 
-        matches = [...line.matchAll(Define_Regex)][0];
+        matches = [...line.matchAll(Constant_Regex)][0];
         if (matches) {
             current_position += matches[0].length;
-            tokens.push(new Define_Token(matches[2]));
+            tokens.push(new Constant_Token(matches[2]));
             continue;
         }
 
@@ -445,18 +445,18 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
             continue;
         }
 
-        matches = [...line.matchAll(MacroInvoked_Regex)][0];
+        matches = [...line.matchAll(TemplateInvoked_Regex)][0];
         if (matches) {
             current_position += matches[0].length;
-            tokens.push(new MacroInvoked_Token(matches[1]));
+            tokens.push(new TemplateInvoked_Token(matches[1]));
             continue;
         }
 
-        matches = [...line.matchAll(DefineInvoked_Regex)][0];
+        matches = [...line.matchAll(ConstantInvoked_Regex)][0];
         if (matches)
         {
             current_position += matches[0].length;
-            tokens.push(new DefineInvoked_Token(matches[1]));
+            tokens.push(new ConstantInvoked_Token(matches[1]));
             continue;
         }
 

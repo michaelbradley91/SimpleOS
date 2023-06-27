@@ -26,7 +26,7 @@ export function compile(program_header: ProgramHeader)
     const parser_context = new ParserContext();
     parser_context.active_file = program_header.main;
     parser_context.working_directory = program_header.working_directory;
-    parser_context.active_macro = null;
+    parser_context.active_template = null;
 
     // Add the sprites, sounds and music
     for (let music_index = 0; music_index < program_header.music.length; music_index++)
