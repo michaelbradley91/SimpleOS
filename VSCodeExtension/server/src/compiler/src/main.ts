@@ -3,6 +3,7 @@ import { compile, output_binary } from './compiler';
 import { print_process_file_result } from './semantics';
 import path = require('node:path');
 import { set_get_file_lines, get_file_lines_from_filesystem } from './syntax';
+import { parse_program_header } from './configuration';
 
 // Use the filesystem for path resolution
 set_get_file_lines(get_file_lines_from_filesystem);
@@ -10,19 +11,19 @@ set_get_file_lines(get_file_lines_from_filesystem);
 const command_line_arguments: string[] = process.argv.slice(1);
 if (command_line_arguments.length < 2)
 {
-    console.log(`Usage: ${command_line_arguments[0]} <file path>`);
+    console.log(`Usage: ${command_line_arguments[0]} <configuration>`);
     exit(1);
 }
 
-const file_path = command_line_arguments[1];
-const result = compile(file_path);
+const configuration_path = command_line_arguments[1];
+const program_header = parse_program_header(configuration_path);
+const result = compile(program_header);
 
 print_process_file_result(result.program_header, result.process_file_result, console.log);
 
 if (result.process_file_result.success)
 {
-    const file_path_parsed = path.parse(file_path);
-    const out_file_path = path.join(file_path_parsed.dir, file_path_parsed.name + ".sox");
+    const out_file_path = result.program_header.output_file;
     const output_result = output_binary(result, out_file_path);
     if (output_result)
     {

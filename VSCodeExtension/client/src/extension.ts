@@ -15,6 +15,7 @@ import {
 import { get_file_lines_from_filesystem, set_get_file_lines } from '../../server/src/compiler/src/syntax';
 import { compile, output_binary } from '../../server/src/compiler/src/compiler';
 import { print_process_file_result } from '../../server/src/compiler/src/semantics';
+import { parse_program_header } from '../../server/src/compiler/src/configuration';
 
 let client: LanguageClient;
 
@@ -69,21 +70,37 @@ export function activate(context: ExtensionContext) {
 			if(workspace.workspaceFolders !== undefined)
 			{
 				set_get_file_lines(get_file_lines_from_filesystem);
-				const parsed_config_path = path.parse(path.join(workspace.workspaceFolders[0].uri.fsPath, program_configuration));
-				const file_path = path.join(parsed_config_path.dir, parsed_config_path.name);
-				const result = compile(file_path);
+				let config_path = program_configuration;
+				if (!path.isAbsolute(program_configuration))
+				{
+					config_path = path.join(workspace.workspaceFolders[0].uri.fsPath, program_configuration);
+				}
+				const program_header = parse_program_header(config_path);
+
+				// Fix up the working directory
+				if (!path.isAbsolute(program_header.working_directory))
+				{
+					program_header.working_directory = path.join(workspace.workspaceFolders[0].uri.fsPath, program_header.working_directory);
+				}
+				if (!path.isAbsolute(program_header.output_file))
+				{
+					program_header.output_file = path.join(workspace.workspaceFolders[0].uri.fsPath, program_header.output_file);
+				}
+				if (!path.isAbsolute(program_header.main))
+				{
+					program_header.main = path.join(workspace.workspaceFolders[0].uri.fsPath, program_header.main);
+				}
+				const result = compile(program_header);
 				
 				print_process_file_result(result.program_header, result.process_file_result, compiler_channel.appendLine);
 				compiler_channel.appendLine("");
 				
 				if (result.process_file_result.success)
 				{
-					const file_path_parsed = path.parse(file_path);
-					const out_file_path = path.join(file_path_parsed.dir, file_path_parsed.name + ".sox");
-					const output_result = output_binary(result, out_file_path);
+					const output_result = output_binary(result, result.program_header.output_file);
 					if (output_result)
 					{
-						compiler_channel.appendLine("Saved executable to: " + out_file_path);
+						compiler_channel.appendLine("Saved executable to: " + result.program_header.output_file);
 					}
 					else
 					{

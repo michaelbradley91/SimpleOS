@@ -1,9 +1,12 @@
 {
-    "fps": 60,
-    "screen_width": "640",
-    "screen_height": "480",
-    "memory": 8192,
     "code_address": 4096,
+    "memory": 8192,
+    "fps": 60,
+    "screen_height": 720,
+    "screen_width": 1280,
+    "working_directory": ".",
+    "output_file": "example.sox",
+    "main": "example.sos",
     "music": [],
     "sounds": [],
     "sprites": []

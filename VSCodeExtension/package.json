@@ -22,6 +22,12 @@
 	},
 	"main": "./client/out/client/src/extension",
 	"contributes": {
+		"jsonValidation": [
+			{
+				"fileMatch": "*.sos.json",
+				"url": "./simple-os-config-schema.json"
+			}
+		],
 		"commands":[
 			{
 				"command": "simpleOS.build",

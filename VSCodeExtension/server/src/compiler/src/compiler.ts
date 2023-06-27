@@ -20,22 +20,12 @@ export class CompilationResult
     }
 }
 
-export function compile(file_path: string): CompilationResult
-{
-    const program_path: string = path.resolve(file_path);
-    const configuration_path = program_path + ".json";
-
-    const program_header: ProgramHeader = parse_program_header(configuration_path);
-    const working_directory = path.dirname(program_path);
-    return compile_with_program_header(program_path, program_header, working_directory);
-}
-
-export function compile_with_program_header(program_path: string, program_header: ProgramHeader, working_directory: string)
+export function compile(program_header: ProgramHeader)
 {
     // Construct a parser context...
     const parser_context = new ParserContext();
-    parser_context.active_file = program_path;
-    parser_context.working_directory = working_directory;
+    parser_context.active_file = program_header.main;
+    parser_context.working_directory = program_header.working_directory;
     parser_context.active_macro = null;
 
     // Add the sprites, sounds and music
@@ -52,7 +42,7 @@ export function compile_with_program_header(program_path: string, program_header
         parser_context.sprites.set(program_header.sprites[sprite_index], sprite_index);
     }
 
-    const processed_file = process_file(program_path, parser_context);
+    const processed_file = process_file(program_header.main, parser_context);
     resolve_labels(program_header, processed_file);
     return new CompilationResult(program_header, processed_file, parser_context);
 }

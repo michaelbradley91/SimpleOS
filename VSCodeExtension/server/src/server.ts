@@ -25,7 +25,7 @@ import {
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
-import { CompilationResult, compile, compile_with_program_header } from './compiler/src/compiler';
+import { CompilationResult, compile } from './compiler/src/compiler';
 import { SemanticError, print_process_file_result } from './compiler/src/semantics';
 import { readFileSync } from 'fs';
 import path = require('node:path');
@@ -106,14 +106,13 @@ connection.onInitialized(() => {
 
 // The example settings
 interface SimpleOSSettings {
-	working_directory: string;
 	program_configuration: string;
 }
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: SimpleOSSettings = { working_directory: "", program_configuration: "" };
+const defaultSettings: SimpleOSSettings = { program_configuration: "" };
 let globalSettings: SimpleOSSettings = defaultSettings;
 
 // Cache the settings of all open documents
@@ -213,7 +212,9 @@ export async function try_compile(document_uri: string): Promise<CompilationResu
 	const settings: SimpleOSSettings = await getDocumentSettings(document_uri);
 	const program_path = document_uri_to_path(document_uri);
     const program_header: ProgramHeader = parse_program_header(settings.program_configuration);
-    const working_directory = path.dirname(settings.program_configuration);
+	// Fix up the main binary so we only compile what we care about
+	program_header.main = program_path;
+
 	const lines = get_file_lines(program_path);
 	if (!lines)
 	{
@@ -221,7 +222,7 @@ export async function try_compile(document_uri: string): Promise<CompilationResu
 	}
 
 	// Now do the compiling...
-	return compile_with_program_header(program_path, program_header, working_directory);
+	return compile(program_header);
 }
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
@@ -273,7 +274,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 		console.log(`Found this many errors: ${all_errors.length}`);
 		all_errors.sort((a, b) => a.line < b.line ? -1 : 1);
 		all_errors.forEach(error => {
-			console.log(`Error at: ${error.line}: ${error.message}`);
+			console.log(`Error at: ${error.line + 1}: ${error.message}`);
 			const diagnostic: Diagnostic = {
 				severity: DiagnosticSeverity.Error,
 				range: {
