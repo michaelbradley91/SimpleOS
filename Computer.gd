@@ -96,6 +96,8 @@ func set_computer_resolution(width: int, height: int):
 
 func load_program(program_path: String):
 	# Reset errors
+	if current_program:
+		exit_program()
 	Errors.errno = Errors.NO_ERR
 	
 	# Read in the machine code
@@ -152,6 +154,9 @@ func load_program(program_path: String):
 	
 	# Empty out the event queue
 	GlobalInput.clear_event_queue()
+	
+	# Prepare any state needed to run operations correctly
+	Operations.init()
 	
 	# We are now ready to run!
 	current_program = temp_current_program
@@ -284,6 +289,7 @@ func exit_program():
 func abort_program():
 	# TODO
 	var instruction_pointer = Memory.read(Memory.INSTRUCTION_POINTER);
+	var instruction = MachineCodeTranslator.get_instruction_from_memory(instruction_pointer)
 	print("Program crashed. Error %s" % Errors.errno)
 	print("Instruction pointer. %s" % instruction_pointer);
 	exit_program()
@@ -312,7 +318,6 @@ func _process(delta):
 				break
 			
 			var should_continue = process_instruction(instruction)
-			print("Handling instruction %s" % instruction.type)
 			if not should_continue:
 				if instruction.type == MachineCodeTranslator.INSTRUCTIONS.EXIT:
 					exit_program()

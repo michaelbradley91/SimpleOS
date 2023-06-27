@@ -7,8 +7,8 @@
 
 // Load into memory a lot of the literal values we need
 store MAX_MILLISECONDS 10000
-store ONE 1
 
+INIT_MEMORY()
 LOAD_ASSETS()
 
 // Start the audio
@@ -17,9 +17,7 @@ play_music BACKGROUND_MUSIC_VOLUME BACKGROUND_MUSIC
 // We play it for a while and then exit
 loop:
 get_ticks
-gte RETURN MAX_MILLISECONDS
-jmp RETURN end_program:
-jmp ONE loop:b
+lte RETURN MAX_MILLISECONDS
+JUMP_ON_CONDITION(RETURN, loop:)
 
-end_program:
 exit

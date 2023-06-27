@@ -1,9 +1,28 @@
 /*
  * We use this file to keep an eye on all the different memory blocks we are using
  */
-#constant RETURN -1
+#constant INSTRUCTION_POINTER -1
+#constant RETURN -2
 #constant ONE 0x8
 #constant ZERO 0x9
 #constant MAX_MILLISECONDS 0x10
 #constant BACKGROUND_MUSIC 0x100
 #constant BACKGROUND_MUSIC_VOLUME 0x101
+
+// For our own reference
+#constant JMP_ADDRESS 0x500
+
+#template_begin INIT_MEMORY()
+store ZERO 0
+store ONE 1
+#template_end
+
+#template_begin JUMP_ON_CONDITION(COND, LABEL)
+store JMP_ADDRESS LABEL
+jmp COND JMP_ADDRESS
+#template_end
+
+#template_begin JUMP(LABEL)
+store JMP_ADDRESS LABEL
+jmp ONE JMP_ADDRESS
+#template_end

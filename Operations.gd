@@ -8,6 +8,11 @@ var Errors: Errors = get_node("/root/Errors")
 @onready
 var Memory: Memory = get_node("/root/Memory")
 
+var start_ticks_milliseconds = 0
+
+func init():
+	start_ticks_milliseconds = Time.get_ticks_msec()
+
 # "Normal" Maths operations
 func add(address_target, address_source):
 	var left = Memory.read(address_target)
@@ -156,6 +161,6 @@ func jump(conditional_address, jump_target_address):
 	if condition != 0:
 		Memory.write(Memory.INSTRUCTION_POINTER, jump)
 
-
 func ticks():
-	Memory.write(Memory.RETURN, Time.get_ticks_msec())
+	var ts = Time.get_ticks_msec() - start_ticks_milliseconds
+	Memory.write(Memory.RETURN, ts)

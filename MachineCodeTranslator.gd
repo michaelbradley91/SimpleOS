@@ -63,6 +63,8 @@ class Instruction:
 	var type: int
 	var arg1: int
 	var arg2: int
+	var original_int_1: int
+	var original_int_2: int
 	
 	func _init(bytes: PackedByteArray, offset: int):
 		if bytes.size() == 0:
@@ -83,7 +85,14 @@ class Instruction:
 		arg2 = bytes.decode_s64(offset + 8)
 	
 	func as_ints():
-		return [((type & 0xFFFF) << (6 * 8)) + arg1, arg2]
+		# We need to make this signed but in 6 bytes...
+		var signed_bytes: PackedByteArray = PackedByteArray([0,0,0,0,0,0,0,0])
+		signed_bytes.encode_s64(0, arg1)
+		signed_bytes.set(6, 0)
+		signed_bytes.set(7, 0)
+		var unsigned_arg1 = signed_bytes.decode_u64(0)
+		var result = [((type & 0xFFFF) << (6 * 8)) + (unsigned_arg1 & 0xFFFFFFFFFFFF), arg2]
+		return result
 	
 	func size():
 		return 16
@@ -100,6 +109,16 @@ func get_instruction_from_memory(address: int) -> Instruction:
 	var instruction = Instruction.new(bytes, 0)
 	instruction.type = (first_part >> (6 * 8)) & 0xFFFF
 	instruction.arg1 = first_part & 0x0000FFFFFFFFFFFF
+	if (instruction.arg1 >= 0x0000800000000000):
+		# The sign bit is set
+		var arg1_fix: PackedByteArray = PackedByteArray([0, 0, 0, 0, 0, 0, 0, 0])
+		arg1_fix.encode_u64(0, instruction.arg1)
+		arg1_fix.set(7, 0xFF)
+		arg1_fix.set(6, 0xFF)
+		instruction.arg1 = arg1_fix.decode_s64(0)
+	
+	# Arg 1 might be signed in the first 6 bytes, so check it
+	instruction.arg1 
 	instruction.arg2 = second_part
 	return instruction
 

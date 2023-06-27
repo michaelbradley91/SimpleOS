@@ -5,8 +5,7 @@ var Video: Video = get_node("/root/Video")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	print("Ready to draw")
-
+	pass
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
@@ -27,7 +26,6 @@ func _draw():
 		Video.clear_draw_instructions()
 	Video.unlock_draw_instructions()
 	
-	print("Saw draw instructions size", draw_instructions.size())
 	for draw_instruction in draw_instructions:
 		print("Calling draw instruction")
 		draw_instruction.call(self)
