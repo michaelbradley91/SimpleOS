@@ -1,6 +1,6 @@
 import { writeFileSync } from "fs";
 import { fileSync } from "tmp";
-import { CloseBracket_Token, Comma_Token, Define_Token, DefineInvoked_Token, Include_Token, Label_Token, MacroBegin_Token, MacroEnd_Token, MultiLineComment_Token, NumberLiteral_Token, OpenBracket_Token, Operation_Token, OperationType, SingleLineComment_Token, StringLiteral_Token, TokenLineResult, tokenise_line, get_file_lines, tokenise_file, TokenFileResult } from "../src/syntax";
+import { CloseBracket_Token, Comma_Token, Define_Token, DefineInvoked_Token, Include_Token, Label_Token, MacroBegin_Token, MacroEnd_Token, MultiLineComment_Token, NumberLiteral_Token, OpenBracket_Token, Operation_Token, OperationType, SingleLineComment_Token, StringLiteral_Token, TokenLineResult, tokenise_line, get_file_lines, tokenise_file, TokenFileResult, set_get_file_lines, get_file_lines_from_filesystem } from "../src/syntax";
 import * as assert from 'assert';
 import { fileURLToPath } from 'url';
 
@@ -22,7 +22,7 @@ describe("tokenise_line", () =>
             new TokenLineResult(
                 [
                     new Include_Token(),
-                    new StringLiteral_Token("./my_stuff.sos")
+                    new StringLiteral_Token("./my_stuff.sos", 9, 25)
                 ],
                 null
             )
@@ -43,7 +43,7 @@ describe("tokenise_line", () =>
             new TokenLineResult(
                 [
                     new Define_Token("HELLO"),
-                    new StringLiteral_Token("bob")
+                    new StringLiteral_Token("bob", 14, 19)
                 ],
                 null
             )
@@ -225,7 +225,7 @@ describe("tokenise_line", () =>
     it("Can get file lines", () => {
         const tmp_file = fileSync();
         writeFileSync(tmp_file.name, "add 3 4\n// what is this\nstuff");
-
+        set_get_file_lines(get_file_lines_from_filesystem);
         assert.deepEqual(get_file_lines(tmp_file.name),
             ["add 3 4", "// what is this", "stuff"]
         );
@@ -252,7 +252,7 @@ describe("tokenise_line", () =>
                 [],
                 [
                     new Include_Token(),
-                    new StringLiteral_Token("my_stuff.sos")
+                    new StringLiteral_Token("my_stuff.sos", 9, 23)
                 ]
             ])
         );

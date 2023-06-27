@@ -26,10 +26,10 @@ describe("identify_value", () => {
         ]);
 
         assert.deepEqual(identify_value([
-            new StringLiteral_Token("hello"),
+            new StringLiteral_Token("hello", 0, 0),
             new Comma_Token()
         ]), [
-            new StringLiteral_Token("hello")
+            new StringLiteral_Token("hello", 0, 0)
         ]);
     });
 
@@ -52,7 +52,7 @@ describe("identify_value", () => {
             new OpenBracket_Token(),
             new NumberLiteral_Token(300n),
             new Comma_Token(),
-            new StringLiteral_Token("Hello"),
+            new StringLiteral_Token("Hello", 0, 0),
             new CloseBracket_Token(),
             new Comma_Token()
         ]), [
@@ -60,7 +60,7 @@ describe("identify_value", () => {
             new OpenBracket_Token(),
             new NumberLiteral_Token(300n),
             new Comma_Token(),
-            new StringLiteral_Token("Hello"),
+            new StringLiteral_Token("Hello", 0, 0),
             new CloseBracket_Token()
         ]);
 
@@ -69,7 +69,7 @@ describe("identify_value", () => {
             new OpenBracket_Token(),
             new NumberLiteral_Token(300n),
             new Comma_Token(),
-            new StringLiteral_Token("Hello"),
+            new StringLiteral_Token("Hello", 0, 0),
             new Comma_Token(),
             new MacroInvoked_Token("FUNC"),
             new OpenBracket_Token(),
@@ -84,7 +84,7 @@ describe("identify_value", () => {
             new OpenBracket_Token(),
             new NumberLiteral_Token(300n),
             new Comma_Token(),
-            new StringLiteral_Token("Hello"),
+            new StringLiteral_Token("Hello", 0 ,0),
             new Comma_Token(),
             new MacroInvoked_Token("FUNC"),
             new OpenBracket_Token(),
@@ -101,8 +101,8 @@ describe("identify_value", () => {
         assert.deepEqual(evaluate_value([new NumberLiteral_Token(400n)], parser_context), 
         new ConstantValue([new NumberLiteral_Token(400n)], 400n));
         
-        assert.deepEqual(evaluate_value([new StringLiteral_Token("Hello")], parser_context),
-        new ConstantValue([new StringLiteral_Token("Hello")], "Hello")); 
+        assert.deepEqual(evaluate_value([new StringLiteral_Token("Hello", 0 ,0)], parser_context),
+        new ConstantValue([new StringLiteral_Token("Hello", 0, 0)], "Hello")); 
 
         assert.deepEqual(evaluate_value([new Label_Token("bob:")], parser_context),
         new ConstantValue([new Label_Token("bob:")], "bob:"));

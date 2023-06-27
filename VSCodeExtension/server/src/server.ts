@@ -31,7 +31,7 @@ import { readFileSync } from 'fs';
 import path = require('node:path');
 import { fileURLToPath, pathToFileURL } from 'url';
 import { serialize } from 'v8';
-import { get_file_lines, get_file_lines_from_filesystem, set_get_file_lines } from './compiler/src/syntax';
+import { Include_Token, StringLiteral_Token, Token, get_file_lines, get_file_lines_from_filesystem, set_get_file_lines, tokenise_file, tokenise_line } from './compiler/src/syntax';
 import { ProgramHeader, parse_program_header } from './compiler/src/configuration';
 import { isWhiteSpaceLike } from 'typescript';
 
@@ -47,6 +47,7 @@ let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
+	set_get_file_lines(get_file_lines_from_documents);
 	const capabilities = params.capabilities;
 
 	// Does the client support the `workspace/configuration` request?
@@ -162,7 +163,7 @@ documents.onDidSave(change => {
 	validateTextDocument(change.document);
 });
 
-function path_to_document_uri(file_path: string): string | null
+function path_to_document_uri(file_path: string): string
 {
 	const all_uris = documents.keys();
 	const resolved_file_path = path.resolve(file_path);
@@ -213,7 +214,6 @@ export async function try_compile(document_uri: string): Promise<CompilationResu
 	const program_path = document_uri_to_path(document_uri);
     const program_header: ProgramHeader = parse_program_header(settings.program_configuration);
     const working_directory = path.dirname(settings.program_configuration);
-	set_get_file_lines(get_file_lines_from_documents);
 	const lines = get_file_lines(program_path);
 	if (!lines)
 	{
@@ -569,6 +569,54 @@ connection.onDefinition(async (_definitionParams: DefinitionParams): Promise<Def
 					};
 					return [definition_link];
 				}
+			}
+		}
+	}
+
+	// Is this an include line?
+	const lines = text.split(/\r?\n/);
+	const line = lines[_definitionParams.position.line];
+	const tokenise_result = tokenise_file(lines);
+	const line_tokens = tokenise_result.tokens[_definitionParams.position.line];
+	if (line_tokens.find(token => token instanceof Include_Token))
+	{
+		// Has an include! Are we on the string?
+		const string_token: Token | undefined = line_tokens.find(token => token instanceof StringLiteral_Token && 
+			token.start_character <= _definitionParams.position.character && 
+			token.end_character >= _definitionParams.position.character);
+		if (string_token && string_token instanceof StringLiteral_Token)
+		{
+			// Yes, we are! Link it to the destination
+			const program_configuration_parsed = path.parse(settings.program_configuration);
+			const include_path = path.join(program_configuration_parsed.dir, string_token.text);
+			const destination_uri = path_to_document_uri(include_path);
+			const include_lines = get_file_lines(include_path);
+			if (include_lines)
+			{
+				const definition_link: DefinitionLink = {
+					targetUri: destination_uri,
+					targetRange: {
+						start: {
+							line: 0,
+							character: 0
+						},
+						end: {
+							line: 0,
+							character: 0
+						}
+					},
+					targetSelectionRange: {
+						start: {
+							line: 0,
+							character: 0
+						},
+						end: {
+							line: 0,
+							character: 0
+						}
+					}
+				};
+				return [definition_link];
 			}
 		}
 	}

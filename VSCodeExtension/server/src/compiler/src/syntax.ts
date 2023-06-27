@@ -147,9 +147,13 @@ export class NumberLiteral_Token extends Token {
 
 export class StringLiteral_Token extends Token {
     text: string;
-    constructor(text: string) {
+    start_character: number;
+    end_character: number;
+    constructor(text: string, start_character: number, end_character: number) {
         super();
         this.text = text;
+        this.start_character = start_character;
+        this.end_character = end_character;
     }
 }
 
@@ -380,7 +384,7 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
         matches = [...line.matchAll(String_Regex)][0];
         if (matches) {
             current_position += matches[0].length;
-            tokens.push(new StringLiteral_Token(matches[1]));
+            tokens.push(new StringLiteral_Token(matches[1], current_position - matches[0].length, current_position));
             continue;
         }
 

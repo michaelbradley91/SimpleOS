@@ -1,5 +1,6 @@
 {
 	"name": "simple-os",
+	"displayName": "Simple OS",
 	"description": "An extension to support the Simple OS syntax",
 	"author": "Michael Bradley",
 	"license": "MIT",
@@ -8,6 +9,7 @@
 		"type": "git",
 		"url": "https://github.com/michaelbradley91/SimpleOS"
 	},
+	"icon": "sos_icon.png",
 	"publisher": "Michael Bradley",
 	"categories": [
 		"Language Packs"
@@ -53,9 +55,14 @@
 					"SOS"
 				],
 				"extensions": [
-					".sos"
+					".sos",
+					".sox"
 				],
-				"configuration": "./language-configuration.json"
+				"configuration": "./language-configuration.json",
+				"icon": {
+					"dark": "telephone-receiver.png",
+					"light": "telephone-receiver.png"
+				}
 			}
 		],
 		"grammars": [
