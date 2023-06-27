@@ -155,3 +155,7 @@ func jump(conditional_address, jump_target_address):
 	
 	if condition != 0:
 		Memory.write(Memory.INSTRUCTION_POINTER, jump)
+
+
+func ticks():
+	Memory.write(Memory.RETURN, Time.get_ticks_msec())

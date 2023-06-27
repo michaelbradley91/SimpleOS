@@ -4,9 +4,6 @@
     "fps": 60,
     "screen_height": 720,
     "screen_width": 1280,
-    "working_directory": ".",
-    "output_file": "example.sox",
-    "main": "example.sos",
     "music": [],
     "sounds": [],
     "sprites": []

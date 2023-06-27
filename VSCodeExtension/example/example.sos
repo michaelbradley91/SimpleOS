@@ -10,6 +10,7 @@ xor RGB 0x400
 #template_end
 add 3 4
 and 3 4
+get_ticks
 
 #include "./helpers.sos"
 

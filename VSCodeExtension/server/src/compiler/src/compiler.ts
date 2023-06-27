@@ -161,7 +161,8 @@ enum InstructionType
 	GET_EVENT = 25,
 	WAIT_FRAME = 26,
 	EXIT = 27,
-	GET_MOUSE_POSITION = 28
+	GET_MOUSE_POSITION = 28,
+    TICKS = 29
 }
 
 export function operation_to_instructon(operation: OperationType): InstructionType
@@ -224,6 +225,8 @@ export function operation_to_instructon(operation: OperationType): InstructionTy
             return InstructionType.GET_EVENT;
         case OperationType.Get_Mouse_Position:
             return InstructionType.GET_MOUSE_POSITION;
+        case OperationType.Get_Ticks:
+            return InstructionType.TICKS;
         case OperationType.Exit:
             return InstructionType.EXIT;
     }

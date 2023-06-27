@@ -348,7 +348,7 @@ export function get_word_at(file_text: string, offset: number) {
 const operation_names: string[] = [
 	"nop", "store", "copy", "add", "mul", "sub", "div", "mod", "neq", "eq", "lt", "gt",
 	"lte", "gte", "jmp", "xor", "or", "and", "not", "fill", "draw", "clear", "play_music", "stop_music",
-	"play_sound", "get_event", "wait", "exit", "get_mouse"
+	"play_sound", "get_event", "wait", "exit", "get_mouse", "get_ticks"
 ];
 
 const function_names: string[] = [

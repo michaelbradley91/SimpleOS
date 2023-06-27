@@ -177,7 +177,6 @@ func _ready():
 	computer_sound_player.play()
 
 	# TODO - remove
-	load_program("C:\\Users\\micha\\repos\\SimpleOS\\Compiler\\example\\example.sosexe")
 	set_computer_resolution(300, 300)
 	Memory.write(1, Video.new_rectangle(0, 0, 300, 300).as_int())
 	Memory.write(2, Video.new_colour(255, 255, 0, 255).as_int())
@@ -255,6 +254,8 @@ func process_instruction(instruction: MachineCodeTranslator.Instruction) -> bool
 			return false
 		MachineCodeTranslator.INSTRUCTIONS.GET_MOUSE_POSITION:
 			GlobalInput.mouse_position()
+		MachineCodeTranslator.INSTRUCTIONS.TICKS:
+			Operations.ticks()
 		_:
 			print("Unknown instruction error %s" % instruction.type)
 			Errors.errno = Errors.UNKNOWN_INSTRUCTION
