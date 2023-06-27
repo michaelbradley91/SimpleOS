@@ -2,9 +2,11 @@
 not 6
 add 5 6
 
+#define THING 5
+
 #macro_begin SAVE_STUFF(ALICE, BOB)
 add ALICE BOB
 #macro_end
 
-#macro_begin WIZARD(XXX)
+#macro_begin WIZARD()
 #macro_end

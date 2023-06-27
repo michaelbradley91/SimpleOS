@@ -311,11 +311,31 @@ export class MacroDefinition
 {
     arguments: DefineInvoked_Token[];
     tokens: Token[][];
+    file: string;
+    line: number;
 
-    constructor(args: DefineInvoked_Token[], tokens: Token[][])
+    constructor(args: DefineInvoked_Token[], tokens: Token[][], file: string, line: number)
     {
         this.arguments = args;
         this.tokens = tokens;
+        this.file = file;
+        this.line = line;
+    }
+}
+
+export class DefineDefinition
+{
+    value: ConstantValue;
+    tokens: Token[];
+    file: string;
+    line: number;
+
+    constructor(value: ConstantValue, tokens: Token[], file: string, line: number)
+    {
+        this.value = value;
+        this.tokens = tokens;
+        this.file = file;
+        this.line = line;
     }
 }
 
@@ -324,7 +344,7 @@ export class MacroDefinition
  */
 export class ParserContext
 {
-    defines: Map<string, ConstantValue> = new Map<string, ConstantValue>();
+    defines: Map<string, DefineDefinition> = new Map<string, DefineDefinition>();
     macros: Map<string, MacroDefinition> = new Map<string, MacroDefinition>();
     music: Map<string, number> = new Map<string, number>();
     sounds: Map<string, number> = new Map<string, number>();
@@ -852,7 +872,7 @@ export function evaluate_value(tokens: Token[], parser_context: ParserContext): 
         const define_value = parser_context.defines.get(tokens[0].name);
         if (define_value)
         {
-            return new ConstantValue(used_tokens, define_value.data);
+            return new ConstantValue(used_tokens, define_value.value.data);
         }
         else
         {
@@ -1169,7 +1189,8 @@ export function process_tokens(tokens: Token[][], parser_context: ParserContext,
                 else
                 {
                     // Update the parser context with this define
-                    parser_context.defines.set(line_tokens[0].name, define_value);
+                    const define_definition: DefineDefinition = new DefineDefinition(define_value, line_tokens, parser_context.active_file, parser_context.line);
+                    parser_context.defines.set(line_tokens[0].name, define_definition);
                 }
             }
         }
@@ -1208,11 +1229,11 @@ export function process_tokens(tokens: Token[][], parser_context: ParserContext,
                     {
                         // Evaluate the macro... update the parser context with the macro arguments...
                         // Since macros cannot themselves contain define statements, we can save off the defines and restore them after the macro
-                        const old_defines = new Map<string, ConstantValue>(parser_context.defines);                    
+                        const old_defines = new Map<string, DefineDefinition>(parser_context.defines);                    
                         parser_context.macro_stack.push(macro_name);
                         for (let macro_arg_index = 0; macro_arg_index < macro_args.length; macro_arg_index++)
                         {
-                            parser_context.defines.set(macro.arguments[macro_arg_index].name, macro_args[macro_arg_index]);
+                            parser_context.defines.set(macro.arguments[macro_arg_index].name, new DefineDefinition(macro_args[macro_arg_index], [], "", 0));
                         }
                         
                         // Now we recursively invoke ourselves to evaluate the macro tokens
@@ -1243,7 +1264,7 @@ export function process_tokens(tokens: Token[][], parser_context: ParserContext,
                 if (line_tokens.length == 3 && line_tokens[2] instanceof CloseBracket_Token)
                 {
                     // No arguments - add this to the parser context
-                    parser_context.macros.set(line_tokens[0].name, new MacroDefinition([], []));
+                    parser_context.macros.set(line_tokens[0].name, new MacroDefinition([], [], parser_context.active_file, parser_context.line));
                     parser_context.active_macro = line_tokens[0].name;
                 }
                 else
@@ -1273,7 +1294,7 @@ export function process_tokens(tokens: Token[][], parser_context: ParserContext,
                         if (line_tokens[current_token] instanceof CloseBracket_Token)
                         {
                             // The end. Add the macro definition with its arguments to the context
-                            parser_context.macros.set(line_tokens[0].name, new MacroDefinition(define_arguments, []));
+                            parser_context.macros.set(line_tokens[0].name, new MacroDefinition(define_arguments, [], parser_context.active_file, parser_context.line));
                             parser_context.active_macro = line_tokens[0].name;
                             break;
                         }

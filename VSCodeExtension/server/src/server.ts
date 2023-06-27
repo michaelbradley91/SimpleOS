@@ -16,8 +16,12 @@ import {
 	TextDocumentSyncKind,
 	InitializeResult,
 	Position,
+	SignatureHelpParams,
+	SignatureHelp,
+	ParameterInformation,
+	DefinitionParams,
+	DefinitionLink
 } from 'vscode-languageserver/node';
-
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
@@ -66,6 +70,14 @@ connection.onInitialize((params: InitializeParams) => {
 			completionProvider: {
 				resolveProvider: true,
 				triggerCharacters: ["#"]
+			},
+			signatureHelpProvider: {
+                triggerCharacters: ['(', ","],
+                retriggerCharacters: [','],
+                workDoneProgress: false
+            },
+			definitionProvider: {
+				workDoneProgress: false
 			}
 		}
 	};
@@ -149,6 +161,22 @@ documents.onDidChangeContent(change => {
 documents.onDidSave(change => {
 	validateTextDocument(change.document);
 });
+
+function path_to_document_uri(file_path: string): string | null
+{
+	const all_uris = documents.keys();
+	const resolved_file_path = path.resolve(file_path);
+	for (let i = 0; i < all_uris.length; i++)
+	{
+		const document_path = path.resolve(fileURLToPath(new URL(all_uris[i])));
+		if (document_path == resolved_file_path)
+		{
+			return all_uris[i];
+		}
+	}
+	// Resort to the file system...
+	return pathToFileURL(file_path).href;
+}
 
 function get_file_lines_from_documents(file_path: string): string[] | null
 {
@@ -280,8 +308,9 @@ export function has_whitespace(text: string): boolean
  * Get the currently written "word" at this position in the file
  * @param file_text the file we are searching
  * @param offset the offset into the file we are looking at
+ * @param function_name are we looking for a function? If so, keep searching backwards until we see a bracket (this only works in basic scenarios)
  */
-export function get_word_in_progress(file_text: string, offset: number): string
+export function get_word_in_progress(file_text: string, offset: number, function_name = false): string
 {
 	let start = offset - 1;
 	if (start >= file_text.length)
@@ -290,12 +319,29 @@ export function get_word_in_progress(file_text: string, offset: number): string
 	}
 	let current_word = "";
 	let current_position = start;
-	while(current_position >= 0 && !has_whitespace(file_text[current_position]))
+	let found_function_start = false;
+	while(current_position >= 0 && (!has_whitespace(file_text[current_position]) || function_name && !found_function_start))
 	{
+		if (file_text[current_position] == "(")
+		{
+			found_function_start = true;
+		}
 		current_word = file_text[current_position] + current_word;
 		current_position--;
 	}
 	return current_word;
+}
+
+export function get_word_at(file_text: string, offset: number) {
+	const left = file_text.slice(0, offset + 1).search(/[^\s(,:()]+$/);
+    const right = file_text.slice(offset).search(/[\s(,:()]/);
+
+	// The last word in the string is a special case.
+    if (right < 0) {
+        return file_text.slice(left);
+    }
+
+	return file_text.slice(left, right + offset);
 }
 
 const operation_names: string[] = [
@@ -307,30 +353,306 @@ const operation_names: string[] = [
 const function_names: string[] = [
 	"music","sound","sprite","colour","rect","key_pressed","key_released","mouse_pressed","mouse_released"
 ];
+// Should line up with the functions above
+const function_signatures: SignatureHelp[] = [
+	{
+		signatures: [
+			{
+				label: "music(path)",
+				documentation: "Get the integer value of the music asset at the given path",
+				parameters: [ParameterInformation.create("path", "The string path matching the asset path in your configuration JSON")]
+			}
+		]
+	},
+	{
+		signatures: [
+			{
+				label: "sound(path)",
+				documentation: "Get the integer value of the sound asset at the given path",
+				parameters: [ParameterInformation.create("path", "The string path matching the asset path in your configuration JSON")]
+			}
+		]
+	},
+	{
+		signatures: [
+			{
+				label: "sprite(path)",
+				documentation: "Get the integer value of the sprite asset at the given path",
+				parameters: [ParameterInformation.create("path", "The string path matching the asset path in your configuration JSON")]
+			}
+		]
+	},
+	{
+		signatures: [
+			{
+				label: "colour(r,g,b,a)",
+				documentation: "Get the integer value corresponding to the given colour",
+				parameters: [
+					ParameterInformation.create("r", "Red component 0 - 255"),
+					ParameterInformation.create("g", "Green component 0 - 255"),
+					ParameterInformation.create("b", "Blue component 0 - 255"),
+					ParameterInformation.create("a", "Alpha component 0 - 255. 255 is opaque"),
+				]
+			}
+		]
+	},
+	{
+		signatures: [
+			{
+				label: "rect(x,y,width,height)",
+				documentation: "Get the integer value corresponding to the given rectangular area",
+				parameters: [
+					ParameterInformation.create("x", "Top left x coordinate"),
+					ParameterInformation.create("y", "Top left y coordinate"),
+					ParameterInformation.create("width", "Rectangle width"),
+					ParameterInformation.create("height", "Rectangle height"),
+				]
+			}
+		]
+	},
+	{
+		signatures: [
+			{
+				label: "key_pressed(code)",
+				documentation: "Get the integer value corresponding to the event of this key being pressed",
+				parameters: [
+					ParameterInformation.create("code", "The key that was pressed")
+				]
+			}
+		]
+	},
+	{
+		signatures: [
+			{
+				label: "key_released(code)",
+				documentation: "Get the integer value corresponding to the event of this key being released",
+				parameters: [
+					ParameterInformation.create("code", "The key that was released")
+				]
+			}
+		]
+	},
+	{
+		signatures: [
+			{
+				label: "mouse_pressed(x,y,button)",
+				documentation: "Get the integer value corresponding to the event of this mouse button being pressed",
+				parameters: [
+					ParameterInformation.create("x", "The x coordinate where it was pressed"),
+					ParameterInformation.create("y", "The y coordinate where it was pressed"),
+					ParameterInformation.create("button", "The button that was pressed")
+				]
+			}
+		]
+	},
+	{
+		signatures: [
+			{
+				label: "mouse_released(x,y,button)",
+				documentation: "Get the integer value corresponding to the event of this mouse button being released",
+				parameters: [
+					ParameterInformation.create("x", "The x coordinate where it was released"),
+					ParameterInformation.create("y", "The y coordinate where it was released"),
+					ParameterInformation.create("button", "The button that was released")
+				]
+			}
+		]
+	},
+];
 
 const directive_names: string[] = [
 	"#define", "#include", "#macro_begin", "#macro_end"
 ];
 
+
+connection.onDefinition(async (_definitionParams: DefinitionParams): Promise<DefinitionLink[] | undefined | null> => {
+	const text_document = documents.get(_definitionParams.textDocument.uri);
+	if (!text_document)
+	{
+		return null;
+	}
+	const text = text_document.getText();
+	const offset = text_document.offsetAt(_definitionParams.position);
+	const word = get_word_at(text, offset);
+
+	const settings: SimpleOSSettings = await getDocumentSettings(_definitionParams.textDocument.uri);
+	if (!settings.program_configuration)
+	{
+		return null;
+	}
+	const compilation_result = await try_compile(_definitionParams.textDocument.uri);
+	if (!compilation_result)
+	{
+		return null;
+	}
+
+	// Check defines first...
+	const all_defines = [...compilation_result.parser_context.defines.keys()];
+	for (let i = 0; i < all_defines.length; i++)
+	{
+		if (all_defines[i] == word)
+		{
+			const define_definition = compilation_result.parser_context.defines.get(all_defines[i]);
+			if (define_definition)
+			{
+				const documentUri = path_to_document_uri(define_definition.file);
+				const lines = get_file_lines(define_definition.file);
+				if (documentUri && lines)
+				{
+					const definition_link: DefinitionLink = {
+						targetUri: documentUri,
+						targetRange: {
+							start: {
+								line: define_definition.line,
+								character: 0
+							},
+							end: {
+								line: define_definition.line,
+								character: lines[define_definition.line].length
+							}
+						},
+						targetSelectionRange: {
+							start: {
+								line: define_definition.line,
+								character: 0
+							},
+							end: {
+								line: define_definition.line,
+								character: lines[define_definition.line].length
+							}
+						}
+					};
+					return [definition_link];
+				}
+			}
+		}
+	}
+
+	// Check macros...
+	const all_macros = [...compilation_result.parser_context.macros.keys()];
+	for (let i = 0; i < all_macros.length; i++)
+	{
+		if (all_macros[i] == word)
+		{
+			console.log("Found macro");
+			const macro_definition = compilation_result.parser_context.macros.get(all_macros[i]);
+			if (macro_definition)
+			{
+				console.log("Found macro definition " + macro_definition.file);
+				const documentUri = path_to_document_uri(macro_definition.file);
+				const lines = get_file_lines(macro_definition.file);
+				if (documentUri && lines)
+				{
+					console.log("Found macro definition with file");
+					const definition_link: DefinitionLink = {
+						targetUri: documentUri,
+						targetRange: {
+							start: {
+								line: macro_definition.line,
+								character: 0
+							},
+							end: {
+								line: macro_definition.line,
+								character: lines[macro_definition.line].length
+							}
+						},
+						targetSelectionRange: {
+							start: {
+								line: macro_definition.line,
+								character: 0
+							},
+							end: {
+								line: macro_definition.line,
+								character: lines[macro_definition.line].length
+							}
+						}
+					};
+					return [definition_link];
+				}
+			}
+		}
+	}
+
+	return null;
+});
+
+connection.onSignatureHelp(async (_signatureHelpParams: SignatureHelpParams): Promise<SignatureHelp | undefined | null> => {
+	const text_document = documents.get(_signatureHelpParams.textDocument.uri);
+	if (!text_document)
+	{
+		return null;
+	}
+	const text = text_document.getText();
+	const offset = text_document.offsetAt(_signatureHelpParams.position);
+	const current_word = get_word_in_progress(text, offset , true);
+	for (let i = 0; i < function_names.length; i++)
+	{
+		if (current_word.startsWith(function_names[i]))
+		{
+			// TODO - fix parameter and function suggestion based on token evaluation if possible...
+			function_signatures[i].activeParameter = (current_word.match(/,/g) || []).length;
+			return function_signatures[i];
+		}
+	}
+	const settings: SimpleOSSettings = await getDocumentSettings(_signatureHelpParams.textDocument.uri);
+	if (!settings.program_configuration)
+	{
+		return null;
+	}
+	const compilation_result = await try_compile(_signatureHelpParams.textDocument.uri);
+	if (!compilation_result)
+	{
+		return null;
+	}
+	// Check for macros
+	const all_macros = [...compilation_result.parser_context.macros.keys()];
+	for (let i = 0; i < function_names.length; i++)
+	{
+		if (current_word.startsWith(all_macros[i]))
+		{
+			const macro_definition = compilation_result.parser_context.macros.get(all_macros[i]);
+			if (macro_definition)
+			{
+				const string_args = [];
+				const parameters: ParameterInformation[] = [];
+				for (let i = 0; i < macro_definition.arguments.length; i++)
+				{
+					string_args.push(macro_definition.arguments[i].name);
+					parameters.push(
+						{
+							label: macro_definition.arguments[i].name
+						}
+					);
+				}
+				const macro_label = all_macros[i] + "(" + string_args.join(",") + ")";
+				
+				const signature_help: SignatureHelp = {
+					signatures: [
+						{
+							label: macro_label,
+							parameters: parameters,
+							activeParameter: (current_word.match(/,/g) || []).length
+						}
+					]
+				};
+				return signature_help;
+			}
+		}
+	}
+	return null;
+});
+
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionItem[]> => {
 		// Figure out what the user is typing...
-		console.log("Looking for completion items");
 		const text_document = documents.get(_textDocumentPosition.textDocument.uri);
 		if (!text_document) {
 			return [];
 		}
-		console.log("Auto complete line " + _textDocumentPosition.position.line.toString() + " character " + _textDocumentPosition.position.character.toString());
 		const offset = text_document.offsetAt(_textDocumentPosition.position);
-		console.log("Seems to be at position " + offset.toString());
 		const text = text_document.getText();
-		console.log("Text here and around is: ", text.slice(offset - 5, offset + 5));
-		console.log("Text right here is: ", text[offset]);
-		console.log("Text before here is: ", text[offset - 1]);
-		console.log("Got document text with length " + text.length.toString());
 		const current_word = get_word_in_progress(text, offset);
-		console.log("Current word seems to be " + current_word);
 
 		const completion_items: CompletionItem[] = [];
 		for (let i = 0; i < operation_names.length; i++)
@@ -367,7 +689,6 @@ connection.onCompletion(
 				});
 			}
 		}
-		console.log("Trying dummy compile...");
 		const settings: SimpleOSSettings = await getDocumentSettings(_textDocumentPosition.textDocument.uri);
 		if (!settings.program_configuration)
 		{

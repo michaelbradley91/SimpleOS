@@ -1,4 +1,4 @@
-import { ConstantValue, ParserContext, evaluate_value, identify_value } from "../src/semantics";
+import { ConstantValue, DefineDefinition, ParserContext, evaluate_value, identify_value } from "../src/semantics";
 import { CloseBracket_Token, Comma_Token, DefineInvoked_Token, FunctionType, Function_Token, Label_Token, MacroInvoked_Token, NumberLiteral_Token, OpenBracket_Token, StringLiteral_Token } from "../src/syntax";
 import * as assert from 'assert';
 
@@ -110,7 +110,7 @@ describe("identify_value", () => {
         assert.deepEqual(evaluate_value([new Label_Token("bob:")], parser_context),
         new ConstantValue([new Label_Token("bob:")], "bob:"));
 
-        parser_context.defines.set("YELLOW", new ConstantValue([new NumberLiteral_Token(0xFFFF00FFn)], 0xFFFF00FFn));
+        parser_context.defines.set("YELLOW", new DefineDefinition(new ConstantValue([new NumberLiteral_Token(0xFFFF00FFn)], 0xFFFF00FFn), [], "", 0));
         assert.deepEqual(evaluate_value([new DefineInvoked_Token("YELLOW")], parser_context),
         new ConstantValue([new DefineInvoked_Token("YELLOW")], 0xFFFF00FFn)); 
     });
