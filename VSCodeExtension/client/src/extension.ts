@@ -12,9 +12,9 @@ import {
 	ServerOptions,
 	TransportKind
 } from 'vscode-languageclient/node';
-import { get_file_lines_from_filesystem, set_get_file_lines } from './compiler/src/syntax';
-import { compile, output_binary } from './compiler/src/compiler';
-import { print_process_file_result } from './compiler/src/semantics';
+import { get_file_lines_from_filesystem, set_get_file_lines } from '../../server/src/compiler/src/syntax';
+import { compile, output_binary } from '../../server/src/compiler/src/compiler';
+import { print_process_file_result } from '../../server/src/compiler/src/semantics';
 
 let client: LanguageClient;
 
