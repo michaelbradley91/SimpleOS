@@ -1382,24 +1382,24 @@ export function process_tokens(tokens: Token[][], parser_context: ParserContext,
     }
 }
 
-export function print_process_file_result(program_header: ProgramHeader, result: ProcessFileResult)
+export function print_process_file_result(program_header: ProgramHeader, result: ProcessFileResult, printer: (text: string) => void)
 {
     if (result.success)
     {
-        console.log("Program compiled successfully! :)");
-        console.log("");
+        printer("Program compiled successfully! :)");
+        printer("");
         let current_code_address = program_header.code_address;
         result.instructions.forEach(entry => {
             if (entry instanceof Label_Token)
             {
-                console.log("0x" + current_code_address.toString(16).padEnd(10) + entry.name);
+                printer("0x" + current_code_address.toString(16).padEnd(10) + entry.name);
             }
             else
             {
                 const number_args = get_number_arguments(entry.type);
                 if (number_args == 0)
                 {
-                    console.log("0x" + current_code_address.toString(16).padEnd(10) + entry.type.padEnd(8));
+                    printer("0x" + current_code_address.toString(16).padEnd(10) + entry.type.padEnd(8));
                 }
                 else if (number_args == 1)
                 {
@@ -1408,7 +1408,7 @@ export function print_process_file_result(program_header: ProgramHeader, result:
                     {
                         arg1_string = entry.arg1.name;
                     }
-                    console.log("0x" + current_code_address.toString(16).padEnd(10) + entry.type.padEnd(8) + " " + arg1_string.padEnd(18));
+                    printer("0x" + current_code_address.toString(16).padEnd(10) + entry.type.padEnd(8) + " " + arg1_string.padEnd(18));
                 }
                 else
                 {
@@ -1422,7 +1422,7 @@ export function print_process_file_result(program_header: ProgramHeader, result:
                     {
                         arg2_string = entry.arg2.name;
                     }
-                    console.log("0x" + current_code_address.toString(16).padEnd(10) + entry.type.padEnd(8) + " " + arg1_string.padEnd(18) + " " + arg2_string.padEnd(18));
+                    printer("0x" + current_code_address.toString(16).padEnd(10) + entry.type.padEnd(8) + " " + arg1_string.padEnd(18) + " " + arg2_string.padEnd(18));
                 }
                 current_code_address += 2;
             }
@@ -1430,7 +1430,7 @@ export function print_process_file_result(program_header: ProgramHeader, result:
     }
     else
     {
-        console.log("Program failed to compile");
+        printer("Program failed to compile");
         [...result.errors.keys()].forEach(file => {
             const file_errors = result.errors.get(file);
             if (file_errors)
@@ -1438,7 +1438,7 @@ export function print_process_file_result(program_header: ProgramHeader, result:
                 const all_errors = [...file_errors.values()];
                 all_errors.sort((a, b) => a.line < b.line ? -1 : 1);
                 all_errors.forEach(error => {
-                    console.log(`File: ${file}. Line ${error.line + 1}: ${error.message}`);
+                    printer(`File: ${file}. Line ${error.line + 1}: ${error.message}`);
                 });
             }
         });

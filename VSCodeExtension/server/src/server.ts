@@ -178,7 +178,7 @@ function path_to_document_uri(file_path: string): string | null
 	return pathToFileURL(file_path).href;
 }
 
-function get_file_lines_from_documents(file_path: string): string[] | null
+export function get_file_lines_from_documents(file_path: string): string[] | null
 {
 	const all_uris = documents.keys();
 	const resolved_file_path = path.resolve(file_path);

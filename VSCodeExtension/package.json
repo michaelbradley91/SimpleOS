@@ -20,6 +20,12 @@
 	},
 	"main": "./client/out/extension",
 	"contributes": {
+		"commands":[
+			{
+				"command": "simpleOS.build",
+				"title": "Compile Simple OS Executable"
+			}
+		],
 		"configuration": {
 			"type": "object",
 			"title": "Simple OS Configuration",
