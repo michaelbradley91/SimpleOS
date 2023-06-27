@@ -1,0 +1,9 @@
+/*
+ * We use this file to keep an eye on all the different memory blocks we are using
+ */
+#constant RETURN -1
+#constant ONE 0x8
+#constant ZERO 0x9
+#constant MAX_MILLISECONDS 0x10
+#constant BACKGROUND_MUSIC 0x100
+#constant BACKGROUND_MUSIC_VOLUME 0x101

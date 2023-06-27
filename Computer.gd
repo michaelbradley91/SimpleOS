@@ -104,14 +104,14 @@ func load_program(program_path: String):
 	file.close()
 
 	# Parse the machine code first
-	current_program = MachineCodeTranslator.parse_machine_code(bytes)
+	var temp_current_program = MachineCodeTranslator.parse_machine_code(bytes)
 	
 	# Now load all the assets
 	var music: Array[MachineCodeTranslator.Asset] = []
 	var sounds: Array[MachineCodeTranslator.Asset] = []
 	var sprites: Array[MachineCodeTranslator.Asset] = []
 	
-	for asset in current_program.assets:
+	for asset in temp_current_program.assets:
 		if asset.type == MachineCodeTranslator.ASSET_TYPES.MUSIC_ASSET:
 			music.append(asset)
 		elif asset.type == MachineCodeTranslator.ASSET_TYPES.SOUND_ASSET:
@@ -137,9 +137,9 @@ func load_program(program_path: String):
 	Video.load_assets(sprites)
 	
 	# Now initiliase the program memory
-	Memory.initialise(current_program.header.memory_size)
-	var code_address = current_program.header.code_address
-	for instruction in current_program.instructions:
+	Memory.initialise(temp_current_program.header.memory_size)
+	var code_address = temp_current_program.header.code_address
+	for instruction in temp_current_program.instructions:
 		var instruction_parts = instruction.as_ints()
 		for instruction_part in instruction_parts:
 			Memory.write(code_address, instruction_part)
@@ -147,13 +147,14 @@ func load_program(program_path: String):
 	
 	# We need to update certain special locations
 	Memory.write(Memory.SCREEN_DEFAULT_COLOUR, 0x000000FF)
-	Memory.write(Memory.FRAMES_PER_SECOND, current_program.header.fps)
-	Memory.write(Memory.INSTRUCTION_POINTER, current_program.header.code_address)
+	Memory.write(Memory.FRAMES_PER_SECOND, temp_current_program.header.fps)
+	Memory.write(Memory.INSTRUCTION_POINTER, temp_current_program.header.code_address)
 	
 	# Empty out the event queue
 	GlobalInput.clear_event_queue()
 	
 	# We are now ready to run!
+	current_program = temp_current_program
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -267,6 +268,7 @@ func exit_program():
 	
 	# Remove all assets
 	# Clear out old assets
+	current_program = null
 	music_player.stop()
 	sound_player.stop()
 	music_player.stream = null
@@ -275,7 +277,6 @@ func exit_program():
 	Video.unload()
 	Memory.initialise(1000)
 	Errors.errno = Errors.NO_ERR
-	current_program = null
 	
 	# TODO: reset the program canvas
 	trigger_draw()
@@ -337,6 +338,7 @@ func _on_file_dialog_file_selected(path):
 	file_dialog.hide()
 	
 	print("Loading program: " + path)
+	load_program(path)
 
 func _on_cat_pressed():
 	computer_sound_player.stream = cat_meow

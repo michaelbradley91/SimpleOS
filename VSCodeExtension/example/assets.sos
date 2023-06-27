@@ -1,0 +1,12 @@
+/* 
+ * This file is a list of all the assets we are using to make them easier to reference
+ */
+
+#include "memory_map.sos"
+
+// Run this fuction to load all the assets into memory
+#template_begin LOAD_ASSETS()
+store BACKGROUND_MUSIC music("./Assets/background_music.mp3")
+store BACKGROUND_MUSIC_VOLUME 20000
+#template_end
+

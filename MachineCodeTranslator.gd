@@ -118,18 +118,18 @@ class Asset:
 	var extension: String
 	var bytes: PackedByteArray
 	
-	func _init(bytes: PackedByteArray, offset: int):
-		type = bytes.decode_u16(offset)
-		var length = bytes.decode_u64(offset) >> 16;
+	func _init(passed_bytes: PackedByteArray, offset: int):
+		type = passed_bytes.decode_u16(offset)
+		var length = passed_bytes.decode_u64(offset) >> 16;
 		
 		# Work out where the string is
-		var end = bytes.find(0, offset + 8)
-		extension = bytes.slice(offset + 8, end + 1).get_string_from_utf8()
+		var end = passed_bytes.find(0, offset + 8)
+		extension = passed_bytes.slice(offset + 8, end + 1).get_string_from_utf8()
 		
 		if (end % 8 != 0):
 			end += 8 - (end % 8);
 		
-		self.bytes = bytes.slice(end, end + length);
+		self.bytes = passed_bytes.slice(end, end + length);
 		
 	func size():
 		if (type == ASSET_TYPES.NO_ASSET):

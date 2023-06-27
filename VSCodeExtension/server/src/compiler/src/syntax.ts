@@ -11,16 +11,16 @@ const SingleLineComment_Regex = /^\/\/(.*)$/g;
 const Operator_Regex = /^(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|get_ticks|wait|exit|get_mouse)(?=(\s|$))/g;
 const Function_Regex = /^(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(?=\([^)(]*\))/g;
 const TemplateEnd_Regex = /^(#template_end)(?=\s|$)/g;
-const TemplateBegin_Regex = /^#template_begin($|\s+([^ :,()]+)?(?=\([^)(]*\))?)/g;
-const Constant_Regex = /^#constant($|\s+([^ :,()]+))/g;
-const Label_Regex = /^[^ :,()]+:(b|f)?/g;
+const TemplateBegin_Regex = /^#template_begin($|\s+([^ \-:,()]+)?(?=\([^)(]*\))?)/g;
+const Constant_Regex = /^#constant($|\s+([^ \-:,()]+))/g;
+const Label_Regex = /^[^ \-:,()]+:(b|f)?/g;
 const Include_Regex = /^#include(\s|$)/g;
-const Number_Regex = /^(-?(0(x|X)[0-9a-fA-F]+)|([0-9]+))/g;
+const Number_Regex = /^(-?(0(x|X)[0-9a-fA-F]+)|(-?[0-9]+))/g;
 const String_Regex = /^"([^"]*)"/g;
 // Any other function looking thing is assumed to be a template invoked unless proven otherwise
-const TemplateInvoked_Regex = /^([^ :,()]+)(?=\([^)(]*\))/g;
+const TemplateInvoked_Regex = /^([^ \-:,()]+)(?=\([^)(]*\))/g;
 // Finally, any other word like thing is assumed to be a constant unless proven otherwise
-const ConstantInvoked_Regex = /^([^ :,()]+)/g;
+const ConstantInvoked_Regex = /^([^ \-:,()]+)/g;
 const Comma_Regex = /^,/g;
 const OpenBracket_Regex = /^\(/g;
 const CloseBracket_Regex = /^\)/g;

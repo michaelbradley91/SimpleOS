@@ -90,6 +90,10 @@ export function assets_to_bytes(program_header: ProgramHeader): Uint8Array
     const asset_bytes = [];
     program_header.music.forEach(music_entry => {
         const file_type_bytes = bigint_to_bytes16(AssetTypes.MUSIC_ASSET);
+        if (!path.isAbsolute(music_entry))
+        {
+            music_entry = path.join(program_header.working_directory, music_entry);
+        }
         let file_bytes = file_to_bytes(music_entry);
         const file_length_bytes = bigint_to_bytes48(file_bytes.length);
         file_bytes = right_pad_bytes(file_bytes, 8);
@@ -101,6 +105,10 @@ export function assets_to_bytes(program_header: ProgramHeader): Uint8Array
 
     program_header.sounds.forEach(sound_entry => {
         const file_type_bytes = bigint_to_bytes16(AssetTypes.SOUND_ASSET);
+        if (!path.isAbsolute(sound_entry))
+        {
+            sound_entry = path.join(program_header.working_directory, sound_entry);
+        }
         let file_bytes = file_to_bytes(sound_entry);
         const file_length_bytes = bigint_to_bytes48(file_bytes.length);
         file_bytes = right_pad_bytes(file_bytes, 8);
@@ -112,6 +120,10 @@ export function assets_to_bytes(program_header: ProgramHeader): Uint8Array
 
     program_header.sprites.forEach(sprite_entry => {
         const file_type_bytes = bigint_to_bytes16(AssetTypes.SPRITE_ASSET);
+        if (!path.isAbsolute(sprite_entry))
+        {
+            sprite_entry = path.join(program_header.working_directory, sprite_entry);
+        }
         let file_bytes = file_to_bytes(sprite_entry);
         const file_length_bytes = bigint_to_bytes48(file_bytes.length);
         file_bytes = right_pad_bytes(file_bytes, 8);

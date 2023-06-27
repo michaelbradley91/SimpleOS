@@ -614,7 +614,7 @@ function evaluate_music(args: ConstantValue[], parser_context: ParserContext): C
     const usage_string = "Usage: music(\"my_music\")";
     const usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
 
-    if (args.length != 3)
+    if (args.length != 1)
     {
         return usage_error;
     }
@@ -638,7 +638,7 @@ function evaluate_music(args: ConstantValue[], parser_context: ParserContext): C
     }
     
     const music = parser_context.music.get(args[0].text);
-    if (!music)
+    if (music === undefined)
     {
         return usage_error;
     }
@@ -650,7 +650,7 @@ function evaluate_sound(args: ConstantValue[], parser_context: ParserContext): C
     const usage_string = "Usage: sound(\"my_sound\")";
     const usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
 
-    if (args.length != 3)
+    if (args.length != 1)
     {
         return usage_error;
     }
@@ -674,7 +674,7 @@ function evaluate_sound(args: ConstantValue[], parser_context: ParserContext): C
     }
 
     const sound = parser_context.music.get(args[0].text);
-    if (!sound)
+    if (sound === undefined)
     {
         return usage_error;
     }
@@ -687,7 +687,7 @@ function evaluate_sprite(args: ConstantValue[], parser_context: ParserContext): 
     const usage_string = "Usage: sprite(\"my_sprite\")";
     const usage_error = new ConstantValue([], new SemanticError(parser_context.line, usage_string));
 
-    if (args.length != 3)
+    if (args.length != 1)
     {
         return usage_error;
     }
@@ -711,7 +711,7 @@ function evaluate_sprite(args: ConstantValue[], parser_context: ParserContext): 
     }
 
     const sprite = parser_context.music.get(args[0].text);
-    if (!sprite)
+    if (sprite === undefined)
     {
         return usage_error;
     }
@@ -1570,7 +1570,8 @@ export function find_label(label: Label, instruction_address: number, label_addr
             return BigInt(possible_addresses[current_instance]);
         }
     }
-    else
+    
+    if (label.name.endsWith("f") || label.name.endsWith(":"))
     {
         // Search forward...
         let current_instance = 0;
@@ -1593,6 +1594,7 @@ export function find_label(label: Label, instruction_address: number, label_addr
             return new SemanticError(label.line, "Label not found when searching forwards");
         }
     }
+    
     return new SemanticError(label.line, "Label not found");
 }
 

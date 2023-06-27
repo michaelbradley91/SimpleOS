@@ -16,11 +16,6 @@ var sounds: Array[AudioStream] = []
 
 func unload():
 	# Clean up all previously loaded resources
-	for music_stream in music:
-		music_stream.free()
-	
-	for sound_stream in sounds:
-		sound_stream.free()
 	
 	music.clear()
 	sounds.clear()
@@ -28,7 +23,7 @@ func unload():
 func load_music(music_files: Array[MachineCodeTranslator.Asset]):
 	# Load all the assets for the program ahead of their use
 	for music_file in music_files:
-		var file_path = "user://temp_resource." + music_file.extension;
+		var file_path = "user://temp_resource" + music_file.extension;
 		var file = FileAccess.open(file_path, FileAccess.WRITE);
 		file.store_buffer(music_file.bytes);
 		file.close()

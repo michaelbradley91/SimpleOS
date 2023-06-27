@@ -53,6 +53,7 @@ func report_errors(err, filepath):
 func loadfile(filepath) -> AudioStream:
 	var file = FileAccess.open(filepath, FileAccess.READ)
 	var bytes = file.get_buffer(file.get_length())
+	
 	# if File is wav
 	if filepath.ends_with(".wav"):
 		var newstream = AudioStreamWAV.new()

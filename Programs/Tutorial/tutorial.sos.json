@@ -2,7 +2,7 @@
     "code_address": 4096,
     "fps": 60,
     "memory": 8192,
-    "music": [],
+    "music": ["./Assets/background_music.mp3"],
     "sounds": [],
     "sprites": [],
     "screen_width": 1280,

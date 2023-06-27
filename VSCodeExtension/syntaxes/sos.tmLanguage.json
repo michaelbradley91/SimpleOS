@@ -55,7 +55,7 @@
 			}
 		},
 		"definition": {
-			"match": "(#constant)($|\\s+([^ \\(\\)]+))",
+			"match": "(#constant)($|\\s+([^ \\-:,\\(\\)]+))",
 			"name": "definition.sos",
 			"captures": {
 				"1": {
@@ -67,15 +67,15 @@
 			}
 		},
 		"constant-invoked": {
-			"match": "([^ :,\\(\\)]+)",
+			"match": "([^ :,\\-\\(\\)]+)",
 			"name": "entity.name.function.preprocessor.sos"
 		},
 		"template-invoked": {
-			"match": "([^ :,\\(\\)]+)(?=\\([^\\)\\(]*\\))",
+			"match": "([^ :,\\-\\(\\)]+)(?=\\([^\\)\\(]*\\))",
 			"name": "entity.name.function.preprocessor.sos"
 		},
 		"template": {
-			"begin": "(#template_begin)($|\\s+([^ \\(\\)]+)?(\\(.*\\))?)",
+			"begin": "(#template_begin)($|\\s+([^ \\-\\(\\)]+)?(\\(.*\\))?)",
 			"beginCaptures": {
 				"1": {
 					"name": "keyword.control.directive.constant.sos"
@@ -110,7 +110,7 @@
 			}
 		},
 		"label": {
-			"match": "[^ :,\\(\\)]+:(b|f)?",
+			"match": "[^ \\-:,\\(\\)]+:(b|f)?",
 			"name": "entity.name.label.sos"
 		},
 		"string": {

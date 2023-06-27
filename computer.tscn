@@ -52,7 +52,7 @@ dialog_hide_on_ok = true
 mode_overrides_title = false
 file_mode = 0
 access = 2
-filters = PackedStringArray("*.sosexe ; Simple OS Executables")
+filters = PackedStringArray("*.sox ; Simple OS Executables")
 show_hidden_files = true
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]

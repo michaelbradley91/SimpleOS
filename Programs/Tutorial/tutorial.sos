@@ -1,0 +1,25 @@
+/*
+ * A tutorial program to outline how Simple OS works!
+ */
+
+#include "memory_map.sos"
+#include "assets.sos"
+
+// Load into memory a lot of the literal values we need
+store MAX_MILLISECONDS 10000
+store ONE 1
+
+LOAD_ASSETS()
+
+// Start the audio
+play_music BACKGROUND_MUSIC_VOLUME BACKGROUND_MUSIC
+
+// We play it for a while and then exit
+loop:
+get_ticks
+gte RETURN MAX_MILLISECONDS
+jmp RETURN end_program:
+jmp ONE loop:b
+
+end_program:
+exit

@@ -1,5 +1,15 @@
 // Hello world
 #constant BOB 4
+#constant ALICE -4
+
+#include "memory_map.sos"
+#include "assets.sos"
+
+// Load into memory a lot of the literal values we need
+store MAX_MILLISECONDS 10000
+store ONE 1
+
+LOAD_ASSETS()
 
 #template_begin FUNC()
 add 4 5
