@@ -38,12 +38,6 @@
 			"type": "object",
 			"title": "Simple OS Configuration",
 			"properties": {
-				"simpleOS.working_directory": {
-					"scope": "resource",
-					"type": "string",
-					"default": "",
-					"description": "Controls the maximum number of problems produced by the server."
-				},
 				"simpleOS.program_configuration": {
 					"scope": "resource",
 					"type": "string",

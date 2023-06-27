@@ -1,37 +1,52 @@
-# LSP Example
+# Simple OS
 
-Heavily documented sample code for https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
+Simple OS is a super simplified operating system through
+which you can write programs to be executed by a Godot game
+also in this repo.
 
-## Functionality
+See this repository's top level README for more details
+about the language.
 
-This Language Server works for plain text file. It has the following language features:
-- Completions
-- Diagnostics regenerated on each file change or configuration change
+## Getting Started
 
-It also includes an End-to-End test.
-
-## Structure
-
+Begin by creating a configuration file that looks like this:
+```json
+{
+    "code_address": 4096,
+    "memory": 8192,
+    "fps": 60,
+    "screen_height": 720,
+    "screen_width": 1280,
+    "music": [],
+    "sounds": [],
+    "sprites": []
+}
 ```
-.
-├── client // Language Client
-│   ├── src
-│   │   ├── test // End to End tests for Language Client / Server
-│   │   └── extension.ts // Language Client entry point
-├── package.json // The extension manifest.
-└── server // Language Server
-    └── src
-        └── server.ts // Language Server entry point
-```
+Name it `<my_program>.sos.json` - the ".sos.json" ensures
+the compiler can derive the out file and the main file
+by convention.
 
-## Running the Sample
+Then create `<my_program>.sos` and start writing your program!
 
-- Run `npm install` in this folder. This installs all necessary npm modules in both the client and server folder
-- Open VS Code on this folder.
-- Press Ctrl+Shift+B to start compiling the client and server in [watch mode](https://code.visualstudio.com/docs/editor/tasks#:~:text=The%20first%20entry%20executes,the%20HelloWorld.js%20file.).
-- Switch to the Run and Debug View in the Sidebar (Ctrl+Shift+D).
-- Select `Launch Client` from the drop down (if it is not already).
-- Press ▷ to run the launch config (F5).
-- In the [Extension Development Host](https://code.visualstudio.com/api/get-started/your-first-extension#:~:text=Then%2C%20inside%20the%20editor%2C%20press%20F5.%20This%20will%20compile%20and%20run%20the%20extension%20in%20a%20new%20Extension%20Development%20Host%20window.) instance of VSCode, open a document in 'plain text' language mode.
-  - Type `j` or `t` to see `Javascript` and `TypeScript` completion.
-  - Enter text content such as `AAA aaa BBB`. The extension will emit diagnostics for all words in all-uppercase.
+Use The `Compile Simple OS Executable` command to compile
+the program. Errors will be printed to its own output
+channel called `Simple OS Compiler`.
+
+The extension supports:
+
+* Syntax highlighting
+* Definition click through
+* Signature support
+* File analysis
+
+Use the Godot game in this rpeo to run your programs.
+
+Have fun!
+
+## Building
+
+`Ctrl-Shift-B` to build and watch for changes. Due to the way
+the client and server share code, this is not perfect
+for the client...!
+
+Package the vsix by installing `vsce` and run `vsce package`.

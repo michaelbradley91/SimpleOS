@@ -1,2 +1,2 @@
-# SimpleOS
-A simple Operating System running in Godot
+# Simple OS
+A simple Operating System to run games inside Godot.
