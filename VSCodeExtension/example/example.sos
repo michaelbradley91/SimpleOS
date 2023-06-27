@@ -20,8 +20,6 @@ jmp 0x100 label:
 
 add 4 THING
 
-jmp rect(3, 4, 5, 6)
-
 WIZARD() 
 
 sub BOB 5

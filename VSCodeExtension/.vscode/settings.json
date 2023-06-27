@@ -4,5 +4,7 @@
 	"typescript.preferences.quoteStyle": "single",
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": true
-	}
+	},
+	"simpleOS.program_configuration": "./example/example.sos.json",
+	"simpleOS.working_directory": "./example/"
 }
