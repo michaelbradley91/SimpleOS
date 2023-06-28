@@ -8,7 +8,7 @@ import { readFileSync } from "fs";
 // match everything correctly
 const MultiLineComment_Start_Regex = /^\/\*/g;
 const SingleLineComment_Regex = /^\/\/(.*)$/g;
-const Operator_Regex = /^(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|get_ticks|wait|exit|get_mouse)(?=(\s|$))/g;
+const Operator_Regex = /^(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|random|get_ticks|wait|exit|get_mouse)(?=(\s|$))/g;
 const Function_Regex = /^(music|sound|sprite|colour|rect|key_pressed|key_released|mouse_pressed|mouse_released)(?=\([^)(]*\))/g;
 const TemplateEnd_Regex = /^(#template_end)(?=\s|$)/g;
 const TemplateBegin_Regex = /^#template_begin($|\s+([^ \-:,()]+)?(?=\([^)(]*\))?)/g;
@@ -226,7 +226,8 @@ export enum OperationType {
     Wait = "wait",
     Exit = "exit",
     Get_Mouse_Position = "get_mouse",
-    Get_Ticks = "get_ticks"
+    Get_Ticks = "get_ticks",
+    Random = "random"
 }
 
 function enumFromStringValue<T> (enm: { [s: string]: T}, value: string): T | undefined {

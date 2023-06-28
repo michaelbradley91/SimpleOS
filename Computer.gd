@@ -54,6 +54,7 @@ var computer_screen: TextureRect = $SubViewportContainer/SubViewport/ComputerScr
 var computer_screen_viewport: SubViewport = $SubViewportContainer/SubViewport
 
 var current_program: MachineCodeTranslator.MachineCode = null
+var is_windowed: bool = true
 
 #
 # The sub viewport's size 2D override should be set to preserve
@@ -191,8 +192,17 @@ func _ready():
 	computer_sound_player.play()
 
 func _unhandled_input(event: InputEvent):
-	# Remember the input event so it can be processed next time
-	GlobalInput.queue_event(event)
+	if event is InputEventKey and event.keycode == KEY_F12:
+		if event.pressed:
+			if is_windowed:
+				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+				is_windowed = false
+			else:
+				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+				is_windowed = true
+	else:
+		# Remember the input event so it can be processed next time
+		GlobalInput.queue_event(event)
 
 func trigger_draw():
 	computer_screen.queue_redraw()
@@ -256,6 +266,8 @@ func process_instruction(instruction: MachineCodeTranslator.Instruction) -> bool
 			Audio.sound_play(instruction.arg1, instruction.arg2, sound_player)
 		MachineCodeTranslator.INSTRUCTIONS.GET_EVENT:
 			GlobalInput.get_event()
+		MachineCodeTranslator.INSTRUCTIONS.RANDOM:
+			Operations.random()
 		MachineCodeTranslator.INSTRUCTIONS.WAIT_FRAME:
 			return false
 		MachineCodeTranslator.INSTRUCTIONS.EXIT:

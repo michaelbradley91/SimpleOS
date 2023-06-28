@@ -1007,6 +1007,7 @@ export function get_number_arguments(operation: OperationType): number
         case OperationType.Stop_Music:
         case OperationType.No_Operation:
         case OperationType.Get_Event:
+        case OperationType.Random:
         case OperationType.Get_Mouse_Position:
         case OperationType.Get_Ticks:
         case OperationType.Exit:

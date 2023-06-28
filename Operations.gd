@@ -9,8 +9,12 @@ var Errors: Errors = get_node("/root/Errors")
 var Memory: Memory = get_node("/root/Memory")
 
 var start_ticks_milliseconds = 0
+var has_randomised: bool = false;
 
 func init():
+	if not has_randomised:
+		randomize()
+		has_randomised = true
 	start_ticks_milliseconds = Time.get_ticks_msec()
 
 # "Normal" Maths operations
@@ -160,6 +164,15 @@ func jump(conditional_address, jump_target_address):
 	
 	if condition != 0:
 		Memory.write(Memory.INSTRUCTION_POINTER, jump)
+
+func random():
+	# Generate a random 64 bit signed number
+	var random_bytes = []
+	for i in range(0, 8):
+		random_bytes.push_back(randi_range(0, 255))
+	
+	var final_number = PackedByteArray(random_bytes).decode_s64(0)
+	Memory.write(Memory.RETURN, final_number);
 
 func ticks():
 	var ts = Time.get_ticks_msec() - start_ticks_milliseconds

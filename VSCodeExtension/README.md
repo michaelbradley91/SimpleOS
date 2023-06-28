@@ -28,7 +28,7 @@ by convention.
 
 Then create `<my_program>.sos` and start writing your program!
 
-Use The `Compile Simple OS Executable` command to compile
+Use The `Compile Simple OS Program` command to compile
 the program. Errors will be printed to its own output
 channel called `Simple OS Compiler`.
 

@@ -31,7 +31,7 @@
 		"commands":[
 			{
 				"command": "simpleOS.build",
-				"title": "Compile Simple OS Executable"
+				"title": "Compile Simple OS Program"
 			}
 		],
 		"configuration": {

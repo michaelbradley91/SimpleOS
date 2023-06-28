@@ -56,7 +56,8 @@ enum INSTRUCTIONS
 	WAIT_FRAME = 26,
 	EXIT = 27,
 	GET_MOUSE_POSITION = 28,
-	TICKS = 29
+	TICKS = 29,
+	RANDOM = 30
 }
 
 class Instruction:
