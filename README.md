@@ -169,7 +169,7 @@ Being constants, the value must evaluate to a constant. This can be a string
 or number ultimately, but may use functions or other `#constant`'s to
 reach this.
 
-### `#template_being NAME(X,Y) ... #template_end` 
+### `#template_begin NAME(X,Y) ... #template_end` 
 
 Templates let you write blocks of code that are parameterised and can be reused.
 For example:
@@ -207,14 +207,14 @@ The `path` must be a string. It cannot even be a `#constant`.
 Relative paths are resolved according to the working directory,
 which either comes from the program's configuration or by convention.
 
-Typically, this means relatively to the VSCode folder you are working in.
+Typically, this means relative to the VSCode folder you are working in.
 
 You can include the same file multiple times, but be aware you may be duplicating
 effort for the compiler or even your own code.
 
 ## Encoding Reference
 
-Some values from operations are encoded in 64 bit integers. This is the right format from an little endian system's perspective (which is all
+Some values from operations are encoded in 64 bit integers. This is the right format from a little endian system's perspective (which is all
 Simple OS supports).
 
 Note that there are functions that can help generate
@@ -510,13 +510,9 @@ By "machine code" I am referring to the format of the `.sox` produced by the com
 
 The `.sox` file begins with a program header in this form:
 
-8 bytes -> | 8 bytes -> |
---- | --- |
-magic | view_width |
-view_height | fps |
-code_address | memory_size |
-
-The table should be read left to right, top to bottom, as should the following tables.
+8 bytes | 8 bytes | 8 bytes | 8 bytes | 8 bytes | 8 bytes |
+--- | --- | --- | --- | --- | --- |
+magic | view_width | view_height | fps | code_address | memory_size |
 
 Below the header is the list of assets:
 
