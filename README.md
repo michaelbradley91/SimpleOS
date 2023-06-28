@@ -128,70 +128,69 @@ Store value at the given address. This is your primary way to write values into 
 ### `copy <tgt addr> <src addr>`
 Copy the value at `src addr` to `tgt addr`
 
-## `add <left addr> <right addr>`
+### `add <left addr> <right addr>`
 Add the value in the left address to the value in the right address and write the result to the return address.
 
-## `mul <left addr> <right addr>`
+### `mul <left addr> <right addr>`
 Multiply the value in the left address by the value in the right address and write the result to the return address.
 
-## `sub <left addr> <right addr>`
+### `sub <left addr> <right addr>`
 Subtract the value in the right address from the value in the left address and write the result to the return address. (left - right)
 
-## `div <left addr> <right addr>`
+### `div <left addr> <right addr>`
 Divide the value in the right address by the value in the left address, and write the result to the return address. (left / right)
 
-## `mod <left addr> <right addr>`
+### `mod <left addr> <right addr>`
 Write the value in the left address modulo the value in the right address to the return address. (left % right)
 
-## `neq <left addr> <right addr>`
+### `neq <left addr> <right addr>`
 If the value in the left address does not equal the value in the right address, write 1 to the return address. Otherwise, write 0 to the return address.
 
-## `eq <left addr> <right addr>`
+### `eq <left addr> <right addr>`
 If the value in the left address equals the value in the right address, write 1 to the return address. Otherwise, write 0 to the return address.
 
-## `lt <left addr> <right addr>`
+### `lt <left addr> <right addr>`
 If the value in the left address is less than the value in the right address, write 1 to the return address. Otherwise, write 0 to the return address.
 
-## `gt <left addr> <right addr>`
+### `gt <left addr> <right addr>`
 If the value in the left address is greater than the value in the right address, write 1 to the return address. Otherwise, write 0 to the return address.
 
-## `lte <left addr> <right addr>`
+### `lte <left addr> <right addr>`
 If the value in the left address is less than or equal to the value in the right address, write 1 to the return address. Otherwise, write 0 to the return address.
 
-## `gte <left addr> <right addr>`
+### `gte <left addr> <right addr>`
 If the value in the left address is greater than or equal to the value in the right address, write 1 to the return address. Otherwise, write 0 to the return address.
 
-## `jmp <cond addr> <tgt addr>`
+### `jmp <cond addr> <tgt addr>`
 If the value at `cond addr` is non-zero, jump to the address stored at `tgt addr` (not `tgt addr` itself). Otherwise do nothing.
 
-## `xor <left addr> <right addr>`
+### `xor <left addr> <right addr>`
 Bitwise XOR the value in the left address with the value in the right address and write the result to the return address.
 
-## `or <left addr> <right addr>`
+### `or <left addr> <right addr>`
 Bitwise OR the value in the left address with the value in the right address and write the result to the return address.
 
-## `and <left addr> <right addr>`
+### `and <left addr> <right addr>`
 Bitwise AND the value in the left address with the value in the right address and write the result to the return address.
 
-## `not <addr>`
+### `not <addr>`
 Bitwise NOT the value in the address and write the result to the return address.
 
-## `fill <rectangle addr> <colour addr>`
+### `fill <rectangle addr> <colour addr>`
 Fill the rectangle stored in rectangle address with the colour stored in the colour address.
 
-## `draw <rectangle addr> <sprite index addr>`
+### `draw <rectangle addr> <sprite index addr>`
 Draw the sprite referenced by the sprite index stored at the sprite index address in the rectangle stored in the rectangle address.
 
 The sprite is stretched to fill the rectangle.
 
-## `clear <rectangle addr>`
-
+### `clear <rectangle addr>`
 Clear the screen with the "screen default colour" stored at address `-3`
 over the rectangle stored in the rectangle address.
 
 This is a shortcut to `fill` with the screen default colour
 
-## `play_music <volume addr> <music index addr>`
+### `play_music <volume addr> <music index addr>`
 Play the music referenced by the music index stored at the music index address
 at the volume stored in the volume address.
 
@@ -200,10 +199,10 @@ The volume should be a number from 0 to 65535 and scales to decibels linearly
 Only one music track can play at once. Music will automatically loop 
 back to the beginning of the track when it reaches the end.
 
-## `stop_music`
+### `stop_music`
 Stop playing any currently playing music
 
-## `play_sound <volume addr> <sound index addr>`
+### `play_sound <volume addr> <sound index addr>`
 Play the sound referenced by the sound index stored at the sound index address
 at the volume stored in the volume address.
 
@@ -211,29 +210,29 @@ The volume should be a number from 0 to 65535 and scales to decibels linearly
 
 A sound will play once and then stop.
 
-## `get_event`
+### `get_event`
 Get an event from the event queue. This is either a mouse or keyboard event
 and you can use the built-in functions to help test against this.
 
 The encoded event is stored in the return address.
 
-## `wait`
+### `wait`
 Pause execution until the next natural frame as dictated by the FPS setting
 
 You should try to always include a wait in any event loop to avoid running
 the CPU hot.
 
-## `exit`
+### `exit`
 Exit the game. Immediately ends execution.
 
-## `get_mouse`
+### `get_mouse`
 Get the mouse location and store the coordinates in the return address.
 
-## `get_ticks`
+### `get_ticks`
 Get the number of milliseconds that have elapsed since the game started,
 (meaning since this program started, not since Simple OS started).
 
-## `random`
+### `random`
 Generates a random 64 bit number and stores it in the return address.
 
 ## Machine Code Format
