@@ -119,13 +119,13 @@ See the code for the machine code translation of each instruction.
 
 Below the "return address" refers to `-2`.
 
-## `nop`
+### `nop`
 Does nothing! You can use this to fill space I suppose
 
-## `store <addr> <value>`
+### `store <addr> <value>`
 Store value at the given address. This is your primary way to write values into memory.
 
-## `copy <tgt addr> <src addr>`
+### `copy <tgt addr> <src addr>`
 Copy the value at `src addr` to `tgt addr`
 
 ## `add <left addr> <right addr>`
