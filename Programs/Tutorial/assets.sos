@@ -8,5 +8,6 @@
 #template_begin LOAD_ASSETS()
 store BACKGROUND_MUSIC music("./Assets/background_music.mp3")
 store BACKGROUND_MUSIC_VOLUME 20000
+store TUTORIAL_START sprite("./Assets/TutorialFrontCover.png")
 #template_end
 

@@ -4,7 +4,7 @@
     "memory": 8192,
     "music": ["./Assets/background_music.mp3"],
     "sounds": [],
-    "sprites": [],
+    "sprites": ["./Assets/TutorialFrontCover.png"],
     "screen_width": 1280,
     "screen_height": 720
 }

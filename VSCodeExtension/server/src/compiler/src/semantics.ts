@@ -673,7 +673,7 @@ function evaluate_sound(args: ConstantValue[], parser_context: ParserContext): C
         return usage_error;
     }
 
-    const sound = parser_context.music.get(args[0].text);
+    const sound = parser_context.sounds.get(args[0].text);
     if (sound === undefined)
     {
         return usage_error;
@@ -710,7 +710,7 @@ function evaluate_sprite(args: ConstantValue[], parser_context: ParserContext): 
         return usage_error;
     }
 
-    const sprite = parser_context.music.get(args[0].text);
+    const sprite = parser_context.sprites.get(args[0].text);
     if (sprite === undefined)
     {
         return usage_error;

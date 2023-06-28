@@ -131,8 +131,12 @@ func load_program(program_path: String):
 	music_player.stream = null
 	sound_player.stream = null
 	Audio.unload()
-	Video.unload()
+	if current_program:
+		Video.unload(current_program.header.view_width, current_program.header.view_height)
 	
+	# Fix resolution
+	set_computer_resolution(temp_current_program.header.view_width, temp_current_program.header.view_height)
+	KEY_KP_4
 	# Load in the new ones
 	Audio.load_music(music)
 	Audio.load_sounds(sounds)
@@ -181,12 +185,6 @@ func _ready():
 	computer_sound_player.stream = computer_startup
 	computer_sound_player.volume_db = linear_to_db(30000 / 65535.0)
 	computer_sound_player.play()
-
-	# TODO - remove
-	set_computer_resolution(300, 300)
-	Memory.write(1, Video.new_rectangle(0, 0, 300, 300).as_int())
-	Memory.write(2, Video.new_colour(255, 255, 0, 255).as_int())
-	Video.draw_colour(1, 2)
 
 func _unhandled_input(event: InputEvent):
 	# Remember the input event so it can be processed next time
@@ -270,17 +268,16 @@ func process_instruction(instruction: MachineCodeTranslator.Instruction) -> bool
 
 func exit_program():
 	print("Program finished")
-	
-	# Remove all assets
 	# Clear out old assets
-	current_program = null
 	music_player.stop()
 	sound_player.stop()
 	music_player.stream = null
 	sound_player.stream = null
 	Audio.unload()
-	Video.unload()
+	if current_program:
+		Video.unload(current_program.header.view_width, current_program.header.view_height)
 	Memory.initialise(1000)
+	current_program = null
 	Errors.errno = Errors.NO_ERR
 	
 	# TODO: reset the program canvas

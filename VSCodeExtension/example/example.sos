@@ -11,6 +11,8 @@ store ONE 1
 
 LOAD_ASSETS()
 
+store 0x500 sprite("./Assets/TutorialFrontCover.png")
+
 #template_begin FUNC()
 add 4 5
 #template_end

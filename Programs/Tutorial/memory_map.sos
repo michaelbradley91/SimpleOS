@@ -8,6 +8,13 @@
 #constant MAX_MILLISECONDS 0x10
 #constant BACKGROUND_MUSIC 0x100
 #constant BACKGROUND_MUSIC_VOLUME 0x101
+#constant TUTORIAL_START 0x102
+#constant KEY_P_PRESSED 0x103
+
+// Other constants
+#constant SCREEN_WIDTH 1280
+#constant SCREEN_HEIGHT 720
+#constant SCREEN_RECT 0x103
 
 // For our own reference
 #constant JMP_ADDRESS 0x500
@@ -15,6 +22,7 @@
 #template_begin INIT_MEMORY()
 store ZERO 0
 store ONE 1
+store SCREEN_RECT rect(0,0,SCREEN_WIDTH,SCREEN_HEIGHT)
 #template_end
 
 #template_begin JUMP_ON_CONDITION(COND, LABEL)

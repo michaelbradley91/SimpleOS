@@ -107,12 +107,16 @@ func load_assets(sprites: Array[MachineCodeTranslator.Asset]):
 	
 	print("Images loaded")
 
-func unload():
-	# Clean up all previously loaded resources
-	for image in images:
-		image.free()
-	
+func unload(view_width: int, view_height: int):
 	images.clear()
+	draw_mutex.lock()
+	draw_instructions.push_back(func(node):
+		node.draw_rect(
+			new_rectangle(0, 0, view_width, view_height).as_rect(),
+			new_colour(0, 0, 0, 255).as_color(),
+			true)
+	)
+	draw_mutex.unlock()
 
 func draw_colour(rectangle_address: int, colour_address: int):
 	var rectangle = Rectangle.new(Memory.read(rectangle_address))

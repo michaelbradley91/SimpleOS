@@ -6,5 +6,5 @@
     "screen_width": 1280,
     "music": ["./Assets/background_music.mp3"],
     "sounds": [],
-    "sprites": []
+    "sprites": ["./Assets/TutorialFrontCover.png"]
 }
