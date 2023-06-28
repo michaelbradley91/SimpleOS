@@ -24,7 +24,7 @@ See below for details on the language and configuration.
 There are two example programs in this repo itself under [Programs](./Programs):
 
 * `HelloWorld` - just draws an image to the screen. Simplest to understand.
-* `Tutorial` - loaded automatically by Godot when you are start the game.
+* `Tutorial` - loaded automatically by Godot when you start the game.
 
 More may exist elsewhere..!
 
@@ -63,12 +63,13 @@ Here is an explanation of each field:
 * `music` / `sounds` - arrays of music and sound files.
   * The supported formats are only: `.wav`, `.mp3`, `.ogg`.
 * `sprites` - arrays of images.
+  * We support all the image formats supported by Godot (I think).
   * There is no font support (yet), so images are probably the easiest way to convey textual information.
-* `screen_width` / `screen_height`: the resolution of the game
+* `screen_width` / `screen_height` - the resolution of the game
   * You can use resolutions higher than the game's own, but the viewport will approximate what is drawn.
 
 If you stick to the file naming convention, these settings can be ignored. Otherwise:
-* `main` - the entry point of the program
+* `main` - the entry point of the program.
 * `output_file` - the name of the file to be produced by the compiler. Simple OS will expect the `.sox` extension.
 * `working_directory` - when resolving includes or assets, this is added to the front of relative paths.
   * If relative itself, then the workspace folder is applied to the front of it.
@@ -77,7 +78,6 @@ Without settings, relative paths are resolved relative to the workspace director
 
 There is a [schema here](./VSCodeExtension/simple-os-config-schema.json) for the configuration file that the VSCode extension
 will match to all `.sos.json` files that can help you to fill it in.
-
 
 ## Memory Layout
 
@@ -90,13 +90,13 @@ configuration requested.
 
 All memory locations store 64 bit numeric values. This means for the majority of programs arithmetic is trivial as your numbers should fit in one memory address.
 
-In operations `-1` is taken to be the last address of memory, `-2` just before that and so on.
+In operations, `-1` is taken to be the last address of memory, `-2` just before that and so on.
 
-The only special locations are:
+The special locations are:
 * `-1` - the instruction pointer is stored here.
-  * This is updated to point to the next instruction to execute by certain commands, and increments by default.
+  * This is updated to point to the next instruction to execute by certain commands, and increments by 2 by default.
 * `-2` - operations that return a value write it here.
-* `-3` - the screen default colour if `clear` is used
+* `-3` - the screen default colour if `clear` is used.
 * `-4` - the FPS. Note this is not actually used right now.
 * `-5` - frame delta. The amount of time that passed since the last frame. 
   * You can use `get_ticks` to work this out as well which is more reliable in case your frame times out..!
