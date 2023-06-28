@@ -130,6 +130,7 @@ func load_program(program_path: String):
 	sound_player.stop()
 	music_player.stream = null
 	sound_player.stream = null
+	Engine.max_fps = 60
 	Audio.unload()
 	if current_program:
 		Video.unload(current_program.header.view_width, current_program.header.view_height)
@@ -158,6 +159,9 @@ func load_program(program_path: String):
 	
 	# Empty out the event queue
 	GlobalInput.clear_event_queue()
+	
+	# Set the right frame rate
+	Engine.max_fps = temp_current_program.header.fps
 	
 	# Prepare any state needed to run operations correctly
 	Operations.init()
@@ -278,6 +282,7 @@ func exit_program():
 		Video.unload(current_program.header.view_width, current_program.header.view_height)
 	Memory.initialise(1000)
 	current_program = null
+	Engine.max_fps = 60
 	Errors.errno = Errors.NO_ERR
 	
 	# TODO: reset the program canvas

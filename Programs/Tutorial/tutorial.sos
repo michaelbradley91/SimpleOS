@@ -18,6 +18,7 @@ draw SCREEN_RECT TUTORIAL_START
 
 // We play it for a while and then exit
 loop:
+wait
 store KEY_P_PRESSED key_pressed(KEY_P)
 get_event
 eq RETURN KEY_P_PRESSED
