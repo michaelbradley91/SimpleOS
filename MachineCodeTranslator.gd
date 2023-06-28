@@ -118,7 +118,6 @@ func get_instruction_from_memory(address: int) -> Instruction:
 		instruction.arg1 = arg1_fix.decode_s64(0)
 	
 	# Arg 1 might be signed in the first 6 bytes, so check it
-	instruction.arg1 
 	instruction.arg2 = second_part
 	return instruction
 

@@ -2,9 +2,23 @@
     "code_address": 4096,
     "fps": 60,
     "memory": 8192,
-    "music": ["./Assets/background_music.mp3"],
-    "sounds": [],
-    "sprites": ["./Assets/TutorialFrontCover.png"],
+    "music": [
+        "./Assets/background_music.mp3"
+    ],
+    "sounds": [
+        "./Assets/TutorialTalk.mp3"
+    ],
+    "sprites": [
+        "./Assets/TutorialFrontCover.png",
+        "./Assets/TutorialBegin.png",
+        "./Assets/CompileSimpleOSCommand.png",
+        "./Assets/HelloWorldCode.png",
+        "./Assets/HelloWorldConfiguration.png",
+        "./Assets/HelloWorldFolder.png",
+        "./Assets/HelloWorldVSCodeConfiguration.png",
+        "./Assets/RunningHelloWorld.png",
+        "./Assets/VSCodeExtension.png"
+    ],
     "screen_width": 1280,
     "screen_height": 720
 }

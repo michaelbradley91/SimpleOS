@@ -12,6 +12,7 @@ store ONE 1
 LOAD_ASSETS()
 
 store 0x500 sprite("./Assets/TutorialFrontCover.png")
+store BACKGROUND_MUSIC sound("./Assets/background_music.mp3")
 
 #template_begin FUNC()
 add 4 5

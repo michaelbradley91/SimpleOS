@@ -1,0 +1,20 @@
+
+#include "./assets.sos"
+
+// Initialise assets and various constants in memory
+INIT()
+
+// Draw the "hello world" screen
+draw SCREEN_RECT HELLO_WORLD_BANNER
+
+// Main "game" loop
+loop:
+wait                                // Wait for the next frame
+STORE_EVENT()                       // Get an event and store it in the EVENT_ADDRESS
+eq KEY_Q_PRESSED EVENT_ADDRESS      // Was the Q (quit) button pressed?
+JUMP_ON_CONDITION(RETURN, end:)     // If so, jump to the end
+JUMP(loop:)                         // Otherwise go around the loop
+
+// Exit the game
+end:
+exit

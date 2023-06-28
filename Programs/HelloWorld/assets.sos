@@ -1,0 +1,43 @@
+#include "keys.sos"
+
+// Memory locations
+#constant INSTRUCTION_POINTER -1
+#constant RETURN -2
+#constant ONE 0x8
+#constant ZERO 0x9
+#constant SCREEN_RECT 0x100
+#constant HELLO_WORLD_BANNER 0x101
+#constant KEY_Q_PRESSED 0x102
+
+// Temporary memory
+#constant JMP_ADDRESS 0x500
+#constant EVENT_ADDRESS 0x501
+
+// Other constants
+#constant SCREEN_WIDTH 1280
+#constant SCREEN_HEIGHT 720
+
+// Handy templates
+#template_begin JUMP_ON_CONDITION(COND, LABEL)
+store JMP_ADDRESS LABEL
+jmp COND JMP_ADDRESS
+#template_end
+
+#template_begin JUMP(LABEL)
+store JMP_ADDRESS LABEL
+jmp ONE JMP_ADDRESS
+#template_end
+
+#template_begin STORE_EVENT()
+get_event
+copy EVENT_ADDRESS RETURN
+#template_end
+
+// Initialise some memory addresses
+#template_begin INIT()
+store ZERO 0
+store ONE 1
+store SCREEN_RECT rect(0,0,SCREEN_WIDTH,SCREEN_HEIGHT)
+store HELLO_WORLD_BANNER sprite("./Assets/HelloWorldBanner.png")
+store KEY_Q_PRESSED key_pressed(KEY_Q)
+#template_end

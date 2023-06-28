@@ -72,6 +72,8 @@ export function program_header_to_bytes(program_header: ProgramHeader): Uint8Arr
  * 
  * Assets are stored in the format:
  * <2 byte type> | <6 byte length> | <extension padded to 8 bytes with a null terminator> | <bytes... padded to 8 bytes>
+ * 
+ * The entire block is then right padded to 16 bytes
  */
 enum AssetTypes {
 	NO_ASSET = 0,     // we assume this is zero below
@@ -135,8 +137,9 @@ export function assets_to_bytes(program_header: ProgramHeader): Uint8Array
 
     // Finally add the null terminator (no_asset)
     asset_bytes.push(new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]));
-
-    return concat_bytes(asset_bytes);
+    
+    // Finally, finally, right pad to 16 bytes
+    return right_pad_bytes(concat_bytes(asset_bytes), 16);
 }
 
 /**

@@ -1,0 +1,16 @@
+{
+    "code_address": 4096,
+    "fps": 60,
+    "memory": 8192,
+    "music": [
+        
+    ],
+    "sounds": [
+        
+    ],
+    "sprites": [
+        "./Assets/HelloWorldBanner.png"
+    ],
+    "screen_width": 1280,
+    "screen_height": 720
+}

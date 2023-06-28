@@ -9,5 +9,16 @@
 store BACKGROUND_MUSIC music("./Assets/background_music.mp3")
 store BACKGROUND_MUSIC_VOLUME 20000
 store TUTORIAL_START sprite("./Assets/TutorialFrontCover.png")
-#template_end
+store TUTORIAL_BEGIN sprite("./Assets/TutorialBegin.png")
+store TUTORIAL_TALK sound("./Assets/TutorialTalk.mp3")
+store TUTORIAL_TALK_VOLUME 50000
 
+// The various tutorial images that make up the slide show
+store TUTORIAL_COMPILE_COMMAND sprite("./Assets/CompileSimpleOSCommand.png")
+store TUTORIAL_HELLO_WORLD_CONFIGURATION sprite("./Assets/HelloWorldConfiguration.png")
+store TUTORIAL_HELLO_WORLD_CODE sprite("./Assets/HelloWorldCode.png")
+store TUTORIAL_HELLO_WORLD_FOLDER sprite("./Assets/HelloWorldFolder.png")
+store TUTORIAL_HELLO_WORLD_VSCODE_CONFIGURATION sprite("./Assets/HelloWorldVSCodeConfiguration.png")
+store TUTORIAL_HELLO_WORLD_RUNNING sprite("./Assets/RunningHelloWorld.png")
+store TUTORIAL_HELLO_WORLD_VSCODE_EXTENSION sprite("./Assets/VSCodeExtension.png")
+#template_end

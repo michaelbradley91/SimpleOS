@@ -110,6 +110,7 @@ func load_assets(sprites: Array[MachineCodeTranslator.Asset]):
 func unload(view_width: int, view_height: int):
 	images.clear()
 	draw_mutex.lock()
+	draw_instructions.clear()
 	draw_instructions.push_back(func(node):
 		node.draw_rect(
 			new_rectangle(0, 0, view_width, view_height).as_rect(),
@@ -133,6 +134,7 @@ func draw_colour(rectangle_address: int, colour_address: int):
 func draw_sprite(rectangle_address: int, sprite_address: int):
 	var rectangle = Rectangle.new(Memory.read(rectangle_address))
 	var sprite_index = Memory.read(sprite_address)
+	print("Drawing sprite %s " % sprite_index)
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
