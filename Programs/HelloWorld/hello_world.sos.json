@@ -12,5 +12,8 @@
         "./Assets/HelloWorldBanner.png"
     ],
     "screen_width": 1280,
-    "screen_height": 720
+    "screen_height": 720,
+    "main": "hello_world.sos",
+    "output_file": "hello_world.sox",
+    "working_directory": "./"
 }
