@@ -43,7 +43,7 @@
 			"name": "comment.line.double-slash.sos"
 		},
 		"operator": {
-			"match": "(nop|store|copy|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|random|get_ticks|wait|exit|get_mouse)[\\s]+",
+			"match": "(nop|store|copy|copy_indirect|add|mul|sub|div|mod|neq|eq|lt|gt|lte|gte|jmp|xor|or|and|not|fill|draw|clear|play_music|stop_music|play_sound|get_event|random|get_ticks|wait|exit|get_mouse)[\\s]+",
 			"name": "keyword.control.sos markup.bold"
 		},
 		"functions": {

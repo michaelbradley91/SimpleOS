@@ -276,6 +276,8 @@ func process_instruction(instruction: MachineCodeTranslator.Instruction) -> bool
 			GlobalInput.mouse_position()
 		MachineCodeTranslator.INSTRUCTIONS.TICKS:
 			Operations.ticks()
+		MachineCodeTranslator.COPY_INDIRECT:
+			Memory.copy_indirect(instruction.arg1, instruction.arg2)
 		_:
 			print("Unknown instruction error %s" % instruction.type)
 			Errors.errno = Errors.UNKNOWN_INSTRUCTION

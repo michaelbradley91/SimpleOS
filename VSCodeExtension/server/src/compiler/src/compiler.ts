@@ -178,7 +178,8 @@ enum InstructionType
 	EXIT = 27,
 	GET_MOUSE_POSITION = 28,
     TICKS = 29,
-    RANDOM = 30
+    RANDOM = 30,
+    COPY_INDIRECT = 31
 }
 
 export function operation_to_instructon(operation: OperationType): InstructionType
@@ -195,6 +196,8 @@ export function operation_to_instructon(operation: OperationType): InstructionTy
             return InstructionType.BITWISE_XOR;
         case OperationType.Copy:
             return InstructionType.COPY;
+        case OperationType.Copy_Indirect:
+            return InstructionType.COPY_INDIRECT;
         case OperationType.Divide:
             return InstructionType.DIVIDE;
         case OperationType.Draw:

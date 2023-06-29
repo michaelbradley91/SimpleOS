@@ -395,6 +395,9 @@ Store value at the given address. This is your primary way to write values into 
 ### `copy <tgt addr> <src addr>`
 Copy the value at `src addr` to `tgt addr`
 
+### `copy_indirect <tgt addr> <src addr>`
+Copy the value at `src addr` to the address stored in `tgt addr`. Note the difference between this and copy
+
 ### `add <left addr> <right addr>`
 Add the value in the left address to the value in the right address and write the result to the return address.
 

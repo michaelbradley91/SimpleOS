@@ -352,7 +352,7 @@ export function get_word_at(file_text: string, offset: number) {
 }
 
 const operation_names: string[] = [
-    "nop", "store", "copy", "add", "mul", "sub", "div", "mod", "neq", "eq", "lt", "gt",
+    "nop", "store", "copy", "copy_indirect", "add", "mul", "sub", "div", "mod", "neq", "eq", "lt", "gt",
     "lte", "gte", "jmp", "xor", "or", "and", "not", "fill", "draw", "clear", "play_music", "stop_music",
     "play_sound", "get_event", "random", "wait", "exit", "get_mouse", "get_ticks"
 ];
@@ -716,6 +716,9 @@ in the right address and write the result to the return address.";
 value in the right address and write the result to the return address.";
         case OperationType.Copy:
             return "### `copy <tgt addr> <src addr>`\nCopy the value at `src addr` to `tgt addr`";
+        case OperationType.Copy_Indirect:
+            return "### `copy_indirect <tgt addr> <src addr>`\nCopy the value at `src addr` to the address stored in `tgt addr`. \
+Note the difference between this and copy.";
         case OperationType.Divide:
             return "### `div <left addr> <right addr>`\nDivide the value in the right address by the value \
 in the left address, and write the result to the return address. (left / right)";

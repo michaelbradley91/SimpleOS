@@ -57,14 +57,26 @@ func write(address: int, value: int):
 	
 	_memory[absolute_address] = value
 
-func copy(source_address: int, target_address: int):
-	# Copy a value from one address to another
-	var absolute_source_address = _absolute_address(source_address)
-	var absolute_target_address = _absolute_address(target_address)
+func copy_indirect(indirect_address: int, source_address: int):
+	var absolute_indirect_address = _absolute_address(indirect_address)
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
-	_memory[absolute_source_address] = _memory[absolute_target_address]
+	# Load the address at the indirect address...
+	var target_address = _absolute_address(_memory[absolute_indirect_address])
+	if Errors.errno != Errors.SUCCESS:
+		return
+	
+	copy(target_address, source_address)
+
+func copy(target_address: int, source_address: int):
+	# Copy a value from one address to another
+	var absolute_target_address = _absolute_address(target_address)
+	var absolute_source_address = _absolute_address(source_address)
+	if Errors.errno != Errors.SUCCESS:
+		return
+	
+	_memory[absolute_target_address] = _memory[absolute_source_address]
 
 func read(address: int) -> int:
 	var absolute_address = _absolute_address(address)

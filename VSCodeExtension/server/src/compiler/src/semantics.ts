@@ -981,6 +981,7 @@ export function get_number_arguments(operation: OperationType): number
         case OperationType.Bitwise_Or:
         case OperationType.Bitwise_Xor:
         case OperationType.Copy:
+        case OperationType.Copy_Indirect:
         case OperationType.Divide:
         case OperationType.Draw:
         case OperationType.Fill:

@@ -57,7 +57,8 @@ enum INSTRUCTIONS
 	EXIT = 27,
 	GET_MOUSE_POSITION = 28,
 	TICKS = 29,
-	RANDOM = 30
+	RANDOM = 30,
+	COPY_INDIRECT = 31
 }
 
 class Instruction:
