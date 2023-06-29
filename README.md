@@ -396,7 +396,48 @@ Store value at the given address. This is your primary way to write values into 
 Copy the value at `src addr` to `tgt addr`
 
 ### `copy_indirect <tgt addr> <src addr>`
-Copy the value at `src addr` to the address stored in `tgt addr`. Note the difference between this and copy
+Copy the value at the address stored in `src addr` to the address stored in `tgt addr`.
+
+Note the difference between this and copy - both addresses are dereferenced first. For example:
+```
+store 1 1
+store 2 2
+store 3 3
+store 4 4
+add 1 2
+store 5 RETURN
+add 1 3
+store 6 RETURN
+copy_indirect 5 6
+```
+
+Just before copy indirect, the memory looks like this:
+
+| 1 | 2 | 3 | 4 | 5 | 6 | ... | RETURN |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 2 | 3 | 4 | 3 | 4 | ... | 4 |
+
+And just after the memory looks like this:
+
+| 1 | 2 | 3 | 4 | 5 | 6 | ... | RETURN | 
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 2 | 4 | 4 | 3 | 4 | ... | 4 |
+
+Spot the difference? `Memory[3] = 4`. copy_indirect in pseudo code would look
+like this:
+
+```python
+# copy_indirect(src,tgt)
+
+src_addr = Memory[src]
+tgt_addr = Memory[tgt]
+
+src_val = Memory[src_addr]
+
+Memory[tgt_addr] = src_val
+```
+
+It may be your primary way to use calculated addresses in Simple OS.
 
 ### `add <left addr> <right addr>`
 Add the value in the left address to the value in the right address and write the result to the return address.

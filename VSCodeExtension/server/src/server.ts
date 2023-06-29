@@ -717,8 +717,49 @@ value in the right address and write the result to the return address.";
         case OperationType.Copy:
             return "### `copy <tgt addr> <src addr>`\nCopy the value at `src addr` to `tgt addr`";
         case OperationType.Copy_Indirect:
-            return "### `copy_indirect <tgt addr> <src addr>`\nCopy the value at `src addr` to the address stored in `tgt addr`. \
-Note the difference between this and copy.";
+            // This takes some explaining...
+            return "### `copy_indirect <tgt addr> <src addr>`\n\
+Copy the value at the address stored in `src addr` to the address stored in `tgt addr`.\n\n\
+Note the difference between this and copy - both addresses are dereferenced first. For example:\n\
+```\n\
+store 1 1\n\
+store 2 2\n\
+store 3 3\n\
+store 4 4\n\
+add 1 2\n\
+store 5 RETURN\n\
+add 1 3\n\
+store 6 RETURN\n\
+copy_indirect 5 6\n\
+```\n\
+\n\
+Just before copy indirect, the memory looks like this:\n\
+\n\
+| 1 | 2 | 3 | 4 | 5 | 6 | ... | RETURN |\n\
+| --- | --- | --- | --- | --- | --- | --- | --- |\n\
+| 1 | 2 | 3 | 4 | 3 | 4 | ... | 4 |\n\
+\n\
+And just after the memory looks like this:\n\
+\n\
+| 1 | 2 | 3 | 4 | 5 | 6 | ... | RETURN |\n\
+| --- | --- | --- | --- | --- | --- | --- | --- |\n\
+| 1 | 2 | 4 | 4 | 3 | 4 | ... | 4 |\n\
+\n\
+Spot the difference? `Memory[3] = 4`. copy_indirect in pseudo code would look\n\
+like this:\n\
+\n\
+```python\n\
+# copy_indirect(src,tgt)\n\
+\n\
+src_addr = Memory[src]\n\
+tgt_addr = Memory[tgt]\n\
+\n\
+src_val = Memory[src_addr]\n\
+\n\
+Memory[tgt_addr] = src_val\n\
+```\n\
+\n\
+It may be your primary way to use calculated addresses in Simple OS.";
         case OperationType.Divide:
             return "### `div <left addr> <right addr>`\nDivide the value in the right address by the value \
 in the left address, and write the result to the return address. (left / right)";
