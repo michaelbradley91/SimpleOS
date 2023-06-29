@@ -10,7 +10,7 @@ describe("tokenise_line", () =>
         assert.deepEqual(tokenise_line("add 3 4", null),
             new TokenLineResult(
             [
-                new Operation_Token(OperationType.Add),
+                new Operation_Token(OperationType.Add, 0, 3),
                 new NumberLiteral_Token(3n),
                 new NumberLiteral_Token(4n)
             ], null)
@@ -89,7 +89,7 @@ describe("tokenise_line", () =>
         assert.deepEqual(tokenise_line("jmp bob:", null),
             new TokenLineResult(
                 [
-                    new Operation_Token(OperationType.Jump),
+                    new Operation_Token(OperationType.Jump, 0, 3),
                     new Label_Token("bob:")
                 ],
                 null
@@ -120,7 +120,7 @@ describe("tokenise_line", () =>
         assert.deepEqual(tokenise_line("xor 400 500 // howdy \"stranger\", woo", null),
             new TokenLineResult(
                 [
-                    new Operation_Token(OperationType.Bitwise_Xor),
+                    new Operation_Token(OperationType.Bitwise_Xor, 0, 3),
                     new NumberLiteral_Token(400n),
                     new NumberLiteral_Token(500n),
                     new SingleLineComment_Token(" howdy \"stranger\", woo")
@@ -134,7 +134,7 @@ describe("tokenise_line", () =>
         assert.deepEqual(tokenise_line("sub 3 /*howdy*/ 4", null),
             new TokenLineResult(
                 [
-                    new Operation_Token(OperationType.Subtract),
+                    new Operation_Token(OperationType.Subtract, 0, 3),
                     new NumberLiteral_Token(3n),
                     new MultiLineComment_Token("howdy"),
                     new NumberLiteral_Token(4n)
@@ -153,7 +153,7 @@ describe("tokenise_line", () =>
         assert.deepEqual(tokenise_line("div 40 8 /*what is up dude?*/", null),
             new TokenLineResult(
                 [
-                    new Operation_Token(OperationType.Divide),
+                    new Operation_Token(OperationType.Divide, 0, 3),
                     new NumberLiteral_Token(40n),
                     new NumberLiteral_Token(8n),
                     new MultiLineComment_Token("what is up dude?")
@@ -164,7 +164,7 @@ describe("tokenise_line", () =>
         assert.deepEqual(tokenise_line("div 40 8 /*what is up dude?", null),
             new TokenLineResult(
                 [
-                    new Operation_Token(OperationType.Divide),
+                    new Operation_Token(OperationType.Divide, 0, 3),
                     new NumberLiteral_Token(40n),
                     new NumberLiteral_Token(8n),
                     new MultiLineComment_Token("what is up dude?\n")
@@ -177,7 +177,7 @@ describe("tokenise_line", () =>
         old_multi_line_comment),
             new TokenLineResult(
                 [
-                    new Operation_Token(OperationType.Divide),
+                    new Operation_Token(OperationType.Divide, 8, 11),
                     new NumberLiteral_Token(40n),
                     new NumberLiteral_Token(8n),
                     new MultiLineComment_Token("what is up dude?\n")
@@ -242,7 +242,7 @@ describe("tokenise_line", () =>
             new TokenFileResult(
             [
                 [
-                    new Operation_Token(OperationType.Add),
+                    new Operation_Token(OperationType.Add, 0, 3),
                     new NumberLiteral_Token(3n),
                     new NumberLiteral_Token(4n),
                     new SingleLineComment_Token(" hello")

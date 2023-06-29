@@ -236,41 +236,30 @@ function enumFromStringValue<T> (enm: { [s: string]: T}, value: string): T | und
         : undefined;
 }
 
-// Functions are simple in this language, not allowing for recursive function calls
-type FunctionArgument = StringLiteral_Token | NumberLiteral_Token | ConstantInvoked_Token;
-
-enum FunctionArgumentType {
-    String,
-    Number,
-    Constant
-}
-
 export class Function_Token
 {
     type: FunctionType;
+    start_character: number;
+    end_character: number;
 
-    constructor(type: FunctionType) {
+    constructor(type: FunctionType, start_character: number, end_character: number) {
         this.type = type;
+        this.start_character = start_character;
+        this.end_character = end_character;
     }
-}
-
-type OperationArgument = Label_Token | ConstantInvoked_Token | NumberLiteral_Token | StringLiteral_Token | Function_Token;
-
-enum OperationArgumentType {
-    Label,
-    Constant,
-    Number,
-    String,
-    Function
 }
 
 export class Operation_Token
 {
     operation: OperationType;
+    start_character: number;
+    end_character: number;
 
-    constructor(operation: OperationType)
+    constructor(operation: OperationType, start_character: number, end_character: number)
     {
         this.operation = operation;
+        this.start_character = start_character;
+        this.end_character = end_character;
     }
 }
 
@@ -352,7 +341,7 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
             const operation_type = enumFromStringValue(OperationType, matches[1]);
             if (operation_type)
             {
-                tokens.push(new Operation_Token(operation_type));
+                tokens.push(new Operation_Token(operation_type, current_position - matches[0].length, current_position));
             }
             continue;
         }
@@ -364,7 +353,7 @@ export function tokenise_line(line: string, existing_comment_block: MultiLineCom
             const function_type = enumFromStringValue(FunctionType, matches[1]);
             if (function_type)
             {
-                tokens.push(new Function_Token(function_type));
+                tokens.push(new Function_Token(function_type, current_position - matches[0].length, current_position));
             }
             continue;
         }

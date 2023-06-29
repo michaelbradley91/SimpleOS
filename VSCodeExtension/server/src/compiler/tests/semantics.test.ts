@@ -35,20 +35,20 @@ describe("identify_value", () => {
 
     it("identify_value can extract function arguments", () => {
         assert.deepEqual(identify_value([
-            new Function_Token(FunctionType.Colour),
+            new Function_Token(FunctionType.Colour, 0, 0),
             new OpenBracket_Token(),
             new NumberLiteral_Token(300n),
             new CloseBracket_Token(),
             new Comma_Token()
         ]), [
-            new Function_Token(FunctionType.Colour),
+            new Function_Token(FunctionType.Colour, 0, 0),
             new OpenBracket_Token(),
             new NumberLiteral_Token(300n),
             new CloseBracket_Token()
         ]);
 
         assert.deepEqual(identify_value([
-            new Function_Token(FunctionType.Colour),
+            new Function_Token(FunctionType.Colour, 0, 0),
             new OpenBracket_Token(),
             new NumberLiteral_Token(300n),
             new Comma_Token(),
@@ -56,7 +56,7 @@ describe("identify_value", () => {
             new CloseBracket_Token(),
             new Comma_Token()
         ]), [
-            new Function_Token(FunctionType.Colour),
+            new Function_Token(FunctionType.Colour, 0, 0),
             new OpenBracket_Token(),
             new NumberLiteral_Token(300n),
             new Comma_Token(),
@@ -65,7 +65,7 @@ describe("identify_value", () => {
         ]);
 
         assert.deepEqual(identify_value([
-            new Function_Token(FunctionType.Colour),
+            new Function_Token(FunctionType.Colour, 0, 0),
             new OpenBracket_Token(),
             new NumberLiteral_Token(300n),
             new Comma_Token(),
@@ -80,7 +80,7 @@ describe("identify_value", () => {
             new CloseBracket_Token(),
             new Comma_Token()
         ]), [
-            new Function_Token(FunctionType.Colour),
+            new Function_Token(FunctionType.Colour, 0, 0),
             new OpenBracket_Token(),
             new NumberLiteral_Token(300n),
             new Comma_Token(),
@@ -118,7 +118,7 @@ describe("identify_value", () => {
     it("evaluate_value can evaluate functions", () => {
         const parser_context = new ParserContext();
         const function_tokens = [
-            new Function_Token(FunctionType.Colour),
+            new Function_Token(FunctionType.Colour, 0, 0),
             new OpenBracket_Token(),
             new NumberLiteral_Token(255n),
             new Comma_Token(),

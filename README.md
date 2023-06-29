@@ -387,7 +387,7 @@ See the code for the machine code translation of each instruction.
 Below the "return address" refers to `-2`.
 
 ### `nop`
-Does nothing! You can use this to fill space I suppose
+Does nothing! You can use this to fill space I suppose.
 
 ### `store <addr> <value>`
 Store value at the given address. This is your primary way to write values into memory.
@@ -461,19 +461,19 @@ This is a shortcut to `fill` with the screen default colour
 Play the music referenced by the music index stored at the music index address
 at the volume stored in the volume address.
 
-The volume should be a number from 0 to 65535 and scales to decibels linearly
+The volume should be a number from 0 to 65535 and scales to decibels linearly.
 
 Only one music track can play at once. Music will automatically loop 
 back to the beginning of the track when it reaches the end.
 
 ### `stop_music`
-Stop playing any currently playing music
+Stop playing any currently playing music.
 
 ### `play_sound <volume addr> <sound index addr>`
 Play the sound referenced by the sound index stored at the sound index address
 at the volume stored in the volume address.
 
-The volume should be a number from 0 to 65535 and scales to decibels linearly
+The volume should be a number from 0 to 65535 and scales to decibels linearly.
 
 A sound will play once and then stop.
 
