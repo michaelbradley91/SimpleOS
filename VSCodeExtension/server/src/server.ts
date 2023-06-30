@@ -105,7 +105,7 @@ connection.onInitialized(() => {
     }
     if (hasWorkspaceFolderCapability) {
         connection.workspace.onDidChangeWorkspaceFolders(_event => {
-            connection.console.log('Workspace folder change event received.');
+            return;
         });
     }
 });
@@ -293,10 +293,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
             diagnostics.push(diagnostic);
         });
     }
-    else
-    {
-        console.log("No errors found!");
-    }
+    // else no errors found!
 
     // Send the computed diagnostics to VSCode.
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
@@ -304,7 +301,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 connection.onDidChangeWatchedFiles(_change => {
     // Monitored files have change in VSCode
-    connection.console.log('We received an file change event');
+    return;
 });
 
 export function has_whitespace(text: string): boolean
@@ -541,16 +538,13 @@ connection.onDefinition(async (_definitionParams: DefinitionParams): Promise<Def
     {
         if (all_templates[i] == word)
         {
-            console.log("Found template");
             const template_definition = compilation_result.parser_context.templates.get(all_templates[i]);
             if (template_definition)
             {
-                console.log("Found template definition " + template_definition.file);
                 const documentUri = path_to_document_uri(template_definition.file);
                 const lines = get_file_lines(template_definition.file);
                 if (documentUri && lines)
                 {
-                    console.log("Found template definition with file");
                     const definition_link: DefinitionLink = {
                         targetUri: documentUri,
                         targetRange: {
@@ -979,10 +973,8 @@ connection.onCompletion(
         {
             return completion_items;
         }
-        console.log("Got a compilation result we can use");
         // Check the constants and templates...
         const all_constants = [...compilation_result.parser_context.constants.keys()];
-        console.log("Found constants: " + all_constants.toString());
         for (let i = 0; i < all_constants.length; i++)
         {
             if (all_constants[i].startsWith(current_word))
@@ -996,12 +988,10 @@ connection.onCompletion(
             }
         }
         const all_templates = [...compilation_result.parser_context.templates.keys()];
-        console.log("Found templates: " + all_templates.toString());
         for (let i = 0; i < all_templates.length; i++)
         {
             if (all_templates[i].startsWith(current_word))
             {
-                console.log("Suggesting template " + all_templates[i]);
                 completion_items.push({
                     // Not entirely sure why, but VSCode completes these with the # added back in
                     label: all_templates[i],

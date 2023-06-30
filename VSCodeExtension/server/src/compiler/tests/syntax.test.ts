@@ -266,7 +266,6 @@ describe("tokenise_line", () =>
 
     it("Buffer behaves as expected", () => {
         const byte_array: Uint8Array = new Uint8Array(Buffer.from("hello", "utf-8"));
-        console.log(byte_array);
         assert.deepEqual(byte_array, new Uint8Array([0x68, 0x65, 0x6c, 0x6c, 0x6f]));
     });
 
