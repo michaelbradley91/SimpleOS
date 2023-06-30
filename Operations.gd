@@ -24,7 +24,7 @@ func add(address_target, address_source):
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
-	Memory.write(address_target, left + right)
+	Memory.write(Memory.RETURN, left + right)
 
 func multiply(address_target, address_source):
 	var left = Memory.read(address_target)
@@ -32,7 +32,7 @@ func multiply(address_target, address_source):
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
-	Memory.write(address_target, left * right)
+	Memory.write(Memory.RETURN, left * right)
 
 func subtract(address_target, address_source):
 	var left = Memory.read(address_target)
@@ -40,7 +40,7 @@ func subtract(address_target, address_source):
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
-	Memory.write(address_target, left - right)
+	Memory.write(Memory.RETURN, left - right)
 
 func divide(address_target, address_source):
 	var left = Memory.read(address_target)
@@ -48,7 +48,7 @@ func divide(address_target, address_source):
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
-	Memory.write(address_target, left / right)
+	Memory.write(Memory.RETURN, left / right)
 
 func modulo(address_target, address_source):
 	var left = Memory.read(address_target)
@@ -56,7 +56,7 @@ func modulo(address_target, address_source):
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
-	Memory.write(address_target, left % right)
+	Memory.write(Memory.RETURN, left % right)
 
 # Bitwise Maths operations
 func bitwise_and(address_target, address_source):
@@ -65,7 +65,7 @@ func bitwise_and(address_target, address_source):
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
-	Memory.write(address_target, left & right)
+	Memory.write(Memory.RETURN, left & right)
 
 func bitwise_or(address_target, address_source):
 	var left = Memory.read(address_target)
@@ -73,7 +73,7 @@ func bitwise_or(address_target, address_source):
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
-	Memory.write(address_target, left | right)
+	Memory.write(Memory.RETURN, left | right)
 
 func bitwise_xor(address_target, address_source):
 	var left = Memory.read(address_target)
@@ -81,14 +81,14 @@ func bitwise_xor(address_target, address_source):
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
-	Memory.write(address_target, left ^ right)
+	Memory.write(Memory.RETURN, left ^ right)
 	
 func bitwise_not(address):
 	var left = Memory.read(address)
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
-	Memory.write(address, ~left)
+	Memory.write(Memory.RETURN, ~left)
 
 func is_not_equal(address_target, address_source):
 	var left = Memory.read(address_target)

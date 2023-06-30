@@ -63,8 +63,18 @@ export function program_header_to_bytes(program_header: ProgramHeader): Uint8Arr
     const fps_bytes = bigint_to_bytes64(program_header.fps);
     const code_address_bytes = bigint_to_bytes64(program_header.code_address);
     const memory_bytes = bigint_to_bytes64(program_header.memory);
+    let pixel_perfect;
+    if (program_header.pixel_perfect)
+    {
+        pixel_perfect = bigint_to_bytes64(1n);
+    }
+    else
+    {
+        pixel_perfect = bigint_to_bytes64(0n);
+    }
+    const padding_bytes = new Uint8Array([0,0,0,0,0,0,0,0]);
 
-    return concat_bytes([magic_bytes, view_width_bytes, view_height_bytes, fps_bytes, code_address_bytes, memory_bytes]);
+    return concat_bytes([magic_bytes, view_width_bytes, view_height_bytes, fps_bytes, code_address_bytes, memory_bytes, pixel_perfect, padding_bytes]);
 }
 
 /**

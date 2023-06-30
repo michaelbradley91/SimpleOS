@@ -61,6 +61,75 @@ enum INSTRUCTIONS
 	COPY_INDIRECT = 31
 }
 
+func instruction_type_to_string(type: int):
+	match type:
+		INSTRUCTIONS.NOP:
+			return "nop"
+		INSTRUCTIONS.STORE:
+			return "store"
+		INSTRUCTIONS.COPY:
+			return "copy"
+		INSTRUCTIONS.ADD:
+			return "add"
+		INSTRUCTIONS.MULTIPLY:
+			return "mul"
+		INSTRUCTIONS.SUBTRACT:
+			return "sub"
+		INSTRUCTIONS.DIVIDE:
+			return "div"
+		INSTRUCTIONS.IS_NOT_EQUAL:
+			return "neq"
+		INSTRUCTIONS.IS_EQUAL:
+			return "eq"
+		INSTRUCTIONS.IS_LESS_THAN:
+			return "lt"
+		INSTRUCTIONS.IS_GREATER_THAN:
+			return "gt"
+		INSTRUCTIONS.IS_LESS_THAN_OR_EQUAL:
+			return "lte"
+		INSTRUCTIONS.IS_GREATER_THAN_OR_EQUAL:
+			return "gte"
+		INSTRUCTIONS.JUMP:
+			return "jmp"
+		INSTRUCTIONS.MODULO:
+			return "mod"
+		INSTRUCTIONS.BITWISE_XOR:
+			return "xor"
+		INSTRUCTIONS.BITWISE_OR:
+			return "or"
+		INSTRUCTIONS.BITWISE_AND:
+			return "and"
+		INSTRUCTIONS.BITWISE_NOT:
+			return "not"
+		INSTRUCTIONS.DRAW_COLOUR:
+			return "fill"
+		INSTRUCTIONS.DRAW_SPRITE:
+			return "draw"
+		INSTRUCTIONS.DRAW_CLEAR:
+			return "clear"
+		INSTRUCTIONS.MUSIC_PLAY:
+			return "play_music"
+		INSTRUCTIONS.MUSIC_STOP:
+			return "stop_music"
+		INSTRUCTIONS.SOUND_PLAY:
+			return "play_sound"
+		INSTRUCTIONS.GET_EVENT:
+			return "get_event"
+		INSTRUCTIONS.RANDOM:
+			return "random"
+		INSTRUCTIONS.WAIT_FRAME:
+			return "wait"
+		INSTRUCTIONS.EXIT:
+			return "exit"
+		INSTRUCTIONS.GET_MOUSE_POSITION:
+			return "get_mouse"
+		INSTRUCTIONS.TICKS:
+			return "get_ticks"
+		INSTRUCTIONS.COPY_INDIRECT:
+			return "copy_indirect"
+		_:
+			return "unknown"
+
 class Instruction:
 	var type: int
 	var arg1: int
@@ -165,7 +234,7 @@ class Asset:
 
 # Finally, at the very top of the file are header values. Each entry is 8 bytes and
 # and appears in the exact order of the class below:
-const HEADER_SIZE_BYTES = 48
+const HEADER_SIZE_BYTES = 64
 const HEADER_MAGIC = 0xFEEDC0FFEE # Magic to identify the start of the program
 class Header:
 	var magic: int
@@ -174,6 +243,7 @@ class Header:
 	var fps: int
 	var code_address: int
 	var memory_size: int
+	var pixel_perfect: int
 	
 	func _init(bytes: PackedByteArray, offset: int):
 		magic = bytes.decode_s64(offset)
@@ -182,6 +252,7 @@ class Header:
 		fps = bytes.decode_s64(offset + 24)
 		code_address = bytes.decode_s64(offset + 32)
 		memory_size = bytes.decode_s64(offset + 40)
+		pixel_perfect = bytes.decode_s64(offset + 48)
 	
 	func size():
 		return HEADER_SIZE_BYTES

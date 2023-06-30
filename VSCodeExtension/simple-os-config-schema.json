@@ -12,65 +12,70 @@
 	],
 	"properties": {
 		"fps": {
-		"type": "integer",
-		"default": 60,
-		"description": "FPS the game should try to run at"
+			"type": "integer",
+			"default": 60,
+			"description": "FPS the game should try to run at"
 		},
 		"screen_width": {
-		"type": "integer",
-		"default": 1280,
-		"description": "Resolution width for the game to run at"
+			"type": "integer",
+			"default": 1280,
+			"description": "Resolution width for the game to run at"
 		},
 		"screen_height": {
-		"type": "integer",
-		"default": 720,
-		"description": "Resolution height for the game to run at"
+			"type": "integer",
+			"default": 720,
+			"description": "Resolution height for the game to run at"
 		},
 		"memory": {
-		"type": "integer",
-		"default": 8192,
-		"description": "Amount of memory that should be preallocated for the game"
+			"type": "integer",
+			"default": 8192,
+			"description": "Amount of memory that should be preallocated for the game"
 		},
 		"code_address": {
-		"type": "integer",
-		"default": 4096,
-		"description": "Where the program code should be loaded"
+			"type": "integer",
+			"default": 4096,
+			"description": "Where the program code should be loaded"
 		},
 		"music": {
-		"type": "array",
-		"items": {
-			"type": "string"
-		},
-		"description": "List of music file paths"
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"description": "List of music file paths"
 		},
 		"sounds": {
-		"type": "array",
-		"items": {
-			"type": "string"
-		},
-		"description": "List of sound file paths"
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"description": "List of sound file paths"
 		},
 		"sprites": {
-		"type": "array",
-		"items": {
-			"type": "string"
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"description": "List of sprite file paths"
 		},
-		"description": "List of sprite file paths"
+		"pixel_perfect": {
+			"type": "boolean",
+			"default": false,
+			"description": "When true, linear filtering of sprites is disabled. This can help pixel are look sharper"
 		},
 		"main": {
-		"type": "string",
-		"default": "",
-		"description": "The top level executable to build. Defaults to this configuration file without the .json extension"
+			"type": "string",
+			"default": "",
+			"description": "The top level executable to build. Defaults to this configuration file without the .json extension"
 		},
 		"output_file": {
-		"type": "string",
-		"default": "",
-		"description": "When the executable is built, this is where it will be written. Suggest extension .sox"
+			"type": "string",
+			"default": "",
+			"description": "When the executable is built, this is where it will be written. Suggest extension .sox"
 		},
 		"working_directory": {
-		"type": "string",
-		"default": "",
-		"description": "When resolving includes, this is the path put on the front. Defaults to the directory containing this JSON file"
+			"type": "string",
+			"default": "",
+			"description": "When resolving includes, this is the path put on the front. Defaults to the directory containing this JSON file"
 		}
 	},
 	"description": "Simple OS Configuration to build the project",

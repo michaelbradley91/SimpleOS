@@ -138,7 +138,7 @@ func load_program(program_path: String):
 	
 	# Fix resolution
 	set_computer_resolution(temp_current_program.header.view_width, temp_current_program.header.view_height)
-	KEY_KP_4
+
 	# Load in the new ones
 	Audio.load_music(music)
 	Audio.load_sounds(sounds)
@@ -163,6 +163,12 @@ func load_program(program_path: String):
 	
 	# Set the right frame rate
 	Engine.max_fps = temp_current_program.header.fps
+	
+	# Set the correct filter
+	if temp_current_program.header.pixel_perfect > 0:
+		computer_screen_viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+	else:
+		computer_screen_viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_LINEAR
 	
 	# Prepare any state needed to run operations correctly
 	Operations.init()
@@ -276,7 +282,7 @@ func process_instruction(instruction: MachineCodeTranslator.Instruction) -> bool
 			GlobalInput.mouse_position()
 		MachineCodeTranslator.INSTRUCTIONS.TICKS:
 			Operations.ticks()
-		MachineCodeTranslator.COPY_INDIRECT:
+		MachineCodeTranslator.INSTRUCTIONS.COPY_INDIRECT:
 			Memory.copy_indirect(instruction.arg1, instruction.arg2)
 		_:
 			print("Unknown instruction error %s" % instruction.type)
@@ -318,17 +324,24 @@ func _process(delta):
 		Memory.write(Memory.FRAME_DELTA_MICROSECONDS, delta * 1000000)
 		var start_time = Time.get_ticks_usec()
 		var max_microseconds = 1000000 / current_program.header.fps
-		while Time.get_ticks_usec() - start_time < max_microseconds:
+		var one_instruction_processed = false
+		while Time.get_ticks_usec() - start_time < max_microseconds or not one_instruction_processed:
 			# Get the next instruction
+			one_instruction_processed = true
 			var next_instruction_address = Memory.read(Memory.INSTRUCTION_POINTER)
 			if Errors.errno != 0:
 				abort_program()
 				break
 			
 			var instruction = MachineCodeTranslator.get_instruction_from_memory(next_instruction_address)
+			OS.delay_usec(100)
+			
 			# Write to memory now so if the operation itself writes to memory, it takes precedence
 			Memory.write(Memory.INSTRUCTION_POINTER, next_instruction_address + 2)
-			
+			if instruction:
+				print("0x%x: %s 0x%x 0x%x" % [next_instruction_address, MachineCodeTranslator.instruction_type_to_string(instruction.type), instruction.arg1, instruction.arg2])
+			else:
+				print("null instruction!")
 			if Errors.errno != 0:
 				abort_program()
 				break

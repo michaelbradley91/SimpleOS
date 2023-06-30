@@ -13,6 +13,7 @@ export interface ProgramHeader {
     main: string;
     working_directory: string;
     output_file: string;
+    pixel_perfect: boolean;
 }
 
 export function parse_program_header(configuration_path: string): ProgramHeader
