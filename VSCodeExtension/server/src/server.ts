@@ -333,6 +333,10 @@ export function get_word_in_progress(file_text: string, offset: number, function
         current_word = file_text[current_position] + current_word;
         current_position--;
     }
+    if (function_name && current_word.length > 0)
+    {
+        return current_word.slice(0, current_word.length - 1);
+    }
     return current_word;
 }
 
@@ -635,7 +639,7 @@ connection.onSignatureHelp(async (_signatureHelpParams: SignatureHelpParams): Pr
     const current_word = get_word_in_progress(text, offset , true);
     for (let i = 0; i < function_names.length; i++)
     {
-        if (current_word.startsWith(function_names[i]))
+        if (current_word === function_names[i])
         {
             // TODO - fix parameter and function suggestion based on token evaluation if possible...
             function_signatures[i].activeParameter = (current_word.match(/,/g) || []).length;
@@ -656,7 +660,7 @@ connection.onSignatureHelp(async (_signatureHelpParams: SignatureHelpParams): Pr
     const all_templates = [...compilation_result.parser_context.templates.keys()];
     for (let i = 0; i < all_templates.length; i++)
     {
-        if (current_word.startsWith(all_templates[i]))
+        if (current_word === all_templates[i])
         {
             const template_definition = compilation_result.parser_context.templates.get(all_templates[i]);
             if (template_definition)

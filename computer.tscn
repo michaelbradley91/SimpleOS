@@ -74,6 +74,7 @@ render_target_update_mode = 4
 clip_contents = true
 offset_right = 40.0
 offset_bottom = 40.0
+mouse_filter = 0
 script = ExtResource("9_qkoa4")
 
 [node name="Cat" type="TextureButton" parent="."]
@@ -89,4 +90,5 @@ max_polyphony = 10
 [connection signal="pressed" from="Background/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="Background/ExitButton" to="." method="_on_exit_button_pressed"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]
+[connection signal="gui_input" from="SubViewportContainer/SubViewport/ComputerScreen" to="." method="_on_computer_screen_gui_input"]
 [connection signal="pressed" from="Cat" to="." method="_on_cat_pressed"]

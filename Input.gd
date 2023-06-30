@@ -38,6 +38,7 @@ class Event:
 			code = event.button_index
 			x = event.position.x
 			y = event.position.y
+			print("Made mouse event (%s,$s)" % [x, y])
 		else:
 			type = UNKNOWN_EVENT_TYPE
 	

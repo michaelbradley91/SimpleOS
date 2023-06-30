@@ -206,7 +206,7 @@ func _unhandled_input(event: InputEvent):
 			else:
 				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 				is_windowed = true
-	else:
+	elif event is InputEventKey:
 		# Remember the input event so it can be processed next time
 		GlobalInput.queue_event(event)
 
@@ -347,7 +347,7 @@ func _process(delta):
 				var arg1_bytes = []
 				for arg1_byte in arg1_array:
 					arg1_bytes.push_back(arg1_byte)
-				
+
 				if instruction.type == MachineCodeTranslator.INSTRUCTIONS.STORE:
 					var arg2_array = PackedByteArray([0,0,0,0,0,0,0,0])
 					arg2_array.encode_u64(0, instruction.arg2)
@@ -364,7 +364,7 @@ func _process(delta):
 					var arg2_bytes = []
 					for arg2_byte in arg2_array:
 						arg2_bytes.push_back(arg2_byte)
-					
+
 					var print_args = [next_instruction_address, MachineCodeTranslator.instruction_type_to_string(instruction.type),
 						instruction.arg1, instruction.arg2] + arg1_bytes + arg2_bytes
 					print("0x%x: %s 0x%x 0x%x (0x%02x%02x%02x%02x%02x%02x%02x%02x 0x%02x%02x%02x%02x%02x%02x%02x%02x)" % print_args)
@@ -407,3 +407,9 @@ func _on_cat_pressed():
 	computer_sound_player.stream = cat_meow
 	computer_sound_player.volume_db = linear_to_db(30000 / 65535.0)
 	computer_sound_player.play()
+
+
+func _on_computer_screen_gui_input(event):
+	if event is InputEventMouseButton:
+		# Remember the input event so it can be processed next time
+		GlobalInput.queue_event(event)

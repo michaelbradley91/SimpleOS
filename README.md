@@ -388,6 +388,9 @@ Does not equal `7`. It takes the value at address `3` and the value at address `
 
 See the code for the machine code translation of each instruction.
 
+**Warning**: arithmetic operations act on signed 64 bit integers. This means operations
+like "mod" can return a negative number.
+
 Below the "return address" refers to `-2`.
 
 ### `nop`
