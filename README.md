@@ -47,7 +47,8 @@ being turned into bytes in the program header. Here is an example:
     "screen_height": 720,
     "main": "hello_world.sos",
     "output_file": "hello_world.sox",
-    "working_directory": "./"
+    "working_directory": "./",
+    "pixel_perfect": false
 }
 ```
 
@@ -67,6 +68,9 @@ Here is an explanation of each field:
   * There is no font support (yet), so images are probably the easiest way to convey textual information.
 * `screen_width` / `screen_height` - the resolution of the game
   * You can use resolutions higher than the game's own, but the viewport will approximate what is drawn.
+* `pixel_perfect` - when true, the viewport shownig your game uses nearest neighbour filtering.
+  * Nearest neighbour is good for pixel art. Linear filternig is the default which will smooth / blur your sprites
+    to reflect different resolutions.
 
 If you stick to the file naming convention, these settings can be ignored. Otherwise:
 * `main` - the entry point of the program.
