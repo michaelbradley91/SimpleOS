@@ -13,8 +13,6 @@ func _process(delta):
 var first_pass = true
 
 func _draw():
-	print("Drawing computer screen")
-
 	Video.lock_draw_instructions()
 	var draw_instructions = Video.get_draw_instructions()
 

@@ -31,8 +31,8 @@ func initialise(size: int):
 func _absolute_address(address: int) -> int:
 	# Check the address is in bounds and "normalise" it (make it non-negative)
 	# Returns normalised address. Errno will be set if there was an error
-	if address > _memory.size():
-		print("Address %s is outside of memory ending at %s" % address, _memory.size())
+	if address >= _memory.size():
+		print("Address %s is outside of memory ending at %s" % [address, _memory.size()])
 		Errors.errno = Errors.MEMORY_OUT_OF_BOUNDS_ERROR
 		return address
 
@@ -42,7 +42,7 @@ func _absolute_address(address: int) -> int:
 		address += _memory.size()
 		
 	if address < 0:
-		print("Address %s is outside of memory ending at %s" % (address - _memory.size()), _memory.size())
+		print("Address %s is outside of memory ending at %s" % [address, _memory.size(), _memory.size()])
 		Errors.errno = Errors.MEMORY_OUT_OF_BOUNDS_ERROR
 		return address - _memory.size()
 	
@@ -55,6 +55,8 @@ func write(address: int, value: int):
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
+	if absolute_address == 0x500:
+		print("Writing to zero!")
 	_memory[absolute_address] = value
 
 func copy_indirect(indirect_target_address: int, indirect_source_address: int):
@@ -78,6 +80,8 @@ func copy(target_address: int, source_address: int):
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
+	if absolute_target_address == 0x500:
+		print("Writing to zero!")
 	_memory[absolute_target_address] = _memory[absolute_source_address]
 
 func read(address: int) -> int:
