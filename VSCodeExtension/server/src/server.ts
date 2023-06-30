@@ -654,7 +654,7 @@ connection.onSignatureHelp(async (_signatureHelpParams: SignatureHelpParams): Pr
     }
     // Check for templates
     const all_templates = [...compilation_result.parser_context.templates.keys()];
-    for (let i = 0; i < function_names.length; i++)
+    for (let i = 0; i < all_templates.length; i++)
     {
         if (current_word.startsWith(all_templates[i]))
         {

@@ -334,17 +334,17 @@ func _process(delta):
 				break
 			
 			var instruction = MachineCodeTranslator.get_instruction_from_memory(next_instruction_address)
-			OS.delay_usec(100)
 			
 			# Write to memory now so if the operation itself writes to memory, it takes precedence
 			Memory.write(Memory.INSTRUCTION_POINTER, next_instruction_address + 2)
-			if instruction:
-				print("0x%x: %s 0x%x 0x%x" % [next_instruction_address, MachineCodeTranslator.instruction_type_to_string(instruction.type), instruction.arg1, instruction.arg2])
-			else:
-				print("null instruction!")
-			if Errors.errno != 0:
-				abort_program()
-				break
+			#OS.delay_usec(100)
+			#if instruction:
+			#	print("0x%x: %s 0x%x 0x%x" % [next_instruction_address, MachineCodeTranslator.instruction_type_to_string(instruction.type), instruction.arg1, instruction.arg2])
+			#else:
+			#	print("null instruction!")
+			#if Errors.errno != 0:
+			#	abort_program()
+			#	break
 			
 			var should_continue = process_instruction(instruction)
 			if not should_continue:
