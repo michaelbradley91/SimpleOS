@@ -337,40 +337,40 @@ func _process(delta):
 			
 			# Write to memory now so if the operation itself writes to memory, it takes precedence
 			Memory.write(Memory.INSTRUCTION_POINTER, next_instruction_address + 2)
-			OS.delay_usec(100)
-			if instruction:
-				var old_errno = Errors.errno
-				var arg1_val = Memory.read(instruction.arg1)
-				Errors.errno = old_errno
-				var arg1_array = PackedByteArray([0,0,0,0,0,0,0,0])
-				arg1_array.encode_u64(0, arg1_val)
-				var arg1_bytes = []
-				for arg1_byte in arg1_array:
-					arg1_bytes.push_back(arg1_byte)
-
-				if instruction.type == MachineCodeTranslator.INSTRUCTIONS.STORE:
-					var arg2_array = PackedByteArray([0,0,0,0,0,0,0,0])
-					arg2_array.encode_u64(0, instruction.arg2)
-					var arg2_bytes = []
-					for arg2_byte in arg2_array:
-						arg2_bytes.push_back(arg2_byte)
-					var print_args = [next_instruction_address, MachineCodeTranslator.instruction_type_to_string(instruction.type),
-						instruction.arg1] + arg2_bytes + arg1_bytes
-					print("0x%x: %s 0x%x 0x%02x%02x%02x%02x%02x%02x%02x%02x (0x%02x%02x%02x%02x%02x%02x%02x%02x)" % print_args)
-				else:
-					var arg2_val = Memory.read(instruction.arg2)
-					var arg2_array = PackedByteArray([0,0,0,0,0,0,0,0])
-					arg2_array.encode_u64(0, arg2_val)
-					var arg2_bytes = []
-					for arg2_byte in arg2_array:
-						arg2_bytes.push_back(arg2_byte)
-
-					var print_args = [next_instruction_address, MachineCodeTranslator.instruction_type_to_string(instruction.type),
-						instruction.arg1, instruction.arg2] + arg1_bytes + arg2_bytes
-					print("0x%x: %s 0x%x 0x%x (0x%02x%02x%02x%02x%02x%02x%02x%02x 0x%02x%02x%02x%02x%02x%02x%02x%02x)" % print_args)
-			else:
-				print("null instruction!")
-			
+#			OS.delay_usec(100)
+#			if instruction:
+#				var old_errno = Errors.errno
+#				var arg1_val = Memory.read(instruction.arg1)
+#				Errors.errno = old_errno
+#				var arg1_array = PackedByteArray([0,0,0,0,0,0,0,0])
+#				arg1_array.encode_u64(0, arg1_val)
+#				var arg1_bytes = []
+#				for arg1_byte in arg1_array:
+#					arg1_bytes.push_back(arg1_byte)
+#
+#				if instruction.type == MachineCodeTranslator.INSTRUCTIONS.STORE:
+#					var arg2_array = PackedByteArray([0,0,0,0,0,0,0,0])
+#					arg2_array.encode_u64(0, instruction.arg2)
+#					var arg2_bytes = []
+#					for arg2_byte in arg2_array:
+#						arg2_bytes.push_back(arg2_byte)
+#					var print_args = [next_instruction_address, MachineCodeTranslator.instruction_type_to_string(instruction.type),
+#						instruction.arg1] + arg2_bytes + arg1_bytes
+#					print("0x%x: %s 0x%x 0x%02x%02x%02x%02x%02x%02x%02x%02x (0x%02x%02x%02x%02x%02x%02x%02x%02x)" % print_args)
+#				else:
+#					var arg2_val = Memory.read(instruction.arg2)
+#					var arg2_array = PackedByteArray([0,0,0,0,0,0,0,0])
+#					arg2_array.encode_u64(0, arg2_val)
+#					var arg2_bytes = []
+#					for arg2_byte in arg2_array:
+#						arg2_bytes.push_back(arg2_byte)
+#
+#					var print_args = [next_instruction_address, MachineCodeTranslator.instruction_type_to_string(instruction.type),
+#						instruction.arg1, instruction.arg2] + arg1_bytes + arg2_bytes
+#					print("0x%x: %s 0x%x 0x%x (0x%02x%02x%02x%02x%02x%02x%02x%02x 0x%02x%02x%02x%02x%02x%02x%02x%02x)" % print_args)
+#			else:
+#				print("null instruction!")
+#
 			if Errors.errno != 0:
 				abort_program()
 				break

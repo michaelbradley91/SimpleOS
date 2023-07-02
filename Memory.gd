@@ -59,6 +59,9 @@ func write(address: int, value: int):
 		print("Writing to zero!")
 	if absolute_address == 0x519:
 		print("Writing to grid size!")
+	if absolute_address == 0x4400:
+		print("Writing to frame count!")
+		
 	_memory[absolute_address] = value
 
 func copy_indirect(indirect_target_address: int, indirect_source_address: int):
@@ -86,6 +89,8 @@ func copy(target_address: int, source_address: int):
 		print("Writing to zero!")
 	if absolute_target_address == 0x519:
 		print("Writing to grid size!")
+	if absolute_target_address == 0x4400:
+		print("Writing to frame count!")
 	_memory[absolute_target_address] = _memory[absolute_source_address]
 
 func read(address: int) -> int:

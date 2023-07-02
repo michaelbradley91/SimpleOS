@@ -62,7 +62,7 @@ Here is an explanation of each field:
   * You should ensure this is big enough for your code and data
   * Assets are not stored in this memory so need to worry about those.
 * `music` / `sounds` - arrays of music and sound files.
-  * The supported formats are only: `.wav`, `.mp3`, `.ogg`.
+  * The supported formats are only: `.wav`, `.mp3`, `.ogg`, and the `.wav` support is sketchy. I'd suggest converting to `mp3`!
 * `sprites` - arrays of images.
   * We support all the image formats supported by Godot (I think).
   * There is no font support (yet), so images are probably the easiest way to convey textual information.
