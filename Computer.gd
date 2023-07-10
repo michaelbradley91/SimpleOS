@@ -193,6 +193,9 @@ func _ready():
 	else:
 		computer_startup.loop = false
 	
+	# Check if we should run in fullscreen
+	OS.get_cmdline_args() 
+	
 	computer_sound_player.stream = computer_startup
 	computer_sound_player.volume_db = linear_to_db(30000 / 65535.0)
 	computer_sound_player.play()
@@ -370,7 +373,7 @@ func _process(delta):
 #					print("0x%x: %s 0x%x 0x%x (0x%02x%02x%02x%02x%02x%02x%02x%02x 0x%02x%02x%02x%02x%02x%02x%02x%02x)" % print_args)
 #			else:
 #				print("null instruction!")
-#
+
 			if Errors.errno != 0:
 				abort_program()
 				break

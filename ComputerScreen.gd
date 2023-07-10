@@ -25,5 +25,4 @@ func _draw():
 	Video.unlock_draw_instructions()
 	
 	for draw_instruction in draw_instructions:
-		print("Calling draw instruction")
 		draw_instruction.call(self)

@@ -17,7 +17,6 @@ func unlock_draw_instructions():
 	draw_mutex.unlock()
 
 func get_draw_instructions():
-	print("getting draw instructions: ", draw_instructions.size())
 	return draw_instructions
 
 func clear_draw_instructions():
@@ -124,7 +123,7 @@ func draw_colour(rectangle_address: int, colour_address: int):
 	var colour = Colour.new(Memory.read(colour_address))
 	if Errors.errno != Errors.SUCCESS:
 		return
-	print("Adding to draw instructions")
+
 	draw_mutex.lock()
 	draw_instructions.push_back(func(node):
 		node.draw_rect(rectangle.as_rect(), colour.as_color(), true)
@@ -134,7 +133,6 @@ func draw_colour(rectangle_address: int, colour_address: int):
 func draw_sprite(rectangle_address: int, sprite_address: int):
 	var rectangle = Rectangle.new(Memory.read(rectangle_address))
 	var sprite_index = Memory.read(sprite_address)
-	print("Drawing sprite %s " % sprite_index)
 	if Errors.errno != Errors.SUCCESS:
 		return
 	
@@ -143,7 +141,6 @@ func draw_sprite(rectangle_address: int, sprite_address: int):
 		Errors.errno = Errors.NO_SUCH_SPRITE_ERROR
 		return
 	
-	print("Adding to draw instructions")
 	draw_mutex.lock()
 	draw_instructions.push_back(func(node):
 		node.draw_texture_rect(images[sprite_index], rectangle.as_rect(), false)
